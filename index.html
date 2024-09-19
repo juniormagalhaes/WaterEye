@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Eye</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        h1 {
+            color: #333;
+            margin: 20px 0;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            width: 250px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .card-content {
+            padding: 15px;
+        }
+        .card-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .card-description {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .card-link {
+            text-decoration: none;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .card-link:hover {
+            background-color: #218838;
+        }
+        footer {
+            margin: 40px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Water Eye Studio</h1>
+
+    <div class="gallery">
+        <!-- Card 1 -->
+        <div class="card">
+            <img src="image1.jpg" alt="Asset 1">
+            <div class="card-content">
+                <h2 class="card-title">Asset 1</h2>
+                <p class="card-description">The Simple UI Window Manager is a powerful and highly configurable script that simplifies the manipulation of multiple user interfaces (UI) within any game, especially in multiplayer environments.</p>
+                <a class="card-link" href="https://assetstore.unity.com/packages/tools/gui/simple-ui-window-manager-294762" target="_blank">Ver na Asset Store</a>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+            <img src="image2.jpg" alt="Asset 2">
+            <div class="card-content">
+                <h2 class="card-title">Lost Pixel - Pack 1</h2>
+                <p class="card-description">Nature Pack 1 - Lost Pixel</p>
+                <a class="card-link" href="https://assetstore.unity.com/packages/3d/vegetation/trees/lost-pixel-pack-1-274001" target="_blank">Ver na Asset Store</a>
+            </div>
+        </div>
+
+        <!-- Adicione mais cards conforme necessário -->
+
+    </div>
+
+    <footer>
+        © 2024 Water Eye - Todos os direitos reservados
+    </footer>
+
+</body>
+</html>
