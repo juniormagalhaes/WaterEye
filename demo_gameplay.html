@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌊 Demo — Jogo da Reciclagem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0a0e1a;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ===== TELA DE MENU ===== */
+        #menu-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b3a5c 50%, #2d6a8f 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+
+        #menu-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .menu-title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0, 150, 255, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        .menu-btn {
+            display: block;
+            width: 260px;
+            padding: 14px 0;
+            margin: 8px 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 150, 255, 0.3);
+        }
+
+        .menu-btn.easy {
+            border-color: #4caf50;
+        }
+
+        .menu-btn.easy:hover {
+            background: rgba(76, 175, 80, 0.25);
+            box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .menu-btn.medium {
+            border-color: #ff9800;
+        }
+
+        .menu-btn.medium:hover {
+            background: rgba(255, 152, 0, 0.25);
+            box-shadow: 0 6px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        .menu-btn.hard {
+            border-color: #f44336;
+        }
+
+        .menu-btn.hard:hover {
+            background: rgba(244, 67, 54, 0.25);
+            box-shadow: 0 6px 25px rgba(244, 67, 54, 0.4);
+        }
+
+        .diff-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* ===== CANVAS DO JOGO ===== */
+        #game-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ===== HUD ===== */
+        #hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #hud.hidden {
+            display: none;
+        }
+
+        .hud-lives {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+        }
+
+        .hud-score {
+            font-size: clamp(1rem, 3.5vw, 1.4rem);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .hud-combo {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-weight: 600;
+            color: #ffeb3b;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .hud-combo.active {
+            opacity: 1;
+        }
+
+        #pause-btn {
+            pointer-events: all;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        /* ===== GAME OVER ===== */
+        #gameover-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        #gameover-screen.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .go-title {
+            font-size: clamp(2rem, 7vw, 3rem);
+            font-weight: 800;
+            color: #f44336;
+            text-shadow: 0 4px 20px rgba(244, 67, 54, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        .go-score {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .go-rank {
+            font-size: clamp(1rem, 3.5vw, 1.3rem);
+            color: #ffeb3b;
+            margin-bottom: 0.3rem;
+        }
+
+        .go-best {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .go-new-record {
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            color: #ffd700;
+            font-weight: 700;
+            animation: pulse 1s ease infinite;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        /* ===== PAUSE ===== */
+        #pause-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        #pause-screen.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .pause-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+
+        /* ===== RANKING SCREEN ===== */
+        #ranking-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b3a5c 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        #ranking-screen.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .rank-title {
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        .rank-list {
+            width: min(90%, 360px);
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .rank-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .rank-entry:nth-child(odd) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .rank-entry:nth-child(even) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .rank-entry:first-child {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .rank-pos {
+            font-weight: 700;
+            width: 40px;
+        }
+
+        .rank-score {
+            font-weight: 600;
+            color: #81d4fa;
+        }
+
+        .rank-empty {
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* ===== FLOATING FEEDBACK ===== */
+        .float-text {
+            position: fixed;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            pointer-events: none;
+            z-index: 50;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.3);
+            }
+        }
+
+        /* ===== SCREEN SHAKE ===== */
+        .shake {
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-4px, 2px);
+            }
+
+            40% {
+                transform: translate(4px, -2px);
+            }
+
+            60% {
+                transform: translate(-3px, 3px);
+            }
+
+            80% {
+                transform: translate(3px, -1px);
+            }
+        }
+
+        /* ===== DEMO BADGE ===== */
+        .demo-badge {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.4);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            z-index: 5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- MENU -->
+    <div id="menu-screen">
+        <div class="menu-title">🌊 Rio Limpo</div>
+        <div class="menu-subtitle">Jogo da Reciclagem — Demo</div>
+        <button class="menu-btn easy" onclick="startGame('easy')">🟢 FÁCIL<span class="diff-label">Ideal para
+                aprender</span></button>
+        <button class="menu-btn medium" onclick="startGame('medium')">🟡 MÉDIO<span class="diff-label">Teste seus
+                reflexos</span></button>
+        <button class="menu-btn hard" onclick="startGame('hard')">🔴 DIFÍCIL<span class="diff-label">Desafio
+                máximo!</span></button>
+        <button class="menu-btn" onclick="showRanking()" style="margin-top: 16px;">🏆 RANKING</button>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="hud-lives" id="lives-display"></div>
+        <div style="text-align:center;">
+            <div class="hud-score" id="score-display">SCORE: 00000</div>
+            <div class="hud-combo" id="combo-display">🔥 x3 COMBO!</div>
+        </div>
+        <button id="pause-btn" onclick="togglePause()">⏸️</button>
+    </div>
+
+    <!-- GAME CANVAS -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- GAME OVER -->
+    <div id="gameover-screen">
+        <div class="go-title">GAME OVER</div>
+        <div class="go-new-record" id="go-record" style="display:none;">🎉 NOVO RECORDE!</div>
+        <div class="go-score" id="go-score">PONTUAÇÃO: 0</div>
+        <div class="go-rank" id="go-rank"></div>
+        <div class="go-best" id="go-best"></div>
+        <button class="menu-btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+        <button class="menu-btn" onclick="backToMenu()" style="margin-top:4px;">🏠 MENU</button>
+    </div>
+
+    <!-- PAUSE -->
+    <div id="pause-screen">
+        <div class="pause-title">⏸️ PAUSADO</div>
+        <button class="menu-btn" onclick="togglePause()">▶️ CONTINUAR</button>
+        <button class="menu-btn" onclick="restartGame()">🔄 REINICIAR</button>
+        <button class="menu-btn" onclick="backToMenu()">🏠 MENU</button>
+    </div>
+
+    <!-- RANKING -->
+    <div id="ranking-screen">
+        <div class="rank-title">🏆 TOP 10</div>
+        <div class="rank-list" id="rank-list"></div>
+        <button class="menu-btn" onclick="hideRanking()" style="margin-top:1.5rem;">← VOLTAR</button>
+    </div>
+
+    <div class="demo-badge">DEMO — Protótipo de Gameplay</div>
+
+    <script>
+        // ============================================================
+        // JOGO DA RECICLAGEM — Demo Web
+        // ============================================================
+
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ===== CONFIGURAÇÕES =====
+        const CATEGORIES = [
+            { name: 'PAPEL', color: '#2196F3', emoji: '📄', items: ['📰', '📦', '📕', '📓'] },
+            { name: 'PLÁSTICO', color: '#F44336', emoji: '♻️', items: ['🧴', '🛍️', '🥤',] },
+            { name: 'METAL', color: '#FFC107', emoji: '⚙️', items: ['🥫', '🔩', '🔧', '🪙'] },
+            { name: 'VIDRO', color: '#4CAF50', emoji: '🔷', items: ['🍾', '🥃', '🫙', '💡'] },
+            { name: 'ORGÂNICO', color: '#795548', emoji: '🍃', items: ['🍌', '🍎', '🥬', '🍂'] },
+            { name: 'ELETRÔNICO', color: '#FF9800', emoji: '⚡', items: ['📱', '🔋', '🔌', '💾'] },
+        ];
+
+        const DIFFICULTY = {
+            easy: { speed: 0.8, spawnInterval: 2800, maxTrash: 2, showOutline: true },
+            medium: { speed: 1.4, spawnInterval: 1800, maxTrash: 4, showOutline: false },
+            hard: { speed: 2.2, spawnInterval: 1000, maxTrash: 6, showOutline: false },
+        };
+
+        // ===== ESTADO DO JOGO =====
+        let gameState = 'menu'; // menu, playing, paused, gameover
+        let currentDifficulty = 'easy';
+        let score = 0;
+        let combo = 0;
+        let lives = 5;
+        let maxLives = 5;
+        let trashItems = [];
+        let bins = [];
+        let dragging = null;
+        let dragOffset = { x: 0, y: 0 };
+        let spawnTimer = 0;
+        let elapsedTime = 0;
+        let lastTime = 0;
+        let animFrame = 0;
+        let riverOffset = 0;
+        let ranking = JSON.parse(localStorage.getItem('ranking') || '[]');
+        let screenShake = 0;
+
+        // ===== RESIZE =====
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            setupBins();
+        }
+        window.addEventListener('resize', resize);
+
+        // ===== LIXEIRAS =====
+        function setupBins() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const binW = Math.min(w * 0.14, 80);
+            const binH = binW * 1.3;
+            const margin = 8;
+            const startY = h * 0.22;
+            const spacingY = (h * 0.72) / 3;
+
+            bins = [];
+            // 3 na esquerda, 3 na direita
+            for (let i = 0; i < 6; i++) {
+                const side = i < 3 ? 'left' : 'right';
+                const row = i < 3 ? i : i - 3;
+                const x = side === 'left' ? margin : w - binW - margin;
+                const y = startY + row * spacingY;
+
+                bins.push({
+                    x, y, w: binW, h: binH,
+                    category: i,
+                    hover: 0, // 0-1 para animação de escala
+                    flash: 0,
+                    flashColor: null,
+                });
+            }
+        }
+
+        // ===== SPAWN =====
+        function spawnTrash() {
+            if (trashItems.length >= getCurrentMaxTrash()) return;
+
+            const catIndex = Math.floor(Math.random() * CATEGORIES.length);
+            const cat = CATEGORIES[catIndex];
+            const itemEmoji = cat.items[Math.floor(Math.random() * cat.items.length)];
+
+            const riverLeft = bins[0].x + bins[0].w + 15;
+            const riverRight = bins[3].x - 15;
+            const size = Math.min(canvas.width * 0.1, 50);
+
+            trashItems.push({
+                x: riverLeft + Math.random() * (riverRight - riverLeft - size),
+                y: -size - Math.random() * 40,
+                size,
+                category: catIndex,
+                emoji: itemEmoji,
+                color: cat.color,
+            });
+        }
+
+        function getCurrentSpeed() {
+            const base = DIFFICULTY[currentDifficulty].speed;
+            if (elapsedTime > 180) return base * 1.3;
+            if (elapsedTime > 90) return base * 1.2;
+            if (elapsedTime > 30) return base * 1.1;
+            return base;
+        }
+
+        function getCurrentMaxTrash() {
+            let max = DIFFICULTY[currentDifficulty].maxTrash;
+            if (elapsedTime > 90) max += 1;
+            return max;
+        }
+
+        function getCurrentSpawnInterval() {
+            const base = DIFFICULTY[currentDifficulty].spawnInterval;
+            const multi = getCurrentSpeed() / DIFFICULTY[currentDifficulty].speed;
+            return base / multi;
+        }
+
+        // ===== GAME LOOP =====
+        function gameLoop(timestamp) {
+            animFrame = requestAnimationFrame(gameLoop);
+
+            if (!lastTime) lastTime = timestamp;
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+            lastTime = timestamp;
+
+            if (gameState !== 'playing') return;
+
+            elapsedTime += dt;
+            spawnTimer += dt * 1000;
+
+            // Spawn
+            if (spawnTimer >= getCurrentSpawnInterval()) {
+                spawnTrash();
+                spawnTimer = 0;
+            }
+
+            // Atualiza lixo
+            const speed = getCurrentSpeed();
+            for (let i = trashItems.length - 1; i >= 0; i--) {
+                const t = trashItems[i];
+                if (t === dragging) continue;
+                t.y += speed * dt * 100;
+
+                // Saiu da tela
+                if (t.y > canvas.height + t.size) {
+                    trashItems.splice(i, 1);
+                    loseLife();
+                    resetCombo();
+                }
+            }
+
+            // Atualiza hover das lixeiras
+            bins.forEach(b => {
+                b.hover = Math.max(0, b.hover - dt * 5);
+                b.flash = Math.max(0, b.flash - dt * 4);
+            });
+
+            // Screen shake
+            screenShake = Math.max(0, screenShake - dt * 10);
+
+            // Rio
+            riverOffset += dt * 40;
+
+            render();
+        }
+
+        // ===== RENDER =====
+        function render() {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.save();
+            // Screen shake
+            if (screenShake > 0) {
+                const sx = (Math.random() - 0.5) * screenShake * 6;
+                const sy = (Math.random() - 0.5) * screenShake * 6;
+                ctx.translate(sx, sy);
+            }
+
+            // Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, '#0d1b2a');
+            bgGrad.addColorStop(1, '#1b3a5c');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Margens (laterais)
+            const riverLeft = bins.length > 0 ? bins[0].x + bins[0].w + 10 : w * 0.2;
+            const riverRight = bins.length > 3 ? bins[3].x - 10 : w * 0.8;
+
+            // Margem esquerda
+            ctx.fillStyle = '#2d5016';
+            ctx.fillRect(0, 0, riverLeft, h);
+
+            // Margem direita
+            ctx.fillStyle = '#2d5016';
+            ctx.fillRect(riverRight, 0, w - riverRight, h);
+
+            // Rio (água)
+            const riverGrad = ctx.createLinearGradient(riverLeft, 0, riverRight, 0);
+            riverGrad.addColorStop(0, '#1565C0');
+            riverGrad.addColorStop(0.3, '#1E88E5');
+            riverGrad.addColorStop(0.7, '#1E88E5');
+            riverGrad.addColorStop(1, '#1565C0');
+            ctx.fillStyle = riverGrad;
+            ctx.fillRect(riverLeft, 0, riverRight - riverLeft, h);
+
+            // Linhas da correnteza
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const lx = riverLeft + (riverRight - riverLeft) * (i / 7);
+                const offset = (riverOffset + i * 50) % 80;
+                for (let y = -80 + offset; y < h; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(lx, y);
+                    ctx.lineTo(lx, y + 30);
+                    ctx.stroke();
+                }
+            }
+
+            // Lixeiras
+            bins.forEach((b, i) => {
+                const cat = CATEGORIES[b.category];
+                const scale = 1 + b.hover * 0.12;
+                const cx = b.x + b.w / 2;
+                const cy = b.y + b.h / 2;
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(scale, scale);
+                ctx.translate(-cx, -cy);
+
+                // Corpo da lixeira
+                const radius = 10;
+                ctx.fillStyle = b.flash > 0 ? b.flashColor : cat.color;
+                ctx.globalAlpha = b.flash > 0 ? 0.5 + b.flash * 0.5 : 1;
+                roundRect(ctx, b.x, b.y, b.w, b.h, radius);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                // Borda
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                roundRect(ctx, b.x, b.y, b.w, b.h, radius);
+                ctx.stroke();
+
+                // Texto da categoria
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(b.w * 0.18, 10)}px Outfit`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(cat.name, cx, cy + b.h * 0.25);
+
+                // Emoji
+                ctx.font = `${b.w * 0.4}px serif`;
+                ctx.fillText(cat.emoji, cx, cy - b.h * 0.12);
+
+                ctx.restore();
+            });
+
+            // Itens de lixo
+            trashItems.forEach(t => {
+                const cat = CATEGORIES[t.category];
+                const cx = t.x + t.size / 2;
+                const cy = t.y + t.size / 2;
+
+                // Outline no modo fácil
+                if (DIFFICULTY[currentDifficulty].showOutline) {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, t.size / 2 + 4, 0, Math.PI * 2);
+                    ctx.strokeStyle = cat.color;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, t.size / 2 + 7, 0, Math.PI * 2);
+                    ctx.strokeStyle = cat.color + '44';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Emoji do lixo (sem fundo)
+                ctx.font = `${t.size * 0.85}px serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(t.emoji, cx, cy);
+            });
+
+            ctx.restore();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // ===== INPUT (Mouse + Touch) =====
+        function getPos(e) {
+            if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function onDown(e) {
+            if (gameState !== 'playing') return;
+            e.preventDefault();
+            const pos = getPos(e);
+
+            for (let i = trashItems.length - 1; i >= 0; i--) {
+                const t = trashItems[i];
+                const cx = t.x + t.size / 2;
+                const cy = t.y + t.size / 2;
+                const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
+                if (dist < t.size / 2 + 15) {
+                    dragging = t;
+                    dragOffset.x = t.x - pos.x;
+                    dragOffset.y = t.y - pos.y;
+                    return;
+                }
+            }
+        }
+
+        function onMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            dragging.x = pos.x + dragOffset.x;
+            dragging.y = pos.y + dragOffset.y;
+
+            // Hover nas lixeiras
+            bins.forEach(b => {
+                const cx = dragging.x + dragging.size / 2;
+                const cy = dragging.y + dragging.size / 2;
+                if (cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h) {
+                    b.hover = 1;
+                }
+            });
+        }
+
+        function onUp(e) {
+            if (!dragging) return;
+            e.preventDefault();
+
+            const cx = dragging.x + dragging.size / 2;
+            const cy = dragging.y + dragging.size / 2;
+
+            let dropped = false;
+            bins.forEach(b => {
+                if (cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h) {
+                    if (dragging.category === b.category) {
+                        onCorrect(b, dragging);
+                    } else {
+                        onWrong(b, dragging);
+                    }
+                    dropped = true;
+                }
+            });
+
+            if (dropped) {
+                const idx = trashItems.indexOf(dragging);
+                if (idx >= 0) trashItems.splice(idx, 1);
+            }
+
+            dragging = null;
+        }
+
+        canvas.addEventListener('mousedown', onDown);
+        canvas.addEventListener('mousemove', onMove);
+        canvas.addEventListener('mouseup', onUp);
+        canvas.addEventListener('touchstart', onDown, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        canvas.addEventListener('touchend', onUp, { passive: false });
+
+        // ===== ACERTO / ERRO =====
+        function onCorrect(bin, trash) {
+            combo++;
+            let pts = 10;
+            if (combo >= 10) pts = 30;
+            else if (combo >= 5) pts = 20;
+            else if (combo >= 3) pts = 15;
+            score += pts;
+
+            bin.flash = 1;
+            bin.flashColor = '#4CAF50';
+
+            showFloatText('+' + pts, bin.x + bin.w / 2, bin.y, '#4CAF50');
+            updateHUD();
+        }
+
+        function onWrong(bin, trash) {
+            loseLife();
+            resetCombo();
+
+            bin.flash = 1;
+            bin.flashColor = '#F44336';
+            screenShake = 1;
+
+            showFloatText('ERROU!', bin.x + bin.w / 2, bin.y, '#F44336');
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 300);
+        }
+
+        function loseLife() {
+            lives--;
+            updateHUD();
+            if (lives <= 0) gameOver();
+        }
+
+        function resetCombo() {
+            combo = 0;
+            updateHUD();
+        }
+
+        // ===== FLOATING TEXT =====
+        function showFloatText(text, x, y, color) {
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.textContent = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            el.style.fontSize = '1.4rem';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        // ===== HUD =====
+        function updateHUD() {
+            let heartsHTML = '';
+            for (let i = 0; i < maxLives; i++) {
+                heartsHTML += i < lives
+                    ? '<span style="filter:none;">❤️</span>'
+                    : '<span style="filter:grayscale(1);opacity:0.3;">❤️</span>';
+            }
+            document.getElementById('lives-display').innerHTML = heartsHTML;
+            document.getElementById('score-display').textContent = 'SCORE: ' + String(score).padStart(5, '0');
+
+            const comboEl = document.getElementById('combo-display');
+            if (combo >= 3) {
+                comboEl.classList.add('active');
+                comboEl.textContent = '🔥 x' + combo + ' COMBO!';
+            } else {
+                comboEl.classList.remove('active');
+            }
+        }
+
+        // ===== RANKING =====
+        function saveToRanking(sc) {
+            ranking.push({ score: sc, date: new Date().toLocaleDateString('pt-BR') });
+            ranking.sort((a, b) => b.score - a.score);
+            ranking = ranking.slice(0, 10);
+            localStorage.setItem('ranking', JSON.stringify(ranking));
+        }
+
+        function getRankPosition(sc) {
+            for (let i = 0; i < ranking.length; i++) {
+                if (sc > ranking[i].score) return i;
+            }
+            return ranking.length;
+        }
+
+        function showRanking() {
+            const list = document.getElementById('rank-list');
+            const medals = ['🥇', '🥈', '🥉'];
+            if (ranking.length === 0) {
+                list.innerHTML = '<div class="rank-empty">Nenhum recorde ainda!<br>Jogue para entrar no ranking.</div>';
+            } else {
+                list.innerHTML = ranking.map((r, i) =>
+                    `<div class="rank-entry">
+                <span class="rank-pos">${medals[i] || (i + 1) + 'º'}</span>
+                <span class="rank-score">${r.score.toLocaleString()} pts</span>
+            </div>`
+                ).join('');
+            }
+            document.getElementById('ranking-screen').classList.add('visible');
+        }
+
+        function hideRanking() {
+            document.getElementById('ranking-screen').classList.remove('visible');
+        }
+
+        // ===== CONTROLE DO JOGO =====
+        function startGame(diff) {
+            currentDifficulty = diff;
+            score = 0;
+            combo = 0;
+            lives = 5;
+            maxLives = 5;
+            trashItems = [];
+            dragging = null;
+            spawnTimer = 0;
+            elapsedTime = 0;
+            lastTime = 0;
+            screenShake = 0;
+
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('gameover-screen').classList.remove('visible');
+            document.getElementById('pause-screen').classList.remove('visible');
+
+            gameState = 'playing';
+            updateHUD();
+
+            if (!animFrame) gameLoop(0);
+        }
+
+        function gameOver() {
+            gameState = 'gameover';
+
+            const bestBefore = ranking.length > 0 ? ranking[0].score : 0;
+            const pos = getRankPosition(score);
+            saveToRanking(score);
+
+            document.getElementById('go-score').textContent = 'PONTUAÇÃO: ' + score;
+
+            if (score > bestBefore && bestBefore > 0) {
+                document.getElementById('go-record').style.display = 'block';
+            } else {
+                document.getElementById('go-record').style.display = 'none';
+            }
+
+            if (pos < 10) {
+                document.getElementById('go-rank').textContent = '🏆 Você ficou em #' + (pos + 1) + ' no ranking!';
+            } else {
+                document.getElementById('go-rank').textContent = '';
+            }
+
+            const best = ranking.length > 0 ? ranking[0].score : score;
+            document.getElementById('go-best').textContent = 'MELHOR: ' + best;
+
+            document.getElementById('gameover-screen').classList.add('visible');
+        }
+
+        function restartGame() {
+            startGame(currentDifficulty);
+        }
+
+        function backToMenu() {
+            gameState = 'menu';
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.remove('visible');
+            document.getElementById('pause-screen').classList.remove('visible');
+        }
+
+        function togglePause() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                document.getElementById('pause-screen').classList.add('visible');
+            } else if (gameState === 'paused') {
+                gameState = 'playing';
+                lastTime = 0;
+                document.getElementById('pause-screen').classList.remove('visible');
+            }
+        }
+
+        // Atalho teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (gameState === 'playing') togglePause();
+                else if (gameState === 'paused') togglePause();
+            }
+        });
+
+        // ===== INICIALIZAÇÃO =====
+        resize();
+    </script>
+</body>
+
+</html>
