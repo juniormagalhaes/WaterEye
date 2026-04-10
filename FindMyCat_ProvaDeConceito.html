@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find My CaT | Prova de Conceito</title>
+<style>
+    :root {
+        --bg-color: #f7ede2;
+        --primary: #f6bd60;
+        --secondary: #84a59d;
+        --accent: #f28482;
+        --text: #3d405b;
+        --inventory-bg: rgba(61, 64, 91, 0.9);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    
+    body {
+        background-color: #333;
+        display: flex; justify-content: center; align-items: center;
+        height: 100vh; overflow: hidden;
+    }
+    
+    #game-container {
+        width: 100%; max-width: 800px; height: 100%; max-height: 600px;
+        background-color: var(--bg-color); position: relative; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 12px;
+    }
+
+    #scene-hub, #scene-game { position: absolute; width:100%; height:100%; top:0; left:0; display:none; }
+
+    /* HUB */
+    #hub-bg { background: linear-gradient(to bottom, #e3d5ca, #d6ccc2); width: 100%; height: 100%; position: absolute; }
+    .hub-desk { position:absolute; bottom:0; width:100%; height:180px; background-color: #a06a50; border-top: 15px solid #7f4f24; z-index:5; box-shadow: 0 -10px 20px rgba(0,0,0,0.2); }
+    #hub-poster-visual { position:absolute; bottom:80px; left:50%; transform:translateX(-50%) rotate(-3deg); font-size:70px; cursor:pointer; z-index:10; filter: drop-shadow(2px 5px 5px rgba(0,0,0,0.3)); transition: transform 0.2s; }
+    #hub-poster-visual:hover { transform:translateX(-50%) rotate(0deg) scale(1.1); filter: drop-shadow(0 0 10px #f6bd60); }
+    #hub-album { position:absolute; bottom:60px; right:150px; font-size:70px; cursor:pointer; z-index:10; filter: drop-shadow(2px 5px 5px rgba(0,0,0,0.3)); transition: transform 0.2s; }
+    #hub-album:hover { transform: scale(1.1); filter: drop-shadow(0 0 10px #f6bd60); }
+    #hub-pet { position:absolute; bottom:140px; left:150px; font-size:100px; cursor:pointer; z-index:10; transition: transform 0.2s; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
+    #hub-pet:hover { transform: scale(1.05); }
+    #hub-wall { position: absolute; top:50px; width:100%; text-align:center; font-size:40px; opacity:0.5; }
+
+    /* GAME SCENE */
+    .scene-bg { position: absolute; width: 100%; height: 100%; transition: background 1s; }
+    .sun { position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; transition: background 1s; }
+
+    .interactive { position: absolute; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
+    .interactive:hover { transform: scale(1.05); filter: brightness(1.1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); }
+
+    #vendor { bottom: 120px; left: 50px; font-size: 80px; z-index: 10; }
+    #item-scenery { bottom: 120px; left: 200px; font-size: 60px; z-index: 10; transform-origin: bottom center; }
+    #item-scenery.shake { animation: shake 0.5s; }
+
+    .drop-zone {
+        position: absolute; z-index: 15; border: 3px dashed var(--accent); border-radius: 12px;
+        background-color: rgba(242, 132, 130, 0.15); display: none; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .drop-hint { font-size: 12px; color: var(--accent); font-weight: bold; text-align: center; pointer-events: none; }
+    .cat { position: absolute; font-size: 60px; transition: transform 1.5s ease-in-out; display: none; }
+
+    /* Zones */
+    #zone-main { bottom: 150px; right: 250px; width: 120px; height: 100px; }
+    #cat-main { bottom: 150px; right: 50px; }
+    #zone-roof-ladder { top: 50px; right: 400px; width: 120px; height: 100px; }
+    #zone-roof-food   { bottom: 150px; right: 400px; width: 120px; height: 100px; }
+    #cat-roof { top: 20px; right: 280px; }
+    #zone-ground { bottom: 150px; right: 150px; width: 120px; height: 100px; }
+    #cat-ground { bottom: 150px; right: 20px; }
+
+    /* UI Elements */
+    #ui-layer { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+    .btn { pointer-events: auto; position: absolute; background-color: var(--primary); color: var(--text); border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #d9a04a; transition: transform 0.1s, box-shadow 0.1s; }
+    .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #d9a04a; }
+    #btn-poster { top: 20px; left: 20px; }
+    #btn-map { top: 20px; left: 120px; }
+    #btn-home { top: 20px; left: 215px; background-color: #e07a5f; color: white; box-shadow: 0 4px 0 #b3634c; }
+    #btn-home:active { box-shadow: 0 0 0 #b3634c; }
+    #btn-info { bottom: 22px; right: 20px; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; padding: 0; z-index: 50; }
+
+    /* Inventory */
+    #inventory {
+        position: absolute; bottom: 0; width: 100%; height: 90px; background-color: var(--inventory-bg); pointer-events: auto;
+        display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; z-index: 20;
+    }
+    .slot { width: 65px; height: 65px; background-color: rgba(255, 255, 255, 0.1); border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+    .item { cursor: grab; user-select: none; transition: transform 0.2s; }
+    .item:active { cursor: grabbing; }
+    .item:hover { transform: scale(1.1); }
+    
+    /* Popups */
+    .popup-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; pointer-events: auto; z-index: 50; opacity: 0; transition: opacity 0.3s; }
+    .popup { background-color: white; padding: 30px; border-radius: 15px; width: 80%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.8); transition: transform 0.3s; color: var(--text); }
+    .popup h2 { margin-bottom: 15px; color: var(--accent); }
+    .popup p { margin-bottom: 20px; line-height: 1.5; }
+    .close-btn { background-color: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+
+    #loading-overlay {
+        position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+        background-color: #2b2d42; display: none;
+        flex-direction: column; justify-content: center; align-items: center;
+        z-index: 1000; opacity: 0; transition: opacity 0.3s;
+    }
+    .loading-road {
+        width: 100%; height: 6px; background: repeating-linear-gradient(90deg, #fff 0, #fff 30px, transparent 30px, transparent 60px);
+        position: absolute;
+    }
+    #loading-van {
+        font-size: 80px; position: absolute; transform: translateX(-150px); display: flex; align-items: center; z-index: 5;
+    }
+
+    /* Map Buttons */
+    .map-btn { display:block; width:100%; margin:10px 0; padding:15px; background:#ccd5ae; border:2px solid #84a59d; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; transition: background 0.2s; }
+    .map-btn:hover { background:#d4a373; color: white; }
+
+    /* Dialog Box */
+    #dialog-box {
+        position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); width: 80%;
+        background-color: white; border-radius: 15px; padding: 20px; display: none; pointer-events: auto;
+        z-index: 30; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-left: 10px solid var(--primary);
+    }
+    #dialog-text { font-size: 18px; color: var(--text); margin-bottom: 10px; }
+    #dialog-next { float: right; }
+
+    #drag-ghost { position: fixed; pointer-events: none; font-size: 50px; z-index: 100; display: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+
+    @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(5deg); } 100% { transform: rotate(0deg); } }
+    .particle { position: absolute; font-size: 20px; pointer-events: none; animation: floatUp 1s forwards; }
+    @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(0); opacity: 0; } }
+</style>
+</head>
+<body oncontextmenu="return false;">
+<div id="game-container">
+
+    <!-- HUB SCENE -->
+    <div id="scene-hub">
+        <div id="hub-bg"></div>
+        <div id="hub-wall">🖼️ 🏅 🏆</div>
+        <div style="position:absolute; top:20px; left:20px; font-size:24px; font-weight:bold; color:var(--text);">🏠 Seu Quarto (HUB)</div>
+        <div class="hub-desk"></div>
+        <div id="hub-pet" onclick="interactHubPet()">🐈</div>
+        <div id="hub-poster-visual" onclick="openPoster()">📋</div>
+        <div id="hub-album" onclick="openCatopedia()">📔</div>
+        <button class="btn" style="top:20px; right:20px; background-color:#ccd5ae;" onclick="openMap()">🗺️ Viajar/Mapa</button>
+    </div>
+
+    <!-- GAME SCENE -->
+    <div id="scene-game">
+        <div class="scene-bg"></div><div class="sun"></div>
+        
+        <div id="location-name" style="position:absolute; top:20px; right:20px; font-weight:bold; color:#fff; background:rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; z-index:10; font-size: 18px;">Local</div>
+        
+        <div id="vendor" class="interactive" onclick="interactVendor()">👨‍🍳</div>
+        <div id="item-scenery" class="interactive" onclick="interactScenery()">🗑️</div>
+
+        <div id="zone-main" class="drop-zone" data-type="main"><div class="drop-hint">Arme a<br>armadilha</div></div>
+        <div id="cat-main" class="cat interactive" onclick="interactCat('main')">🐈</div>
+
+        <div id="zone-roof-ladder" class="drop-zone" data-type="roof-ladder"><div class="drop-hint">Ponto da<br>Escada</div></div>
+        <div id="zone-roof-food" class="drop-zone" data-type="roof-food"><div class="drop-hint">Isca pro<br>Fumaça</div></div>
+        <div id="cat-roof" class="cat interactive" onclick="interactCat('roof')">🐈</div>
+
+        <div id="zone-ground" class="drop-zone" data-type="ground"><div class="drop-hint">Chamar<br>o Gatinho</div></div>
+        <div id="cat-ground" class="cat interactive" onclick="interactCat('ground')">🐈‍⬛</div>
+    </div>
+
+    <!-- GLOBAL UI LAYER -->
+    <div id="ui-layer">
+        <button id="btn-poster" class="btn" onclick="openPoster()" style="display:none;">📋 Missão</button>
+        <button id="btn-map" class="btn" onclick="openMap()" style="display:none;">🗺️ Mapa</button>
+        <button id="btn-home" class="btn" onclick="goHome()" style="display:none;">🏠HUB</button>
+        <button id="btn-info" class="btn" onclick="openInfo()">ℹ️</button>
+        
+        <div id="dialog-box"><p id="dialog-text"></p><button id="dialog-next" class="btn" onclick="nextDialog()">Ok</button></div>
+        <div id="inventory" style="display:none;">
+            <div class="slot" data-slot="0"></div><div class="slot" data-slot="1"></div><div class="slot" data-slot="2"></div><div class="slot" data-slot="3"></div><div class="slot" data-slot="4"></div>
+        </div>
+    </div>
+
+    <!-- POPUPS -->
+    <div id="loading-overlay">
+        <h2 style="color:var(--primary); font-size:30px; margin-bottom:20px;">Viajando pela cidade...</h2>
+        <div style="width: 100%; height: 100px; position: relative; overflow: hidden; display: flex; align-items: center;">
+            <div class="loading-road"></div>
+            <div id="loading-van">🚐💨</div>
+        </div>
+        <p id="loading-fact" style="font-size:18px; font-style:italic; margin-top:20px; max-width: 80%; text-align: center; color: #ddd;"></p>
+    </div>
+
+    <div id="popup-map" class="popup-overlay" onclick="if(event.target==this) closePopups()">
+        <div class="popup" style="background-color: #fafae0;">
+            <h2>Mapa da Cidade 🗺️</h2>
+            <p>Escolha para onde quer ir na busca:</p>
+            <button class="map-btn" onclick="travelTo('market')">🐟 Beco do Mercado</button>
+            <button class="map-btn" onclick="travelTo('park')">🌳 Parque Central</button>
+            <button class="map-btn" onclick="travelTo('neighborhood')">🏘️ Vizinhança da Esquina</button>
+            <button class="map-btn" onclick="travelTo('construction')">🏗️ Obra Abandonada</button>
+            <button class="map-btn" onclick="travelTo('beach')">⛱️ Praia do Sol</button>
+            <button class="close-btn" onclick="closePopups()" style="margin-top: 15px;">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="popup-poster" class="popup-overlay" onclick="if(event.target==this) closePopups()">
+        <div class="popup">
+            <h2>Gato Procurado</h2>
+            <div id="poster-emoji" style="font-size: 80px; margin: 10px 0;">🐈</div>
+            <h3 id="poster-name">Nome</h3>
+            <p style="margin-top:10px;"><strong>Personalidades:</strong> <span id="poster-pers">Pers</span></p>
+            <p><strong>Última localização:</strong> <span id="poster-loc">Loc</span></p>
+            <button class="close-btn" onclick="closePopups()">Aceitar Pistas</button>
+        </div>
+    </div>
+
+    <div id="popup-catopedia" class="popup-overlay" onclick="if(event.target==this) closePopups()" style="background-color: rgba(246, 189, 96, 0.9);">
+        <div class="popup" style="max-width: 450px; background-color: #fff9f0; background-image: radial-gradient(#e5e5e5 1px, transparent 1px); background-size: 20px 20px;">
+            <h2>Gatopédia 📖</h2>
+            <p style="font-size:14px; margin-bottom: 10px;">Resgatados: <b id="cato-count">0</b></p>
+            
+            <div style="background: white; border: 2px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; position:relative;">
+                <div id="cato-pic" style="display:flex; justify-content:center;">🐈</div>
+                <h3 id="cato-name" style="color: var(--secondary); margin-bottom: 5px;">Nome</h3>
+                <p style="font-size: 14px; margin-bottom: 10px;"><strong>Personalidade:</strong> <span id="cato-pers">Pers</span></p>
+                <div style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; font-style: italic; font-size: 14px; min-height: 80px; display:flex; align-items:center; justify-content:center;">
+                    <span id="cato-bio" style="text-align: center;">Biografia...</span>
+                </div>
+                <p style="font-size: 14px; margin-top: 10px; background: #fdf0d5; padding: 5px; border-radius: 5px;">🎁 <strong>Recompensa:</strong> <span id="cato-rew">Rew</span></p>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button class="btn" style="position:relative; left:0; top:0; transform:none;" onclick="turnCatopedia(-1)">◀ Ant.</button>
+                <span id="cato-page-num" style="font-weight: bold; color: var(--text);">Ficha 1</span>
+                <button class="btn" style="position:relative; left:0; top:0; transform:none;" onclick="turnCatopedia(1)">Próx. ▶</button>
+            </div>
+            <button class="close-btn" onclick="closePopups()">Guardar Álbum</button>
+        </div>
+    </div>
+
+    <div id="popup-victory" class="popup-overlay" style="background-color: rgba(246, 189, 96, 0.9);">
+        <div class="popup">
+            <h2>Resgate Sucesso! 💖</h2>
+            <div id="vic-emoji" style="font-size: 80px; margin: 10px 0;">🐈</div>
+            <p id="vic-desc">Desc</p>
+            <p style="background: #fdf0d5; padding: 10px; border-radius: 8px;">🎁 <strong>Recompensa:</strong> <span id="vic-rew">Rew</span></p>
+            <button class="close-btn" onclick="nextQuest()" style="margin-top:20px; background-color: #f28482;">Voltar pro HUB</button>
+        </div>
+    </div>
+
+    <div id="popup-inspect" class="popup-overlay" onclick="if(event.target==this) closePopups()">
+        <div class="popup" style="max-width: 400px; background-color: #fdf0d5;">
+            <h2>Inspecionando 🔍</h2>
+            <div id="inspect-emoji" style="font-size: 80px; margin: 10px 0;">📦</div>
+            <h3 id="inspect-name" style="color: var(--text);">Item</h3>
+            <p id="inspect-desc" style="font-style: italic; margin-top: 15px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">Desc</p>
+            <button class="close-btn" onclick="closePopups()" style="margin-top: 15px;">Fechar</button>
+        </div>
+    </div>
+
+    <div id="popup-info" class="popup-overlay" onclick="if(event.target==this) closePopups()">
+        <div class="popup" style="max-width: 450px;">
+            <h2>Como Jogar 🐾</h2>
+            <div id="slide-img" style="font-size: 60px; margin: 15px 0;">🗺️</div>
+            <h3 id="slide-title">Exploração</h3>
+            <p id="slide-desc" style="min-height: 80px;">Leia o cartaz no HUB para descobrir a fase correta. Use o Botão Mapa para viajar. Se errar o lugar, abra o mapa e tente outro bairro!</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <button class="btn" style="position:relative; transform:none; left:0; top:0;" onclick="changeSlide(-1)">◀ Voltar</button>
+                <span id="slide-counter" style="font-weight: bold; color: var(--text);">1 / 3</span>
+                <button class="btn" style="position:relative; transform:none; left:0; top:0;" onclick="changeSlide(1)">Avançar ▶</button>
+            </div>
+            <button class="close-btn" onclick="closePopups()" style="margin-top: 30px;">Entendi! Vamos Jogar.</button>
+        </div>
+    </div>
+
+</div>
+
+<div id="drag-ghost"></div>
+
+<script>
+    // System Data - Vertical Slice
+    const quests = {
+        1: { targetLoc: 'market', name: 'Brigadeiro', pers: 'Guloso 🍗', loc: 'Foi visto rodando o Beco do Mercado.', emoji: '🐈', rew: 'Coleira Vermelha', desc: 'Sua caixinha com atum funcionou direitinho!', rewId: 'collar', req: 1 },
+        2: { targetLoc: 'park', name: 'Trovão', pers: 'Brincalhão 🧶', loc: 'Aposto que foi brincar no Parque Central.', emoji: '🐈‍⬛', rew: 'Chave Enferrujada', desc: 'Ele pulou tanto atrás da cordinha que cansou e se rendeu!', rewId: 'key', req: 1 },
+        3: { targetLoc: 'neighborhood', name: 'Fumaça & Floco', pers: 'Guloso & Tímido', loc: 'Disseram que estão lá pela Vizinhança da Esquina.', emoji: '🐈 🐈‍⬛', rew: 'Acesso VIP', desc: 'Que duplinha! Você ajudou o Fumaça a descer em segurança e passou tranquilidade pro Floco. Arrasou!', rewId: null, req: 2 },
+        4: { targetLoc: 'construction', name: 'Bolota', pers: 'Preguiçoso 💤', loc: 'Dorme onde não deve na Obra Abandonada.', emoji: '🐈', rew: 'Passaporte da Cidade', desc: 'A caminha forrada de cobertores macios foi a salvação pacífica pra ele acordar sorrindo!', rewId: null, req: 1 },
+        5: { targetLoc: 'park', name: 'Ligeiro', pers: 'Curioso 🕵️', loc: 'Foi visto xeretando escondido debaixo dos bancos do Parque.', emoji: '🐈', rew: 'Passagem Pro Mar', desc: 'A armadilha musical fisgou na mesma hora a mente cheia de curiosidade dele.', rewId: null, req: 1 },
+        6: { targetLoc: 'beach', name: 'Duquesa', pers: 'Esnobe 💅', loc: 'Dizem que está se bronzeando nas ricas areias da Praia.', emoji: '🐈', rew: 'Guizo Dourado', desc: 'Sombra perfeita e Salmão Premium! Um serviço digno de membros da realeza felina.', rewId: 'bell', req: 1 },
+        7: { targetLoc: 'park', name: 'Faísca', pers: 'Assustado ⚡', loc: 'Ele foi visto tremendo sob as folhas do Parque Central.', emoji: '🐈', rew: 'Fita de Campeão', desc: 'A caixinha de papelão foi o porto seguro mágico pra ele respirar aliviado.', rewId: null, req: 1 },
+        8: { targetLoc: 'construction', name: 'Sushi', pers: 'Guloso 🍣', loc: 'Dizem que chora de fome nos andares gélidos da Obra Abandonada.', emoji: '🐈', rew: 'Coleira de Retalhos', desc: 'O sacrifício do almoço do peixeiro foi bem recebido pelo paladar exigente!', rewId: null, req: 1 }
+    };
+
+    const items = {
+        'box': { emoji: '📦', name: 'Caixa de Papelão', desc: 'Gatinhos piram numa caixa! Se tiver um lanchinho dentro, vira a armadilha mais gentil de todas.' },
+        'tuna': { emoji: '🐟', name: 'Atum Fresquinho', desc: 'Hmm, que cheiro maravilhoso! Qualquer gatinho guloso viria correndo só por isso.' },
+        'trap': { emoji: '🪤', name: 'Armadilha Gentil', desc: 'Uma caixinha com atum no fundo. A isca perfeita pro esfomeado do bairro!' },
+        'collar': { emoji: '🎀', name: 'Coleira Vermelha', desc: 'Um presentinho que ficou do Brigadeiro. O cheirinho dela transmite muita segurança familiar.' },
+        'stick': { emoji: '🪄', name: 'Gravetinho', desc: 'Opa, caiu de uma árvore. Sozinho não tem graça nenhuma, mas e se amarrar algo na ponta?' },
+        'yarn': { emoji: '🧶', name: 'Lã da Vovó', desc: 'Tão macia! Se a gente conseguisse prender isso numa varinha, seria diversão garantida.' },
+        'toy': { emoji: '🎣', name: 'Varinha Divertida', desc: 'Prontinho! Esse brinquedo balança tanto que nenhum gatinho sapeca vai resistir.' },
+        'key': { emoji: '🗝️', name: 'Chave Velhinha', desc: 'Será que ainda abre os cadeados sujos da cidade? É feita de metal, então faz um eco muito bom.' },
+        'ladder': { emoji: '🪜', name: 'Escada Dobrável', desc: 'Super útil! Ajuda o pessoal (e os bichanos) a descerem com segurança de lugares muito altos.' },
+        'blanket': { emoji: '🧣', name: 'Cobertor Macio', desc: 'Dá pra forrar uma caixa de papelão esvaziando um pouco da grossura do chão.' },
+        'bed': { emoji: '🛏️', name: 'Caminha Perfeita', desc: 'Fofinho! Ninguém resiste a deitar nisso no lugar do piso duro e ser arrastadinho.' },
+        'noisy_trap': { emoji: '🎶', name: 'Caixa Sonora', desc: 'A caixa vibra toda com os sons metálicos da chave lá dentro... Um eco mega intrigante!' },
+        'salmon': { emoji: '🍣', name: 'Salmão Premium', desc: 'Um corte caríssimo e fresquinho. Cheiro de riqueza absurdo!' },
+        'bell': { emoji: '🛎️', name: 'Guizo Dourado', desc: 'Você ganhou de madame! Faz um barulho altíssimo, vai assustar quem tiver os nervos à flor da pele!' },
+        'knife': { emoji: '🔪', name: 'Faca Amolada', desc: 'Super afiada! Ótima para ajudar profissionais com o corte de peixes difíceis.' }
+    };
+
+    const state = { 
+        quest: 1, maxQuests: 8, inventory: [], catsRescuedList: [],
+        currentScene: 'hub', 
+        locationsConfig: {
+            'market': { searched: false, npcDialog: 0, npcGiven: false },
+            'park': { searched: false, npcDialog: 0, npcGiven: false },
+            'neighborhood': { searched: false, npcDialog: 0, npcGiven: false },
+            'construction': { searched: false, npcDialog: 0, npcGiven: false },
+            'beach': { searched: false, npcDialog: 0, npcGiven: false }
+        },
+        rescuedInCurrentScene: 0,
+        roofLadder: false, roofFood: false
+    };
+    
+    let draggedItem = null;
+    let dragStartX = 0, dragStartY = 0;
+    let winLock = false;
+
+    // SCENARIO MANAGER
+    function goHome() {
+        state.currentScene = 'hub';
+        document.getElementById('scene-game').style.display = 'none';
+        document.getElementById('scene-hub').style.display = 'block';
+        
+        // Hide global UI buttons, except info
+        document.getElementById('btn-poster').style.display = 'none';
+        document.getElementById('btn-map').style.display = 'none';
+        document.getElementById('btn-home').style.display = 'none';
+        document.getElementById('inventory').style.display = 'none';
+        
+        // Show new quest incoming!
+        if(state.quest <= state.maxQuests) {
+            playSound('pop');
+            document.getElementById('hub-poster-visual').style.display = 'block';
+            document.getElementById('hub-poster-visual').style.transform = 'translateX(-50%) translateY(-100px) rotate(-10deg) scale(1.5)';
+            setTimeout(()=> {
+                document.getElementById('hub-poster-visual').style.transform = 'translateX(-50%) rotate(-3deg)';
+            }, 300);
+            updatePosterUI();
+        } else {
+            document.getElementById('hub-poster-visual').style.display = 'none';
+            showDialog("🐱 Fim da Demo! Você resgatou todos os gatos.");
+        }
+    }
+
+    const catFacts = [
+        "🐱 Gatos dormem em média 15 horas por dia.",
+        "🐱 O ronrono vibra entre 25 e 150 Hz — dizem que estimula a cicatrização.",
+        "🐱 Um grupo de gatos na rua é formalmente chamado de 'clowder'.",
+        "🐱 Felinos não conseguem sentir o sabor doce da comida devido a sua genética.",
+        "🐱 Impressionante: o suor do gato sai exclusivamente pelas almofadinhas das patas.",
+        "🐱 Um gato saudável consegue saltar em média até 6 vezes a própria altura."
+    ];
+
+    function travelTo(locId) {
+        closePopups();
+        
+        const loading = document.getElementById('loading-overlay');
+        document.getElementById('loading-fact').innerText = catFacts[Math.floor(Math.random() * catFacts.length)];
+        loading.style.display = 'flex';
+        setTimeout(() => loading.style.opacity = '1', 10);
+        
+        const van = document.getElementById('loading-van');
+        van.style.transition = 'none'; van.style.transform = 'translateX(-150px) scaleX(-1)';
+        setTimeout(() => { van.style.transition = 'transform 1.8s linear'; van.style.transform = 'translateX(900px) scaleX(-1)'; playSound('pop'); }, 50);
+
+        setTimeout(() => {
+            applySceneChanges(locId);
+            loading.style.opacity = '0';
+            setTimeout(() => loading.style.display = 'none', 300);
+        }, 1800);
+    }
+
+    function applySceneChanges(locId) {
+        state.currentScene = locId;
+        document.getElementById('scene-hub').style.display = 'none';
+        document.getElementById('scene-game').style.display = 'block';
+        
+        document.getElementById('btn-poster').style.display = 'block';
+        document.getElementById('btn-map').style.display = 'block';
+        document.getElementById('btn-home').style.display = 'block';
+        document.getElementById('inventory').style.display = 'flex';
+
+        state.rescuedInCurrentScene = 0;
+        state.roofLadder = false; state.roofFood = false;
+        winLock = false;
+
+        // Reset all zones
+        document.querySelectorAll('.cat').forEach(el => { el.style.display='none'; el.style.transform='translate(0,0)'; el.style.opacity='1'; });
+        document.querySelectorAll('.drop-zone').forEach(el => { 
+            el.style.display='none'; el.style.border='3px dashed var(--accent)'; el.style.backgroundColor='rgba(242,132,130,0.15)'; 
+            if(el.id === 'zone-main') el.innerHTML = '<div class="drop-hint">Armadilha</div>';
+            if(el.id === 'zone-roof-ladder') el.innerHTML = '<div class="drop-hint">Ponto da Escada</div>';
+            if(el.id === 'zone-roof-food') el.innerHTML = '<div class="drop-hint">Isca pro Gato</div>';
+            if(el.id === 'zone-ground') el.innerHTML = '<div class="drop-hint">Chamar o Gato</div>';
+        });
+
+        const sceneBg = document.querySelector('.scene-bg'); const sun = document.querySelector('.sun');
+        const vendorEl = document.getElementById('vendor'); const itemEl = document.getElementById('item-scenery');
+        
+        itemEl.onclick = interactScenery;
+        itemEl.dataset.id = ''; itemEl.style.display = 'block'; itemEl.style.opacity = '1';
+        itemEl.removeEventListener('mousedown', handleDragStart); itemEl.removeEventListener('touchstart', handleDragStart);
+
+        let locName = "";
+        
+        if(locId === 'market') {
+            locName = "🐟 Beco do Mercado";
+            sceneBg.style.background = 'linear-gradient(to bottom, #dbe4ee 0%, #dbe4ee 50%, var(--bg-color) 50%, var(--bg-color) 100%)';
+            sun.style.backgroundColor = '#ffd166'; vendorEl.innerHTML = '👨‍🍳'; itemEl.innerHTML = '🗑️';
+        } else if (locId === 'park') {
+            locName = "🌳 Parque Central";
+            sceneBg.style.background = 'linear-gradient(to bottom, #84a59d 0%, #84a59d 50%, #c1d3ce 50%, #c1d3ce 100%)';
+            sun.style.backgroundColor = '#f28482'; vendorEl.innerHTML = '👵'; itemEl.innerHTML = '🌿';
+        } else if (locId === 'neighborhood') {
+            locName = "🏘️ Vizinhança (Esquina)";
+            sceneBg.style.background = 'linear-gradient(to bottom, #d4a373 0%, #d4a373 50%, #faedcd 50%, #faedcd 100%)';
+            sun.style.backgroundColor = '#e9edc9'; vendorEl.innerHTML = '👴'; itemEl.innerHTML = '🪜';
+            itemEl.onclick = null; itemEl.dataset.id = 'ladder';
+            itemEl.addEventListener('mousedown', handleDragStart); itemEl.addEventListener('touchstart', handleDragStart, {passive: false});
+        } else if (locId === 'construction') {
+            locName = "🏗️ Obra Abandonada";
+            sceneBg.style.background = 'linear-gradient(to bottom, #6c757d 0%, #6c757d 50%, #ced4da 50%, #ced4da 100%)';
+            sun.style.backgroundColor = '#fff3b0'; vendorEl.innerHTML = '👷'; itemEl.innerHTML = '🧱';
+            itemEl.onclick = interactScenery; itemEl.dataset.id = '';
+            itemEl.removeEventListener('mousedown', handleDragStart); itemEl.removeEventListener('touchstart', handleDragStart);
+        } else if (locId === 'beach') {
+            locName = "⛱️ Praia do Sol";
+            sceneBg.style.background = 'linear-gradient(to bottom, #90e0ef 0%, #90e0ef 50%, #fefae0 50%, #fefae0 100%)';
+            sun.style.backgroundColor = '#ffb703'; vendorEl.innerHTML = '🏄'; itemEl.innerHTML = '⛱️';
+            itemEl.onclick = interactScenery; itemEl.dataset.id = '';
+            itemEl.removeEventListener('mousedown', handleDragStart); itemEl.removeEventListener('touchstart', handleDragStart);
+        }
+        document.getElementById('location-name').innerText = locName;
+
+        // Is the quest cat here?
+        const q = quests[state.quest];
+        if(q && q.targetLoc === locId) {
+            setupCatInScene(q);
+        } else {
+            // generic empty text if quest doesn't match location
+        }
+        playSound('pop');
+    }
+
+    function setupCatInScene(q) {
+        if(state.quest === 7 && q.targetLoc === state.currentScene) {
+            document.getElementById('zone-main').style.display = 'flex';
+            document.getElementById('cat-main').style.display = 'block'; 
+            document.getElementById('cat-main').innerHTML = '🐈';
+            document.getElementById('cat-main').style.transform = 'translate(0,0)';
+            return;
+        }
+
+        if(q.targetLoc === 'market' || q.targetLoc === 'construction' || q.targetLoc === 'beach') {
+            document.getElementById('zone-main').style.display = 'flex';
+            document.getElementById('cat-main').style.display = 'block'; document.getElementById('cat-main').innerHTML = '🐈';
+        } else if (q.targetLoc === 'park') {
+            document.getElementById('zone-main').style.display = 'flex';
+            document.getElementById('cat-main').style.display = 'block'; document.getElementById('cat-main').innerHTML = (state.quest===5 ? '🐈' : '🐈‍⬛');
+        } else if (q.targetLoc === 'neighborhood') {
+            document.getElementById('zone-roof-ladder').style.display = 'flex'; 
+            document.getElementById('zone-roof-food').style.display = 'flex'; 
+            document.getElementById('cat-roof').style.display = 'block';
+            document.getElementById('zone-ground').style.display = 'flex'; 
+            document.getElementById('cat-ground').style.display = 'block';
+        }
+    }
+
+    function updatePosterUI() {
+        const q = quests[state.quest]; if(!q) return;
+        document.getElementById('poster-emoji').innerText = q.emoji; document.getElementById('poster-name').innerText = q.name;
+        document.getElementById('poster-pers').innerText = q.pers; document.getElementById('poster-loc').innerText = q.loc;
+    }
+
+    // INTERACTIONS
+    function interactHubPet() {
+        showDialog("🐈 *Ronronos suaves*... O seu pet adora esse cafuné. Se sentindo livre de todo o estresse!");
+        playSound('meow');
+    }
+
+    function interactVendor() {
+        const cLoc = state.currentScene;
+        const conf = state.locationsConfig[cLoc];
+
+        if (state.quest === 8 && cLoc === 'market') {
+            if(!state.quests8trade) showDialog("👨‍🍳 Peixeiro: 'Que saco! Sumiu minha faca de desossar! Se alguém me arranjasse uma faca excelente e super amolada pra cortar os filés perfeitos do dia... juro que pagava com um Salmão Premium de gratidão!'");
+            else showDialog("👨‍🍳 Peixeiro: 'Essa faca corta o oxigênio véi! Perfeição no serviço de hoje garantida. A posta tá com você de gratidão!'");
+            return;
+        }
+
+        if (state.quest === 7) {
+            if(cLoc === quests[7].targetLoc) showDialog("NPC: 'VISH! Passou um vulto arrepiado aqui nas minhas pernas! Ele é super escorregadio. Cuidado pra não jogar nada perto dele senão ele corre de volta pra outro bairro.'");
+            else showDialog("NPC: 'Gato apavorado? Nem vi, se ele não tá aqui deve ter corrido pra outra área!'");
+            return;
+        }
+
+        const rightPlace = quests[state.quest] && quests[state.quest].targetLoc === cLoc;
+
+        if(!rightPlace && !(state.quest === 6 && cLoc === 'market')) {
+            showDialog("NPC: 'Poxa vida, não vi nenhum gatinho parecido com esse hoje! Melhor abrir o mapa de novo e conferir em outro bairro.'");
+            playSound('error');
+            return;
+        }
+
+        if(cLoc === 'market') {
+            if(state.quest === 6) {
+                if(!conf.npcGivenQ6) {
+                    if(conf.npcDialogQ6===undefined) { showDialog("👨‍🍳 Peixeiro: Fiquei sabendo que a madame Duquesa esnoba todo mundo até dar dor! Mas pra sorte dela eu tenho um Salmão Premium separadinho, mas te custa as economias!"); conf.npcDialogQ6=1; }
+                    else { showDialog("👨‍🍳 Peixeiro: Brincadeira! Leve. Você já salvou tantos bichanos nossos que é por minha conta. Mas cuidado com a pele fresca dela no sol quente!"); addItem('salmon'); conf.npcGivenQ6 = true; }
+                } else showDialog("👨‍🍳 Peixeiro: Vai logo antes que esse salmão perca o frescor de elite!");
+            } else if(!conf.npcGiven) {
+                if(conf.npcDialog===0) { showDialog("👨‍🍳 Peixeiro: Ei! Reparou num gatão laranja rodando por aqui? Ele foi correndo lá pro Beco."); conf.npcDialog=1; }
+                else { showDialog("👨‍🍳 Peixeiro: Leva esse pedaço de atum fresquinho com você. Ele vai amar, certeza!"); addItem('tuna'); conf.npcGiven = true; }
+            } else showDialog("👨‍🍳 Peixeiro: Boa sorte lá no resgate! Traz ele pra cá depois pra eu fazer um carinho.");
+        } else if(cLoc === 'park') {
+            if(!conf.npcGiven) {
+                if(conf.npcDialog===0) { showDialog("👵 Vovó: Olá meu anjo! Tem um gatinho tão sapeca pulando naquelas árvores ali, não para quieto."); conf.npcDialog=1; }
+                else { showDialog("👵 Vovó: Fica com esse restinho de lãzinha nova. Aposto que você amarra isso num graveto pra ele brincar!"); addItem('yarn'); conf.npcGiven = true; }
+            } else if(state.quest === 5) {
+                showDialog("👵 Vovó: Esse outro bichano esburacou minhas flores! Ele é xereta, vive enfiando a cara em buracos para fuçar os barulhinhos curiosos.");
+            } else {
+                showDialog("👵 Vovó: Os felinos não resistem a uma cordinha dançando no ar. Vai lá tentar!");
+            }
+        } else if(cLoc === 'neighborhood') {
+            if(!conf.npcGiven) {
+                if(conf.npcDialog===0) { showDialog("👴 Vizinho: Oi vizinho! O danado do Fumaça travou no alto do telhado de novo. Pra piorar o pobrezinho do Floco encolheu de medo no chão."); conf.npcDialog=1; }
+                else { showDialog("👴 Vizinho: Ôh tristeza... Toma um pouco de Atum pra chamar o Fumaça! A escada que ele subiu caiu ali, dá uma escorada nela de volta pro gordinho conseguir descer."); addItem('tuna'); conf.npcGiven = true; }
+            } else showDialog("👴 Vizinho: Ajuda o medroso lá de baixo também, mas sem sufocar. O pobrezinho precisa deitar em algo que passe segurança!");
+        } else if(cLoc === 'construction') {
+            if(!conf.npcGiven) {
+                if(conf.npcDialog===0) { showDialog("👷 Operário: Ufa, ainda bem que você chegou! Tinha logo que esparramar nas pedras bem na passagem do cimento! Não dá pra gritar porque irrita, ajuda a gente!"); conf.npcDialog=1; }
+                else { showDialog("👷 Operário: Pega esse Cobertor Macio que eu ia usar pra me aquecer. Se você fizesse uma proteção contra as pedras para ele num molde, acho que esse safado acordaria."); addItem('blanket'); conf.npcGiven = true; }
+            } else showDialog("👷 Operário: A delicadeza move os gatinhos também! Boa sorte.");
+        } else if(cLoc === 'beach') {
+            if(!conf.npcGiven) {
+                if(conf.npcDialog===0) { showDialog("🏄 Banhista: Eae véi! Maior solzão né? Essa gata chique brotou ali na areia mas recusa pisar onde o sol tá quente."); conf.npcDialog=1; }
+                else { showDialog("🏄 Banhista: Pior que não tenho mais o que dar pra ela, mas tu sabe que todo guarda-sol de praia dá pra abrir dando um porradão nele né?"); conf.npcGiven = true; }
+            } else showDialog("🏄 Banhista: Abre o guarda-sol ali clicando com força pra dar uma sombrinha massa pra fera ficar em paz!");
+        }
+    }
+
+    function interactScenery() {
+        const cLoc = state.currentScene;
+        const conf = state.locationsConfig[cLoc];
+        document.getElementById('item-scenery').classList.add('shake'); setTimeout(() => document.getElementById('item-scenery').classList.remove('shake'), 500);
+        
+        if(cLoc === 'market') { 
+            if(!state.inventory.includes('box')) { addItem('box'); showDialog("Opa, achei uma Caixa original que jogaram fora lá no fundo. Vai pro inventário!"); return; }
+        }
+
+        if(cLoc === 'construction') {
+            if(state.quest === 8 && !state.inventory.includes('knife') && !state.quests8trade) {
+                addItem('knife'); showDialog("Opa! Achei uma Faca Amolada novinha que os peões esqueceram no cimento. Mão na roda!");
+                return;
+            }
+        }
+        
+        if(cLoc === 'beach') {
+            if(!conf.searched) {
+                conf.searched = true;
+                const el = document.getElementById('item-scenery'); el.innerHTML = '🏖️'; el.style.transform = 'scale(1.5)';
+                showDialog("⛱️ Você forçou a trava e abriu o Guarda-Sol inteiro! A areia em volta ficou super fresquinha.");
+            } else {
+                showDialog("⛱️ O Guarda-Sol já está bem firme e aberto fazendo uma sombra perfeita de ponta a ponta na areia.");
+            }
+            return;
+        }
+
+        if(!conf.searched) {
+            conf.searched = true;
+            if(cLoc === 'park') { addItem('stick'); showDialog("Um Graveto perfeitinho na calçada! Sempre bom ter no bolso, né?"); }
+            else if(cLoc === 'neighborhood') { showDialog("Asfaltão de bairro limpo de ponta a ponta."); }
+            else if(cLoc === 'construction') { showDialog("Tem mil toneladas de pedra ali. Nada de útil."); }
+        } else showDialog("Soprou um ventinho... Acho que não tem mais nada de útil por esse pedaço.");
+    }
+
+    function interactCat(catType) {
+        if(state.quest===1) showDialog("🐈 *Rrraaauuu...* Ele encara a sua mão. O bichinho só pensa em comer peixe agora.");
+        if(state.quest===2) showDialog("🐈‍⬛ Ele corre que nem um raio! Não quer carinho, quer alguma coisa pra pular e brincar.");
+        if(state.quest===3) {
+            if(catType === 'roof') showDialog("🐈 *Miau! Miau!* Ele pia pedindo comidinha lá de cima, mas se treme todo na hora de pular pra pegar.");
+            if(catType === 'ground') showDialog("😿 *Miau bem fraquinho...* Está com pânico da rua movimentada. Deu uma dó! Ele precisa de algo familiar dele antes de aceitar ajuda.");
+        }
+        if(state.quest===4) showDialog("💤 *Ronc...* Ele abriu um olhinho por um segundo e voltou a dormir pesado. As britas pontudas do chão não incomodam essa preguiça colossal. A menos que houvesse uma cama montada com muito luxo ao lado dele.");
+        if(state.quest===5) showDialog("🕵️ Ele praticamente enfiou a cabeça do outro lado do toco da árvore. Cheirar e ouvir coisas vibrando ou cantando é o que move a fofoca desse aí!");
+        if(state.quest===6) showDialog("💅 Ela te olha de cima a baixo com nojo. Acha um absurdo você estar ali oferecendo menos que a perfeição absoluta e sombra fresca numa bandeja de ouro!");
+        if(state.quest===7) showDialog("⚡ *Pfft!* Ele arqueia as costas e o olhar é puro pânico. Lançar iscas ou fazer barulho no chão vai ser o gatilho final para ele disparar. O bichinho só quer um pouco de privacidade em algum esconderijo simples para desaparecer da vista de todos.");
+        if(state.quest===8) showDialog("🥢 Seu estômago ronca tão alto que até faz eco pela construção. Ração seca da esquina tá longe do paladar dele agora; a fome cega pede a carne do peixe mais gordo possível.");
+        playSound('meow');
+    }
+
+    // UI METHODS
+    const dialogBox = document.getElementById('dialog-box'); const dialogText = document.getElementById('dialog-text');
+    function showDialog(text) { dialogText.innerHTML = text; dialogBox.style.display = 'block'; }
+    function nextDialog() { dialogBox.style.display = 'none'; }
+    function openPoster() { const p = document.getElementById('popup-poster'); p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10); }
+    function openMap() { const p = document.getElementById('popup-map'); p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10); }
+    function closePopups() { document.querySelectorAll('.popup-overlay').forEach(p => { p.style.opacity = 0; setTimeout(() => p.style.display = 'none', 300); }); }
+    
+    let catoPage = 1;
+    function openCatopedia() {
+        catoPage = 1;
+        updateCatopediaContent();
+        const p = document.getElementById('popup-catopedia'); p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10);
+    }
+    
+    function turnCatopedia(dir) {
+        catoPage += dir;
+        if(catoPage < 1) catoPage = state.maxQuests;
+        if(catoPage > state.maxQuests) catoPage = 1;
+        updateCatopediaContent();
+    }
+    
+    function updateCatopediaContent() {
+        const q = quests[catoPage];
+        const isRescued = catoPage < state.quest;
+        
+        document.getElementById('cato-page-num').innerText = `Pág. ${catoPage}/${state.maxQuests}`;
+        document.getElementById('cato-count').innerText = `${Math.min(state.quest - 1, state.maxQuests)} / ${state.maxQuests}`;
+        
+        if (isRescued) {
+            document.getElementById('cato-pic').innerHTML = `<div style="font-size: 80px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); margin: 10px 0;">${q.emoji}</div>`;
+            document.getElementById('cato-name').innerText = q.name;
+            document.getElementById('cato-pers').innerText = q.pers;
+            document.getElementById('cato-bio').innerText = `"${q.desc}"`;
+            document.getElementById('cato-rew').innerText = q.rew || "Amizade Sincera";
+        } else {
+            document.getElementById('cato-pic').innerHTML = `<div style="font-size: 80px; filter: brightness(0) opacity(0.2); margin: 10px 0;">🐈</div>`;
+            document.getElementById('cato-name').innerText = "???";
+            document.getElementById('cato-pers').innerText = "Desconhecida";
+            document.getElementById('cato-bio').innerText = "Ficha não encontrada. Explore a cidade e encontre as pistas com os moradores para completar o álbum.";
+            document.getElementById('cato-rew').innerText = "???";
+        }
+    }
+
+    // INVENTORY & CRAFTING
+    const invSlots = document.querySelectorAll('.slot');
+    function updateInv() {
+        invSlots.forEach(slot => { slot.innerHTML = ''; slot.removeAttribute('data-item'); });
+        state.inventory.forEach((id, i) => {
+            if(i < 5) {
+                const el = document.createElement('div'); el.className = 'item'; el.innerHTML = items[id].emoji; el.dataset.id = id;
+                el.addEventListener('mousedown', handleDragStart); el.addEventListener('touchstart', handleDragStart, {passive: false});
+                invSlots[i].appendChild(el); invSlots[i].dataset.item = id;
+            }
+        });
+    }
+    function addItem(id) { if(state.inventory.length < 5 && !state.inventory.includes(id)) { state.inventory.push(id); updateInv(); spawnParticles(invSlots[state.inventory.length-1], '✨'); playSound('pop'); } }
+    function removeItem(id) { state.inventory = state.inventory.filter(i => i !== id); updateInv(); }
+
+    function handleCrafting(i1, i2) {
+        if((i1==='box'&&i2==='tuna')||(i1==='tuna'&&i2==='box')) { removeItem('box'); removeItem('tuna'); addItem('trap'); showDialog("✨ Deu liga! Uma armadilha montadinha pro esfomeado."); }
+        else if((i1==='stick'&&i2==='yarn')||(i1==='yarn'&&i2==='stick')) { removeItem('stick'); removeItem('yarn'); addItem('toy'); showDialog("✨ É o gênio criativo! Brinquedo perfeito montado."); }
+        else if((i1==='box'&&i2==='blanket')||(i1==='blanket'&&i2==='box')) { removeItem('box'); removeItem('blanket'); addItem('bed'); showDialog("✨ Uau! Você forrou super bem, formou uma caminha incrível."); }
+        else if((i1==='box'&&i2==='key')||(i1==='key'&&i2==='box')) { removeItem('box'); removeItem('key'); addItem('noisy_trap'); showDialog("✨ Barulhão esquisito! Jogar a velha chave para batucar dentro da pequena caixa de papelão gerou uma armadilha que mata a curiosidade."); }
+        else { playSound('error'); showDialog("💭 Hum... Não parece combinar muito bem. É melhor tentar outras ideias."); }
+    }
+
+    function checkWin() {
+        if(state.rescuedInCurrentScene >= quests[state.quest].req && !winLock) {
+            winLock = true;
+            const q = quests[state.quest];
+            state.catsRescuedList.push(q.emoji);
+            document.getElementById('vic-emoji').innerText = q.emoji;
+            document.getElementById('vic-desc').innerText = q.desc;
+            document.getElementById('vic-rew').innerText = q.rew || "Paz Interior";
+            
+            setTimeout(() => { const p = document.getElementById('popup-victory'); p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10); playSound('success'); }, 2000);
+        }
+    }
+    function nextQuest() {
+        closePopups();
+        if(quests[state.quest].rewId) addItem(quests[state.quest].rewId);
+        state.quest++;
+        goHome();
+    }
+
+    // DRAG AND DROP
+    const dragGhost = document.getElementById('drag-ghost');
+    function handleDragStart(e) {
+        if(e.target.dataset.id === 'ladder' && state.currentScene === 'neighborhood') e.target.style.opacity = '0.3'; 
+        e.preventDefault(); draggedItem = e.target.dataset.id; let x = e.clientX || (e.touches && e.touches[0].clientX); let y = e.clientY || (e.touches && e.touches[0].clientY); 
+        dragStartX = x; dragStartY = y;
+        dragGhost.innerHTML = items[draggedItem].emoji; dragGhost.style.display = 'block'; moveGhost(x, y); 
+        document.addEventListener('mousemove', handleDragMove); document.addEventListener('mouseup', handleDragEnd); 
+        document.addEventListener('touchmove', handleDragMove, {passive: false}); document.addEventListener('touchend', handleDragEnd); 
+        e.target.style.opacity = '0.3'; 
+    }
+    function moveGhost(x, y) { dragGhost.style.left = (x-25)+'px'; dragGhost.style.top = (y-25)+'px'; }
+    function handleDragMove(e) { e.preventDefault(); let x = e.clientX || (e.touches && e.touches[0].clientX); let y = e.clientY || (e.touches && e.touches[0].clientY); moveGhost(x, y); }
+    
+    function inspectItem(id) {
+        const p = document.getElementById('popup-inspect');
+        document.getElementById('inspect-emoji').innerText = items[id].emoji; document.getElementById('inspect-name').innerText = items[id].name; document.getElementById('inspect-desc').innerText = items[id].desc;
+        p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10);
+    }
+
+    function handleDragEnd(e) {
+        document.removeEventListener('mousemove', handleDragMove); document.removeEventListener('mouseup', handleDragEnd); document.removeEventListener('touchmove', handleDragMove); document.removeEventListener('touchend', handleDragEnd);
+        dragGhost.style.display = 'none'; updateInv();
+        if(draggedItem === 'ladder' && state.currentScene === 'neighborhood') document.getElementById('item-scenery').style.opacity = '1';
+        let x = e.clientX || (e.changedTouches && e.changedTouches[0].clientX); let y = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+        
+        // Inspect logic
+        if (Math.hypot(x - dragStartX, y - dragStartY) < 5 && draggedItem) { inspectItem(draggedItem); draggedItem = null; return; }
+
+        let dropped = false;
+        document.querySelectorAll('.drop-zone').forEach(z => {
+            if(z.style.display !== 'none' && !dropped && isInside(x,y, z.getBoundingClientRect())) { dropped = true; handleDropOnZone(draggedItem, z.dataset.type, z); }
+        });
+        
+        // ADD NPC DETECTION
+        if(!dropped) {
+            const vendor = document.getElementById('vendor');
+            if(vendor && vendor.style.display !== 'none' && isInside(x,y, vendor.getBoundingClientRect())) {
+                dropped = true;
+                handleDropOnNPC(draggedItem, state.currentScene);
+            }
+        }
+
+        if(!dropped) invSlots.forEach(s => { if(isInside(x,y, s.getBoundingClientRect()) && s.dataset.item && s.dataset.item !== draggedItem) handleCrafting(draggedItem, s.dataset.item); });
+        draggedItem = null;
+    }
+    function isInside(x, y, r) { return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+
+    function handleDropOnNPC(itemId, cLoc) {
+        if(state.quest === 8 && cLoc === 'market' && itemId === 'knife') {
+            removeItem(itemId);
+            addItem('salmon');
+            state.quests8trade = true;
+            showDialog("👨‍🍳 Peixeiro: 'Opa! Uma faca profissional e afiada como navalha! Perfeita pra cortar no grau! Toma aqui o seu Salmão Premium enorme, como prometido!'");
+            playSound('success');
+            setTimeout(()=> playSound('pop'), 600);
+            return;
+        }
+        showDialog("NPC: 'Isso aí? Quero não, garoto! Pode guardar isso de volta na sua bolsa.'");
+        playSound('error');
+    }
+
+    // SOLVING PUZZLES
+    function triggerRoofRescue() {
+        showDialog("💭 Oba! O Fumaça sentiu segurança na ponte da escada e sentiu cheiro de peixe. Lá vem ele!");
+        setTimeout(() => {
+            const cr = document.getElementById('cat-roof'); cr.style.transform = 'translate(-120px, 130px)'; playSound('meow');
+            setTimeout(() => { 
+                cr.style.display='none'; const zf = document.getElementById('zone-roof-food');
+                zf.innerHTML='<div style="font-size:60px; display:flex; transform:translateX(10px);"><span style="transform:scaleX(-1);">🐈</span>🐟</div>'; 
+                spawnParticles(zf, '💖'); playSound('pop'); state.rescuedInCurrentScene++; checkWin(); 
+            }, 1500);
+        }, 1000);
+    }
+    
+    function handleDropOnZone(itemId, type, zoneEl) {
+        const q = state.quest;
+        if(q === 1 || q === 2 || q === 4 || q === 5 || q === 6 || q === 7 || q === 8) {
+            let ok = (q===1 && itemId==='trap') || (q===2 && itemId==='toy') || (q===4 && itemId==='bed') || (q===5 && itemId==='noisy_trap') || (q===6 && itemId==='salmon' && state.locationsConfig['beach'].searched) || (q===7 && itemId==='box') || (q===8 && itemId==='salmon');
+            if(ok) {
+                removeItem(itemId);
+                zoneEl.innerHTML = `<div style="font-size: 60px; margin-right: -20px;">${items[itemId].emoji}</div>`; zoneEl.style.border = 'none'; zoneEl.style.backgroundColor = 'transparent';
+                showDialog("Gatinho super interessado no que você montou!");
+                setTimeout(() => { const c = document.getElementById('cat-main'); c.style.transform = 'translateX(-230px)'; playSound('meow');
+                    setTimeout(() => { c.style.display = 'none';
+                        let fEmoji = '📦<span style="margin-left:-35px; transform:scaleX(-1);">🐈</span>';
+                        if(q===2) fEmoji = '🧶<span style="position:relative;top:-25px;margin-left:-35px;transform:scaleX(-1);">🐈‍⬛</span>';
+                        if(q===4) fEmoji = '🛏️<span style="position:relative;top:-10px;margin-left:-35px;transform:scaleX(-1);">🐈</span>';
+                        if(q===5) fEmoji = '🎶<span style="position:relative;top:-10px;margin-left:-35px;transform:scaleX(-1);">🐈</span>';
+                        if(q===6) fEmoji = '🍣<span style="transform:scaleX(-1);">🐈</span>';
+                        if(q===7) fEmoji = '📦<span style="margin-left:-35px; transform:scaleX(-1);">🐈</span>';
+                        if(q===8) fEmoji = '🍣<span style="transform:scaleX(-1);">🐈</span>';
+                        zoneEl.innerHTML = `<div style="font-size:60px; display:flex; transform:translateX(10px);">${fEmoji}</div>`;
+                        spawnParticles(zoneEl, '💖'); playSound('pop'); state.rescuedInCurrentScene++; checkWin();
+                    }, 1500);
+                }, 1000);
+            } else { 
+                if(q===7) {
+                    let mapNames = {'market':'Beco do Mercado', 'construction':'Obra Abandonada', 'neighborhood':'Vizinhança', 'park':'Parque Central', 'beach':'Praia do Sol'};
+                    let dists = Object.keys(mapNames).filter(d => d !== state.currentScene);
+                    let newLoc = dists[Math.floor(Math.random()*dists.length)];
+                    quests[7].targetLoc = newLoc;
+                    quests[7].loc = 'A isca errada engatilhou a fuga dele! Pegadas levam lá pro lado de: ' + mapNames[newLoc] + '.';
+                    updatePosterUI();
+                    showDialog(`💨 VRUUUM! Jogar isso pra ele gerou um susto monstruoso! O Faísca ativou o modo fuga e sumiu num piscar de olhos. Abra o seu Cartaz ali no HUB pra rastrear onde ele foi parar!`);
+                    document.getElementById('cat-main').style.transition = 'transform 0.3s cubic-bezier(1,0,1,0.5)';
+                    document.getElementById('cat-main').style.transform = 'translate(1000px, -200px)';
+                    playSound('error');
+                    setTimeout(() => { document.getElementById('cat-main').style.display = 'none'; document.getElementById('cat-main').style.transition = 'transform 1.5s ease-in-out'; }, 400); 
+                    return;
+                }
+                
+                if (q===1 && itemId==='tuna') showDialog("💡 Ai, ai... Se eu jogar o atum solto o guloso vai pegar e sair correndo! Deve ter alguma forma de prender ele enquanto ele come.");
+                else if (q===2 && itemId==='yarn') showDialog("💡 Novelo de lã caído no chão não tem muita graça, não balança. Falta amarrar num cabinho longo!");
+                else if (q===4 && itemId==='blanket') showDialog("💡 Um cobertor puro? As pedras machucariam o corpo por baixo se eu deitar em cima agora. A proteção tem que entrar num molde firme primeiro!");
+                else if (q===5 && itemId==='trap') showDialog("💡 Essa caixa tem comida dentro, mas a cabeça do Ligeiro só processa novidades focadas pro ouvido enxerido dele!");
+                else if (q===6 && itemId==='salmon') showDialog("💡 Ela morde os beiços olhando para o Salmão, mas faz uma careta e recua um passo pra trás por causa do sol quente em cima das areias ali onde tá o prato. Você precisa mudar o cenário em volta e fazer sombra ali pra ela.");
+                else showDialog("💡 Poxa, não piscou um olho! Que tal dar uma lida nas personalidades do Cartaz de novo? Não era bem essa a isca certa."); 
+                playSound('error'); 
+            }
+        } else if (q === 3) {
+            if(type === 'roof-ladder' && itemId === 'ladder') {
+                document.getElementById('item-scenery').style.display = 'none'; zoneEl.innerHTML = '<div style="font-size:60px;">🪜</div>'; zoneEl.style.border='none'; zoneEl.style.backgroundColor='transparent';
+                state.roofLadder = true;
+                if(state.roofFood) triggerRoofRescue(); else { showDialog("💡 Boa! O caminho da Escada tá perfeito. O problema é que o Fumaça tá com preguiça e só vai descer de lá se ganhar alguma comida na base da ponte."); playSound('pop'); }
+            } else if (type === 'roof-food' && (itemId === 'tuna' || itemId === 'trap')) {
+                removeItem(itemId); zoneEl.innerHTML = `<div style="font-size:60px;">${items[itemId].emoji}</div>`; zoneEl.style.border='none'; zoneEl.style.backgroundColor='transparent';
+                state.roofFood = true;
+                if(state.roofLadder) triggerRoofRescue(); else { showDialog("💡 A comidinha chamou a atenção dele! Mas sem a escadinha ali de ponte ele tem muito medo de pular porque é altinho."); playSound('meow'); }
+            } else if (type === 'ground' && itemId === 'collar') {
+                removeItem(itemId); zoneEl.innerHTML = '<div style="font-size:60px;">🎀</div>'; zoneEl.style.border='none'; zoneEl.style.backgroundColor='transparent';
+                showDialog("Aww, o cheirinho familiar devolveu a confiança dele.");
+                setTimeout(() => { document.getElementById('cat-ground').style.transform = 'translate(-130px, 0)'; playSound('meow');
+                    setTimeout(() => { document.getElementById('cat-ground').style.display='none'; zoneEl.innerHTML='<div style="font-size:60px; display:flex; transform:translateX(5px);">🎀<span style="margin-left:-25px;">🐈‍⬛</span></div>'; spawnParticles(zoneEl, '💖'); playSound('pop'); state.rescuedInCurrentScene++; checkWin(); }, 1500);
+                }, 1000);
+            } else { showDialog("💡 Zero interesse. Esse item não fez o menor efeito por aqui, vamos repensar."); playSound('error'); }
+        }
+    }
+
+    // SLIDES
+    const slideData = [
+        { img: '🗺️', title: '1. O Ciclo do Caçador', desc: 'Sua cama é sua base. Receba cartazes no Quarto, pegue-os e abra o MAPA para viajar. A dedução de onde ir é sua!' },
+        { img: '📦+🐟', title: '2. Crafting e Resgate', desc: 'Explore a rua certa e tente juntar os itens arrastando um sobre o outro dentro do Inventário para criar novos itens.' },
+        { img: '🔍', title: '3. A Dúvida Dói Menos', desc: 'Dê um cliquinho rápido no inventário para inspecionar itens. Ler o rótulo sempre traz excelentes dicas.' },
+        { img: '👨‍🍳🎁', title: '4. Favores e Trocas', desc: 'Alguns moradores e lojistas detêm itens cruciais! Quando eles pedirem um favor ou ferramenta, arraste o item do inventário e solte fisicamente direto em cima deles.' }
+    ];
+    let currentSlide = 0;
+    function openInfo() { currentSlide = 0; updateSlide(); const p = document.getElementById('popup-info'); p.style.display = 'flex'; setTimeout(() => p.style.opacity = 1, 10); }
+    function changeSlide(dir) { currentSlide += dir; if(currentSlide < 0) currentSlide = slideData.length - 1; if(currentSlide >= slideData.length) currentSlide = 0; updateSlide(); }
+    function updateSlide() {
+        document.getElementById('slide-img').innerText = slideData[currentSlide].img; document.getElementById('slide-title').innerText = slideData[currentSlide].title;
+        document.getElementById('slide-desc').innerText = slideData[currentSlide].desc; document.getElementById('slide-counter').innerText = `${currentSlide + 1} / ${slideData.length}`;
+    }
+
+    // UTILS
+    function spawnParticles(el, emoji) { const r = el.getBoundingClientRect(); const cx = r.left+r.width/2; const cy = r.top+r.height/2; for(let i=0;i<5;i++) { const p = document.createElement('div'); p.className='particle'; p.innerHTML=emoji; p.style.left=cx+(Math.random()*40-20)+'px'; p.style.top=cy+(Math.random()*40-20)+'px'; document.body.appendChild(p); setTimeout(()=>p.remove(), 1000); } }
+    let audioCtx;
+    function playSound(type) {
+        if(!audioCtx) return; if(audioCtx.state==='suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+        if(type === 'pop') { osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(800, now+0.1); gain.gain.setValueAtTime(0.5, now); gain.gain.exponentialRampToValueAtTime(0.01, now+0.1); osc.start(now); osc.stop(now+0.1); }
+        else if(type === 'meow'){ osc.type='sawtooth'; osc.frequency.setValueAtTime(400,now); osc.frequency.linearRampToValueAtTime(500,now+0.2); osc.frequency.linearRampToValueAtTime(300,now+0.4); gain.gain.linearRampToValueAtTime(0.3,now+0.1); gain.gain.linearRampToValueAtTime(0,now+0.4); osc.start(now); osc.stop(now+0.4); }
+        else if(type === 'error'){ osc.type='square'; osc.frequency.setValueAtTime(150,now); gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.2); osc.start(now); osc.stop(now+0.2); }
+        else if(type === 'success'){ osc.frequency.setValueAtTime(400,now); osc.frequency.setValueAtTime(600,now+0.1); osc.frequency.setValueAtTime(800,now+0.2); gain.gain.setValueAtTime(0.3,now); gain.gain.linearRampToValueAtTime(0,now+0.5); osc.start(now); osc.stop(now+0.5); }
+    }
+    
+    document.body.addEventListener('click', () => { if(!audioCtx) audioCtx = new AudioContext(); }, {once:true});
+    goHome();
+    setTimeout(() => { openInfo(); }, 500);
+
+</script>
+</body>
+</html>
