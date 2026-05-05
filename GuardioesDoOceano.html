@@ -604,7 +604,7 @@ const CameraGame={
         const cy=Math.max(20,Math.min(this.worldH-60,ny));
         el.style.left=cx+'px';el.style.top=cy+'px';
         // flip based on direction
-        el.style.transform=d.dx>0?'scaleX(1)':'scaleX(-1)';
+        el.style.transform=d.dx>0?'scaleX(-1)':'scaleX(1)';
       });
     },30);
     const vp=document.getElementById('cam-vp'),world=document.getElementById('cam-world');
@@ -836,7 +836,7 @@ const FishingGame={
       const f=document.createElement('div');
       f.className='swim-fish';
       f.dataset.ok=type.ok;f.dataset.name=type.name;f.dataset.info=type.info;f.dataset.emoji=type.e;
-      f.style.cssText=`position:absolute;top:${yPct}%;${fromLeft?'left:-60px':'right:-60px'};font-size:${sz}px;z-index:3;transition:none;transform:scaleX(${fromLeft?1:-1});pointer-events:none`;
+      f.style.cssText=`position:absolute;top:${yPct}%;${fromLeft?'left:-60px':'right:-60px'};font-size:${sz}px;z-index:3;transition:none;transform:scaleX(${fromLeft?-1:1});pointer-events:none`;
       f.textContent=type.e;
       swimArea.appendChild(f);
       let pos=fromLeft?-60:swimArea.clientWidth+60;
