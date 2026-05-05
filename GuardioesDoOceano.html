@@ -602,9 +602,10 @@ const CameraGame={
         const ny=d.origY+Math.cos(d.time*d.dy*3)*80;
         const cx=Math.max(20,Math.min(this.worldW-60,nx));
         const cy=Math.max(20,Math.min(this.worldH-60,ny));
+        const prevX=d.lastX!==undefined?d.lastX:cx;
+        d.lastX=cx;
         el.style.left=cx+'px';el.style.top=cy+'px';
-        // flip based on direction
-        el.style.transform=d.dx>0?'scaleX(-1)':'scaleX(1)';
+        if(Math.abs(cx-prevX)>0.01) el.style.transform=cx>prevX?'scaleX(-1)':'scaleX(1)';
       });
     },30);
     const vp=document.getElementById('cam-vp'),world=document.getElementById('cam-world');
