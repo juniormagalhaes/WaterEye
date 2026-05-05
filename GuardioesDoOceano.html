@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>A Expedição dos Guardiões do Oceano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<!-- ============ PROTEÇÕES E MODO PAISAGEM ============ -->
+<style>
+  /* 1. Bloqueia seleção de texto e toque prolongado */
+  body {
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    user-select: none;
+    -webkit-touch-callout: none; /* Evita o menu do iOS ao segurar o toque */
+  }
+  /* 2. Tela de bloqueio para forçar modo paisagem no celular */
+  #rotate-device-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #061b2e;
+    color: white;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    font-family: 'Fredoka', sans-serif;
+  }
+  
+  #rotate-device-overlay span {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: rotatePhone 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes rotatePhone {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-90deg); }
+  }
+  /* Se for tela de celular e estiver em pé (retrato), mostra a tela preta */
+  @media screen and (max-width: 900px) and (orientation: portrait) {
+    #rotate-device-overlay {
+      display: flex;
+    }
+  }
+</style>
+<style type="text/css">
+/* ========== RESET & BASE ========== */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#061b2e;--bg-mid:#0c3547;--bg-light:#11536d;
+  --accent:#00e5ff;--accent2:#ff6b9d;--gold:#ffd93d;
+  --sand:#f5e6c8;--coral:#ff6b6b;--seafoam:#a8e6cf;
+  --text:#e8f4f8;--text-dim:rgba(232,244,248,.6);
+  --glass:rgba(255,255,255,.08);--glass-border:rgba(255,255,255,.15);
+  --radius:16px;--radius-sm:10px;
+  --font:'Fredoka',sans-serif;--font2:'Quicksand',sans-serif;
+}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font);color:var(--text);background:linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-mid) 50%,var(--bg-light) 100%)}
+button{font-family:var(--font);cursor:pointer;border:none;outline:none}
+/* ========== SCREENS ========== */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1;opacity:0;transition:opacity .5s}
+.screen.active{display:flex;opacity:1}
+/* ========== BUBBLES ========== */
+#bubbles-container{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.25),rgba(255,255,255,.05));animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(100vh) scale(1);opacity:.7}100%{transform:translateY(-10vh) scale(.3);opacity:0}}
+/* ========== WAVES ========== */
+.waves-bg{position:fixed;bottom:0;left:0;width:100%;height:120px;z-index:0;pointer-events:none}
+.waves{width:100%;height:100%}
+.wave-parallax>use{animation:waveMove 12s cubic-bezier(.55,.5,.45,.5) infinite}
+.wave-parallax>use:nth-child(1){animation-delay:-2s;animation-duration:7s}
+.wave-parallax>use:nth-child(2){animation-delay:-3s;animation-duration:10s}
+.wave-parallax>use:nth-child(3){animation-delay:-4s;animation-duration:13s}
+.wave-parallax>use:nth-child(4){animation-delay:-5s;animation-duration:20s}
+@keyframes waveMove{0%{transform:translate3d(-90px,0,0)}100%{transform:translate3d(85px,0,0)}}
+/* ========== SPLASH ========== */
+.splash-content{text-align:center;animation:fadeInUp .8s}
+.splash-logo{font-size:80px;animation:pulse 2s infinite}
+.splash-text{font-size:32px;font-weight:700;margin:12px 0 4px;letter-spacing:2px}
+.splash-sub{font-size:13px;color:var(--text-dim)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+/* ========== MENU ========== */
+.menu-container{text-align:center;z-index:2;animation:fadeInUp .6s}
+.menu-icon{font-size:72px;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(0,229,255,.4));animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.menu-title{font-size:28px;line-height:1.2;font-weight:600;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.menu-title span{font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--seafoam));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.menu-subtitle{font-size:16px;color:var(--gold);font-weight:600;margin:4px 0 28px;letter-spacing:4px;text-transform:uppercase}
+.menu-buttons{display:flex;flex-direction:column;gap:12px;align-items:center}
+.menu-footer{margin-top:32px;font-size:12px;color:var(--text-dim)}
+/* ========== BUTTONS ========== */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 36px;border-radius:50px;font-size:17px;font-weight:600;transition:all .2s;min-width:220px;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,#00b4d8,#0077b6);color:#fff;box-shadow:0 4px 20px rgba(0,180,216,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,180,216,.6)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--glass);color:var(--text);border:1px solid var(--glass-border);backdrop-filter:blur(8px)}
+.btn-secondary:hover{background:rgba(255,255,255,.14)}
+.btn-icon{font-size:20px}
+.btn-back{background:none;color:var(--text);font-size:15px;font-family:var(--font);padding:8px 16px;border-radius:var(--radius-sm);transition:background .2s}
+.btn-back:hover{background:var(--glass)}
+/* ========== CHAPTER SELECT ========== */
+.chapter-header{width:100%;padding:16px 20px;display:flex;align-items:center;gap:12px;position:absolute;top:0;z-index:5}
+.chapter-header h2{font-size:20px;font-weight:600}
+.chapter-map{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:80px 24px 60px;width:100%;max-width:500px;overflow-y:auto;max-height:100vh}
+.chapter-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 16px;text-align:center;cursor:pointer;transition:all .25s;backdrop-filter:blur(6px);position:relative}
+.chapter-card:hover:not(.locked){transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,229,255,.2)}
+.chapter-card.locked{opacity:.4;cursor:not-allowed;filter:grayscale(.8)}
+.chapter-card.completed{border-color:var(--gold);box-shadow:0 0 20px rgba(255,217,61,.15)}
+.chapter-card .cc-num{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.chapter-card .cc-icon{font-size:36px;margin:6px 0}
+.chapter-card .cc-title{font-size:14px;font-weight:600;line-height:1.3}
+.chapter-card .cc-lock{position:absolute;top:8px;right:8px;font-size:18px}
+.chapter-legend{position:absolute;bottom:12px;font-size:12px;color:var(--text-dim);display:flex;gap:16px}
+/* ========== NARRATIVE ========== */
+.narrative-container{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;background:linear-gradient(180deg,rgba(6,27,46,.3) 0%,rgba(6,27,46,.95) 70%)}
+.narrative-chapter-label{position:absolute;top:20px;left:20px;font-size:13px;color:var(--accent);font-weight:600;letter-spacing:1px}
+.narrative-scene{flex:1;display:flex;align-items:center;justify-content:center;font-size:80px;animation:fadeInUp .5s}
+.narrative-dialogue{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:var(--radius);padding:20px;margin-bottom:12px;min-height:100px}
+.narrative-speaker{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.narrative-text{font-size:15px;line-height:1.6;font-family:var(--font2);font-weight:500}
+.narrative-next{align-self:flex-end}
+/* ========== GAME HUD ========== */
+.game-hud{position:absolute;top:0;left:0;right:0;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:10;background:linear-gradient(180deg,rgba(6,27,46,.9) 0%,transparent 100%)}
+.btn-pause{background:var(--glass);border:1px solid var(--glass-border);color:#fff;font-size:18px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.game-hud-title{font-size:14px;font-weight:600;flex:1}
+.game-progress-bar{width:160px;height:22px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;position:relative;border:1px solid var(--glass-border)}
+.game-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--seafoam));border-radius:20px;transition:width .5s;width:0%}
+.game-progress-icons{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-around;font-size:12px;padding:0 4px}
+/* ========== GAME AREA ========== */
+.game-area{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.game-feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:700;color:var(--gold);text-shadow:0 2px 12px rgba(0,0,0,.7);pointer-events:none;opacity:0;z-index:20;transition:opacity .3s}
+.game-feedback.show{opacity:1;animation:feedbackPop .6s}
+@keyframes feedbackPop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}50%{transform:translate(-50%,-50%) scale(1.2)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+/* ========== CAMERA MINIGAME ========== */
+.camera-viewport{width:100%;height:100%;position:relative;overflow:hidden;cursor:grab}
+.camera-viewport:active{cursor:grabbing}
+.camera-world{position:absolute;top:0;left:0;height:100%;display:flex;transition:none}
+.camera-bg-layer{height:100%;position:absolute;top:0;image-rendering:auto}
+.camera-focus{position:absolute;top:50%;left:50%;width:140px;height:140px;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.6);border-radius:16px;pointer-events:none;z-index:5;box-shadow:inset 0 0 30px rgba(0,229,255,.15)}
+.camera-focus::before,.camera-focus::after{content:'';position:absolute;background:rgba(255,255,255,.5)}
+.camera-focus::before{width:1px;height:20px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.camera-focus::after{width:20px;height:1px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.camera-btn{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#fff,#ddd);border:4px solid var(--accent);box-shadow:0 4px 20px rgba(0,229,255,.4);z-index:6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all .15s}
+.camera-btn:active{transform:translateX(-50%) scale(.9);background:#fff}
+.camera-silhouettes{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:6;background:rgba(6,27,46,.85);padding:10px 16px;border-radius:var(--radius);backdrop-filter:blur(8px);border:1px solid var(--glass-border)}
+.silhouette-item{width:50px;height:50px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);transition:all .3s;filter:brightness(0) invert(.3)}
+.silhouette-item.found{filter:none;border-color:var(--seafoam);background:rgba(168,230,207,.15);animation:foundPulse .5s}
+@keyframes foundPulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.camera-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8}
+.creature{position:absolute;font-size:48px;cursor:default;transition:filter .3s;z-index:2}
+/* ========== CLEANUP MINIGAME ========== */
+.cleanup-viewport{width:100%;height:100%;position:relative;overflow:hidden}
+.cleanup-world{position:absolute;top:0;left:0;height:100%;transition:none}
+.cleanup-phase-label{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:700;color:var(--gold);z-index:6;text-shadow:0 2px 8px rgba(0,0,0,.8);background:rgba(6,27,46,.7);padding:6px 18px;border-radius:20px;backdrop-filter:blur(6px)}
+.trash-item{position:absolute;font-size:36px;cursor:pointer;z-index:3;transition:all .3s;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.trash-item:hover{transform:scale(1.15)}
+.trash-item.collected{transform:scale(0) rotate(180deg);opacity:0;pointer-events:none}
+.cleanup-bag{position:absolute;bottom:16px;right:16px;font-size:48px;z-index:6;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));animation:float 2s ease-in-out infinite}
+/* ========== FISHING MINIGAME ========== */
+.fishing-phase{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:80px 24px 40px;animation:fadeInUp .4s}
+.fishing-title{font-size:18px;font-weight:600;text-align:center;margin-bottom:8px}
+.fishing-narrator{font-size:14px;color:var(--gold);font-style:italic;text-align:center;margin-bottom:16px;font-family:var(--font2)}
+.fishing-options{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.fishing-option{background:var(--glass);border:2px solid var(--glass-border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;min-width:130px;backdrop-filter:blur(6px)}
+.fishing-option:hover{border-color:var(--accent);transform:translateY(-3px)}
+.fishing-option .fo-icon{font-size:56px;margin-bottom:8px}
+.fishing-option .fo-label{font-size:13px;font-weight:600}
+.fishing-option.correct{border-color:var(--seafoam);background:rgba(168,230,207,.15);animation:foundPulse .5s}
+.fishing-option.wrong{border-color:var(--coral);background:rgba(255,107,107,.15);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fishing-water{position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(180deg,rgba(13,115,119,.6),rgba(6,27,46,.9));border-radius:40% 40% 0 0}
+.fishing-rod{position:absolute;right:15%;top:30%;font-size:80px;transform-origin:bottom center}
+.fishing-timing-bar{width:80%;max-width:300px;height:30px;background:rgba(255,255,255,.1);border-radius:20px;position:relative;border:2px solid var(--glass-border);overflow:hidden}
+.fishing-timing-zone{position:absolute;height:100%;background:rgba(168,230,207,.3);border-radius:20px}
+.fishing-timing-cursor{position:absolute;top:-2px;width:6px;height:34px;background:var(--accent);border-radius:4px;transition:none}
+.fishing-reel{width:120px;height:120px;border-radius:50%;background:var(--glass);border:3px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:48px;cursor:grab;touch-action:none;user-select:none;transition:transform .1s}
+/* ========== COMPLETE SCREEN ========== */
+.complete-container{text-align:center;padding:24px;animation:fadeInUp .6s;z-index:2}
+.complete-seal{font-size:80px;margin-bottom:16px;animation:float 2s ease-in-out infinite}
+.complete-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.complete-desc{font-size:15px;color:var(--text-dim);margin-bottom:20px;font-family:var(--font2)}
+.complete-checklist{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:16px;margin-bottom:24px;text-align:left;backdrop-filter:blur(8px);max-width:340px}
+.complete-checklist h3{font-size:14px;color:var(--gold);margin-bottom:10px}
+.complete-checklist li{font-size:13px;list-style:none;padding:4px 0;font-family:var(--font2);font-weight:500}
+.complete-checklist li::before{content:'☐ ';color:var(--accent)}
+/* ========== REWARDS ========== */
+.rewards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:72px 24px 24px;width:100%;max-width:500px;overflow-y:auto;max-height:100vh}
+.reward-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:20px;text-align:center;backdrop-filter:blur(6px)}
+.reward-card.locked{opacity:.35;filter:grayscale(1)}
+.reward-card .rc-icon{font-size:40px;margin-bottom:6px}
+.reward-card .rc-title{font-size:13px;font-weight:600}
+/* ========== SETTINGS ========== */
+.settings-container{padding:80px 24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;background:var(--glass);padding:14px 18px;border-radius:var(--radius-sm);border:1px solid var(--glass-border)}
+.setting-row span{font-size:14px;font-weight:500}
+.setting-row input[type=range]{width:120px;accent-color:var(--accent)}
+.setting-row select{background:var(--bg-mid);color:var(--text);border:1px solid var(--glass-border);padding:6px 10px;border-radius:8px;font-family:var(--font)}
+.toggle{position:relative;width:48px;height:26px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:26px;cursor:pointer;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(22px)}
+/* ========== OVERLAY ========== */
+.overlay{position:fixed;inset:0;background:rgba(6,27,46,.85);z-index:50;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.overlay.hidden{display:none}
+.overlay-panel{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px;text-align:center;display:flex;flex-direction:column;gap:14px;min-width:260px;backdrop-filter:blur(12px)}
+.overlay-panel h2{font-size:22px}
+/* ========== UTILS ========== */
+.hidden{display:none!important}
+
+</style>
+<body>
+  <!-- BUBBLES BACKGROUND -->
+  <div id="bubbles-container"></div>
+
+  <!-- WAVES BACKGROUND -->
+  <div class="waves-bg">
+    <svg class="waves" viewBox="0 24 150 28" preserveAspectRatio="none">
+      <defs>
+        <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"/>
+      </defs>
+      <g class="wave-parallax">
+        <use href="#wave" x="48" y="0" fill="rgba(255,255,255,.12)"/>
+        <use href="#wave" x="48" y="3" fill="rgba(255,255,255,.08)"/>
+        <use href="#wave" x="48" y="5" fill="rgba(255,255,255,.05)"/>
+        <use href="#wave" x="48" y="7" fill="rgba(255,255,255,.03)"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ SCREEN: SPLASH ============ -->
+  <div id="screen-splash" class="screen active">
+    <div class="splash-content">
+      <div class="splash-logo">🌊</div>
+      <p class="splash-text">DiversiGames</p>
+      <div class="splash-sub">em parceria com Instituto E</div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: MAIN MENU ============ -->
+  <div id="screen-menu" class="screen">
+    <div class="menu-container">
+      <div class="menu-title-area">
+        <div class="menu-icon">🐋</div>
+        <h1 class="menu-title">A Expedição dos<br><span>Guardiões do Oceano</span></h1>
+        <p class="menu-subtitle">O Game</p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn btn-primary" onclick="App.goTo('chapter-select')">
+          <span class="btn-icon">🗺️</span> Jogar
+        </button>
+        <button class="btn btn-secondary" onclick="App.goTo('rewards')">
+          <span class="btn-icon">🏆</span> Recompensas
+        </button>
+        <button class="btn btn-secondary" onclick="App.goTo('settings')">
+          <span class="btn-icon">⚙️</span> Configurações
+        </button>
+      </div>
+      <div class="menu-footer">
+        <span>🇧🇷 Português</span> · <span>v0.1 Demo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: CHAPTER SELECT ============ -->
+  <div id="screen-chapter-select" class="screen">
+    <div class="chapter-header">
+      <button class="btn-back" onclick="App.goTo('menu')">← Voltar</button>
+      <h2>Mapa dos Desafios</h2>
+    </div>
+    <div class="chapter-map" id="chapter-map">
+      <!-- Generated by JS -->
+    </div>
+    <div class="chapter-legend">
+      <span>🔓 Disponível</span> <span>🔒 Bloqueado</span> <span>⭐ Completo</span>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: NARRATIVE INTRO ============ -->
+  <div id="screen-narrative" class="screen">
+    <div class="narrative-container">
+      <div class="narrative-chapter-label" id="narrative-chapter-label"></div>
+      <div class="narrative-scene" id="narrative-scene"></div>
+      <div class="narrative-dialogue">
+        <div class="narrative-speaker" id="narrative-speaker"></div>
+        <div class="narrative-text" id="narrative-text"></div>
+      </div>
+      <button class="btn btn-primary narrative-next" id="narrative-next" onclick="App.advanceNarrative()">
+        Continuar ▸
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: MINIGAME ============ -->
+  <div id="screen-minigame" class="screen">
+    <!-- HUD -->
+    <div class="game-hud">
+      <button class="btn-pause" onclick="App.pauseGame()">⏸️</button>
+      <div class="game-hud-title" id="game-hud-title"></div>
+      <div class="game-progress-bar">
+        <div class="game-progress-fill" id="game-progress-fill"></div>
+        <div class="game-progress-icons" id="game-progress-icons"></div>
+      </div>
+    </div>
+    <!-- GAME AREA -->
+    <div class="game-area" id="game-area">
+      <!-- Minigame content injected here -->
+    </div>
+    <!-- GAME FEEDBACK -->
+    <div class="game-feedback" id="game-feedback"></div>
+  </div>
+
+  <!-- ============ SCREEN: CHALLENGE COMPLETE ============ -->
+  <div id="screen-complete" class="screen">
+    <div class="complete-container">
+      <div class="complete-seal" id="complete-seal"></div>
+      <h2 class="complete-title">Desafio Completo!</h2>
+      <p class="complete-desc" id="complete-desc"></p>
+
+      <button class="btn btn-primary" onclick="App.goTo('chapter-select')">
+        <span class="btn-icon">🗺️</span> Voltar ao Mapa
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: REWARDS ============ -->
+  <div id="screen-rewards" class="screen">
+    <div class="chapter-header">
+      <button class="btn-back" onclick="App.goTo('menu')">← Voltar</button>
+      <h2>🏆 Recompensas</h2>
+    </div>
+    <div class="rewards-grid" id="rewards-grid"></div>
+  </div>
+
+  <!-- ============ SCREEN: SETTINGS ============ -->
+  <div id="screen-settings" class="screen">
+    <div class="chapter-header">
+      <button class="btn-back" onclick="App.goTo('menu')">← Voltar</button>
+      <h2>⚙️ Configurações</h2>
+    </div>
+    <div class="settings-container">
+      <div class="setting-row">
+        <span>🔊 Música</span>
+        <input type="range" min="0" max="100" value="80">
+      </div>
+      <div class="setting-row">
+        <span>🔉 Efeitos</span>
+        <input type="range" min="0" max="100" value="100">
+      </div>
+      <div class="setting-row">
+        <span>🌐 Idioma</span>
+        <select><option>Português 🇧🇷</option><option>English 🇺🇸</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAUSE OVERLAY ============ -->
+  <div id="pause-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+      <h2>⏸️ Pausado</h2>
+      <button class="btn btn-primary" onclick="App.resumeGame()">▶️ Continuar</button>
+      <button class="btn btn-secondary" onclick="App.restartChallenge()">🔄 Reiniciar</button>
+      <button class="btn btn-secondary" onclick="App.goTo('chapter-select')">🗺️ Sair</button>
+    </div>
+  </div>
+  <div id="rotate-device-overlay">
+  <span>📱</span>
+  <h2>Por favor, vire o celular</h2>
+  <p>Esta demo foi feita para ser jogada na horizontal.</p>
+</div>
+
+  <script>
+  // ===== SFX (Web Audio API — sem arquivos) =====
+const SFX={
+  ctx:null,
+  _init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)()},
+  _play(freq,type,dur,vol=0.3,ramp=true){
+    this._init();const c=this.ctx,o=c.createOscillator(),g=c.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);
+    g.gain.setValueAtTime(vol,c.currentTime);
+    if(ramp)g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);
+  },
+  // 📸 Camera shutter — click rápido
+  shutter(){this._play(1200,'square',0.06,0.25,false);setTimeout(()=>this._play(800,'square',0.06,0.2,false),70)},
+  // ✅ Acerto / sucesso
+  success(){this._play(523,'sine',0.12,0.25);setTimeout(()=>this._play(659,'sine',0.12,0.25),120);setTimeout(()=>this._play(784,'sine',0.2,0.3),240)},
+  // ❌ Erro
+  error(){this._play(300,'sawtooth',0.15,0.2);setTimeout(()=>this._play(200,'sawtooth',0.25,0.2),150)},
+  // 🧹 Coleta de lixo — pop
+  collect(){this._play(600,'sine',0.08,0.2);setTimeout(()=>this._play(900,'sine',0.06,0.15),80)},
+  // 🎣 Fisgou peixe — splash
+  hook(){this._play(200,'triangle',0.1,0.2);setTimeout(()=>this._play(400,'triangle',0.15,0.25),100);setTimeout(()=>this._play(300,'triangle',0.1,0.15),200)},
+  // 💪 Timing bar — puxada boa
+  pull(){this._play(440,'sine',0.1,0.2);setTimeout(()=>this._play(660,'sine',0.15,0.25),100)},
+  // 🔄 Molinete — reel click
+  reel(){this._play(500,'square',0.03,0.1,false)},
+  // 🏆 Desafio completo — fanfarra
+  complete(){this._play(523,'sine',0.15,0.3);setTimeout(()=>this._play(659,'sine',0.15,0.3),150);setTimeout(()=>this._play(784,'sine',0.15,0.3),300);setTimeout(()=>this._play(1047,'sine',0.4,0.35),450)},
+  // 🐟 Peixe escapou
+  escape(){this._play(400,'triangle',0.1,0.2);setTimeout(()=>this._play(300,'triangle',0.1,0.2),120);setTimeout(()=>this._play(200,'triangle',0.2,0.15),240)},
+  // 🖱️ Click de UI
+  click(){this._play(800,'sine',0.05,0.1,false)}
+};
+
+// ===== DATA =====
+const CHALLENGES=[
+  {id:1,ch:6,icon:'🔵',title:'Vozes do Oceano',theme:'Mural na escola',unlocked:false},
+  {id:2,ch:7,icon:'📸',title:'Mapas do Oceano',theme:'Observar com tecnologia',unlocked:true},
+  {id:3,ch:8,icon:'🧹',title:'Mistério do Lixo',theme:'Mutirão de limpeza',unlocked:true},
+  {id:4,ch:9,icon:'♻️',title:'Mar sem Plástico',theme:'Alternativas sustentáveis',unlocked:false},
+  {id:5,ch:10,icon:'⚡',title:'Energia pro Oceano',theme:'Economizar energia',unlocked:false},
+  {id:6,ch:11,icon:'🌱',title:'Guardiões do Verde',theme:'Plantar na costa',unlocked:false},
+  {id:7,ch:12,icon:'🐚',title:'Ecossistema Marinho',theme:'Proteger biodiversidade',unlocked:false},
+  {id:8,ch:13,icon:'🎣',title:'Berçário dos Peixes',theme:'Pesca sustentável',unlocked:true},
+  {id:9,ch:14,icon:'💻',title:'Digitais do Oceano',theme:'Painel digital',unlocked:false},
+  {id:10,ch:15,icon:'🌟',title:'Conexão com o Mar',theme:'Reconexão',unlocked:false}
+];
+const NARRATIVES={
+  2:[
+    {scene:'🌊',speaker:'Narrador',text:'O mapa revelou a segunda missão: "Descubram mais sobre o oceano usando tecnologia!"'},
+    {scene:'📱',speaker:'Carla',text:'Podemos usar este aplicativo para registrar dados sobre o oceano! Mas precisamos de fotos das condições do mar.'},
+    {scene:'📸',speaker:'Lucas',text:'Deixa comigo! Vou fotografar tudo que encontrar no fundo do mar!'}
+  ],
+  3:[
+    {scene:'😱',speaker:'Narrador',text:'O terceiro desafio surgiu: "Encontrem e removam o lixo que ameaça o oceano."'},
+    {scene:'🏖️',speaker:'Ana',text:'Olhem quanta sujeira! Garrafas, sacolas, latas... precisamos limpar tudo!'},
+    {scene:'🤝',speaker:'Lucas',text:'Vamos nos equipar e fazer um mutirão! Cada um limpa uma área!'}
+  ],
+  8:[
+    {scene:'🎣',speaker:'Narrador',text:'O mapa anunciou: "Protejam o berçário de peixes." Caíque levou os amigos à colônia de pescadores.'},
+    {scene:'👴',speaker:'Seu Joaquim',text:'O oceano nos dá alimento, mas precisamos cuidar dele. Se pescarmos demais, os peixes podem desaparecer.'},
+    {scene:'🐟',speaker:'Caíque',text:'Seu Joaquim vai nos ensinar a pescar de forma sustentável!'}
+  ]
+};
+const COMPLETE_DATA={
+  2:{seal:'📸',desc:'Vocês registraram dados importantes sobre o oceano de Pedra Azul!',checks:['Usar um app de observação marinha','Coletar dados de temperatura e espécies','Compartilhar informações sobre o oceano']},
+  3:{seal:'🧹',desc:'A praia, a água e as profundezas de Pedra Azul estão limpas!',checks:['Limpar praias e rios','Identificar os tipos de lixo encontrados','Refletir sobre o impacto do lixo na vida marinha']},
+  8:{seal:'🎣',desc:'Vocês aprenderam a pescar de forma sustentável com Seu Joaquim!',checks:['Respeitar o tempo de reprodução dos peixes','Evitar redes que capturam tudo','Pescar apenas o necessário']}
+};
+const SEALS=['🔵','🔍','🧹','♻️','⚡','🌱','🐚','🎣','💻','🌟'];
+
+// ===== APP =====
+const App={
+  current:null,currentChallenge:null,completed:new Set(),narrativeIdx:0,activeGame:null,
+  init(){
+    this.createBubbles();
+    this.goTo('splash');
+    setTimeout(()=>this.goTo('menu'),2500);
+  },
+  createBubbles(){
+    const c=document.getElementById('bubbles-container');
+    for(let i=0;i<20;i++){const b=document.createElement('div');b.className='bubble';b.style.cssText=`left:${Math.random()*100}%;width:${4+Math.random()*12}px;height:${4+Math.random()*12}px;animation-duration:${6+Math.random()*10}s;animation-delay:${Math.random()*8}s`;c.appendChild(b)}
+  },
+  goTo(screen){
+    SFX.click();
+    document.querySelectorAll('.screen.active').forEach(s=>{s.classList.remove('active')});
+    const el=document.getElementById('screen-'+screen);
+    if(el){setTimeout(()=>el.classList.add('active'),50)}
+    this.current=screen;
+    if(screen==='chapter-select')this.renderChapters();
+    if(screen==='rewards')this.renderRewards();
+    if(this.activeGame){if(CameraGame.moveInterval){clearInterval(CameraGame.moveInterval);CameraGame.moveInterval=null}if(FishingGame.fishAnim){clearInterval(FishingGame.fishAnim);FishingGame.fishAnim=null}if(FishingGame.timingAnim){clearInterval(FishingGame.timingAnim);FishingGame.timingAnim=null}this.activeGame=null}
+    document.getElementById('pause-overlay').classList.add('hidden');
+  },
+  renderChapters(){
+    const m=document.getElementById('chapter-map');m.innerHTML='';
+    CHALLENGES.forEach(c=>{
+      const done=this.completed.has(c.id);
+      const d=document.createElement('div');
+      d.className='chapter-card'+(c.unlocked?'':' locked')+(done?' completed':'');
+      d.innerHTML=`<div class="cc-num">Desafio ${c.id}</div><div class="cc-icon">${c.icon}</div><div class="cc-title">${c.title}</div>${!c.unlocked?'<div class="cc-lock">🔒</div>':''}${done?'<div class="cc-lock">⭐</div>':''}`;
+      if(c.unlocked)d.onclick=()=>this.startChallenge(c.id);
+      m.appendChild(d);
+    });
+  },
+  renderRewards(){
+    const g=document.getElementById('rewards-grid');g.innerHTML='';
+    SEALS.forEach((s,i)=>{
+      const done=this.completed.has(i+1);
+      const d=document.createElement('div');d.className='reward-card'+(done?'':' locked');
+      d.innerHTML=`<div class="rc-icon">${s}</div><div class="rc-title">Desafio ${i+1}</div>`;
+      g.appendChild(d);
+    });
+  },
+  startChallenge(id){
+    this.currentChallenge=id;this.narrativeIdx=0;
+    this.goTo('narrative');this.showNarrative();
+  },
+  showNarrative(){
+    const n=NARRATIVES[this.currentChallenge];
+    if(!n)return this.launchGame();
+    const s=n[this.narrativeIdx];
+    if(!s)return this.launchGame();
+    document.getElementById('narrative-chapter-label').textContent=`Capítulo ${CHALLENGES[this.currentChallenge-1].ch}`;
+    document.getElementById('narrative-scene').textContent=s.scene;
+    document.getElementById('narrative-speaker').textContent=s.speaker;
+    document.getElementById('narrative-text').textContent=s.text;
+    document.getElementById('narrative-scene').style.animation='none';
+    requestAnimationFrame(()=>document.getElementById('narrative-scene').style.animation='fadeInUp .5s');
+  },
+  advanceNarrative(){
+    this.narrativeIdx++;
+    const n=NARRATIVES[this.currentChallenge];
+    if(this.narrativeIdx>=n.length)this.launchGame();
+    else this.showNarrative();
+  },
+  launchGame(){
+    this.goTo('minigame');
+    const area=document.getElementById('game-area');area.innerHTML='';
+    document.getElementById('game-progress-fill').style.width='0%';
+    if(this.currentChallenge===2)CameraGame.start(area);
+    else if(this.currentChallenge===3)CleanupGame.start(area);
+    else if(this.currentChallenge===8)FishingGame.start(area);
+  },
+  updateProgress(pct,title){
+    document.getElementById('game-progress-fill').style.width=pct+'%';
+    if(title)document.getElementById('game-hud-title').textContent=title;
+  },
+  showFeedback(txt,dur=1500){
+    const f=document.getElementById('game-feedback');f.textContent=txt;f.classList.add('show');
+    setTimeout(()=>f.classList.remove('show'),dur);
+  },
+  completeChallenge(){
+    SFX.complete();
+    this.completed.add(this.currentChallenge);
+    const d=COMPLETE_DATA[this.currentChallenge];
+    document.getElementById('complete-seal').textContent=d.seal;
+    document.getElementById('complete-desc').textContent=d.desc;
+    this.goTo('complete');
+  },
+  pauseGame(){document.getElementById('pause-overlay').classList.remove('hidden')},
+  resumeGame(){document.getElementById('pause-overlay').classList.add('hidden')},
+  restartChallenge(){document.getElementById('pause-overlay').classList.add('hidden');this.launchGame()}
+};
+
+// ===== CAMERA MINIGAME =====
+const CameraGame={
+  creatures:[],found:0,total:5,worldX:0,worldY:0,dragging:false,worldW:3600,worldH:1400,moveInterval:null,
+  start(area){
+    App.updateProgress(0,'📸 Câmera Submarina');this.found=0;this.worldX=0;this.worldY=0;
+    const targets=[
+      {emoji:'🐠',x:500,y:200,name:'Peixe-palhaço',dx:0.4,dy:0.2},
+      {emoji:'🐢',x:1200,y:600,name:'Tartaruga',dx:-0.3,dy:0.15},
+      {emoji:'🦑',x:1900,y:300,name:'Lula',dx:0.5,dy:-0.3},
+      {emoji:'🐙',x:2600,y:700,name:'Polvo',dx:-0.2,dy:0.25},
+      {emoji:'🦈',x:3200,y:400,name:'Tubarão',dx:-0.6,dy:-0.15}
+    ];
+    this.total=targets.length;this.creatureData=targets.map(t=>({...t,origX:t.x,origY:t.y,time:Math.random()*100}));
+    // decorations spread across world (background layer)
+    let decor='';
+    const plants=['🌿','🫧','🐚','🌊'];
+    for(let i=0;i<50;i++){
+      const e=plants[Math.floor(Math.random()*plants.length)];
+      decor+=`<span style="position:absolute;left:${Math.random()*this.worldW}px;top:${Math.random()*this.worldH}px;font-size:${16+Math.random()*24}px;opacity:${.15+Math.random()*.3};z-index:1;pointer-events:none">${e}</span>`;
+    }
+    // hiding spots — large rocks & coral that creatures move BEHIND (z-index:4, above creatures z:2)
+    let hideSpots='';
+    const spots=[
+      {e:'🪨',x:400,y:350,s:70},{e:'🪸',x:900,y:250,s:65},{e:'🪨',x:1500,y:500,s:80},
+      {e:'🪸',x:2100,y:350,s:72},{e:'🪨',x:2800,y:600,s:75},{e:'🪸',x:3300,y:300,s:68},
+      {e:'🪨',x:700,y:700,s:60},{e:'🪸',x:2000,y:150,s:55},{e:'🪨',x:3000,y:800,s:65}
+    ];
+    spots.forEach(s=>{
+      hideSpots+=`<span style="position:absolute;left:${s.x}px;top:${s.y}px;font-size:${s.s}px;z-index:4;pointer-events:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))">${s.e}</span>`;
+    });
+    // seabed floor decoration
+    let floor='';
+    for(let x=0;x<this.worldW;x+=120){
+      const fe=['🌿','🪸','🪨','🐚'][Math.floor(Math.random()*4)];
+      floor+=`<span style="position:absolute;left:${x}px;bottom:0;top:${this.worldH-60-Math.random()*40}px;font-size:${30+Math.random()*20}px;z-index:1;pointer-events:none;opacity:.5">${fe}</span>`;
+    }
+    let creatures='';targets.forEach((t,i)=>{
+      creatures+=`<span class="creature" data-idx="${i}" style="left:${t.x}px;top:${t.y}px;font-size:52px;z-index:2;transition:none">${t.emoji}</span>`;
+    });
+    let sil='';targets.forEach((t,i)=>{
+      sil+=`<div class="silhouette-item" data-idx="${i}" title="${t.name}">${t.emoji}</div>`;
+    });
+    area.innerHTML=`
+      <div class="camera-viewport" id="cam-vp" style="background:transparent">
+        <div class="camera-world" id="cam-world" style="width:${this.worldW}px;height:${this.worldH}px;background:linear-gradient(180deg,rgba(10,42,74,.85) 0%,rgba(12,61,95,.9) 30%,rgba(14,79,112,.85) 60%,rgba(6,27,46,.95) 100%)">${decor}${floor}${creatures}${hideSpots}</div>
+        <div class="camera-focus"></div>
+        <div class="camera-silhouettes">${sil}</div>
+        <button class="camera-btn" id="cam-btn">📷</button>
+        <div class="camera-flash" id="cam-flash"></div>
+      </div>`;
+    this.creatures=targets;
+    // animate creatures — drift + hide behind rocks
+    if(this.moveInterval)clearInterval(this.moveInterval);
+    this.moveInterval=setInterval(()=>{
+      document.querySelectorAll('.creature').forEach(el=>{
+        if(el.classList.contains('found'))return;
+        const i=parseInt(el.dataset.idx);const d=this.creatureData[i];d.time+=0.02;
+        const nx=d.origX+Math.sin(d.time*d.dx*2)*120;
+        const ny=d.origY+Math.cos(d.time*d.dy*3)*80;
+        const cx=Math.max(20,Math.min(this.worldW-60,nx));
+        const cy=Math.max(20,Math.min(this.worldH-60,ny));
+        el.style.left=cx+'px';el.style.top=cy+'px';
+        // flip based on direction
+        el.style.transform=d.dx>0?'scaleX(1)':'scaleX(-1)';
+      });
+    },30);
+    const vp=document.getElementById('cam-vp'),world=document.getElementById('cam-world');
+    let startX=0,startY=0,startWX=0,startWY=0;
+    const onStart=e=>{this.dragging=true;const pt=e.touches?e.touches[0]:e;startX=pt.clientX;startY=pt.clientY;startWX=this.worldX;startWY=this.worldY};
+    const onMove=e=>{if(!this.dragging)return;e.preventDefault();const pt=e.touches?e.touches[0]:e;const dx=pt.clientX-startX;const dy=pt.clientY-startY;const hw=window.innerWidth/2;const hh=window.innerHeight/2;this.worldX=Math.max(-(this.worldW-hw),Math.min(hw,startWX+dx));this.worldY=Math.max(-(this.worldH-hh),Math.min(hh,startWY+dy));world.style.transform=`translate(${this.worldX}px,${this.worldY}px)`};
+    const onEnd=()=>{this.dragging=false};
+    vp.addEventListener('mousedown',onStart);vp.addEventListener('mousemove',onMove);vp.addEventListener('mouseup',onEnd);vp.addEventListener('mouseleave',onEnd);
+    vp.addEventListener('touchstart',onStart,{passive:false});vp.addEventListener('touchmove',onMove,{passive:false});vp.addEventListener('touchend',onEnd);
+    document.getElementById('cam-btn').addEventListener('click',()=>this.takePhoto());
+    App.activeGame=this;
+  },
+  creatureInfo:{
+    '🐠':'O peixe-palhaço vive entre os tentáculos da anêmona! Eles se protegem mutuamente.',
+    '🐢':'As tartarugas marinhas podem viver mais de 100 anos e viajam milhares de quilômetros!',
+    '🦑':'A lula consegue mudar de cor em milésimos de segundo para se camuflar!',
+    '🐙':'O polvo tem 3 corações e sangue azul! É um dos animais mais inteligentes do mar.',
+    '🦈':'Os tubarões existem há mais de 400 milhões de anos — mais antigos que os dinossauros!'
+  },
+  isHidden(creatureRect){
+    // check if creature overlaps with any hiding spot
+    const spots=document.querySelectorAll('[style*="z-index:4"]');
+    let hidden=false;
+    spots.forEach(s=>{
+      const sr=s.getBoundingClientRect();
+      const cr=creatureRect;
+      const overlapX=Math.max(0,Math.min(cr.right,sr.right)-Math.max(cr.left,sr.left));
+      const overlapY=Math.max(0,Math.min(cr.bottom,sr.bottom)-Math.max(cr.top,sr.top));
+      const overlapArea=overlapX*overlapY;
+      const creatureArea=cr.width*cr.height;
+      if(creatureArea>0&&overlapArea/creatureArea>0.4)hidden=true;
+    });
+    return hidden;
+  },
+  showInfoDialog(emoji,name,info){
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(6,27,46,.7);backdrop-filter:blur(6px);animation:fadeInUp .3s';
+    d.innerHTML=`<div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:28px;max-width:360px;text-align:center;backdrop-filter:blur(12px)">
+      <div style="font-size:64px;margin-bottom:12px">${emoji}</div>
+      <div style="font-size:20px;font-weight:700;color:#00e5ff;margin-bottom:8px">📸 ${name}</div>
+      <div style="font-size:14px;line-height:1.6;font-family:'Quicksand',sans-serif;font-weight:500;color:#e8f4f8">${info}</div>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top:16px;padding:10px 32px;border-radius:50px;background:linear-gradient(135deg,#00b4d8,#0077b6);color:#fff;font-size:15px;font-weight:600;font-family:'Fredoka',sans-serif;border:none;cursor:pointer">Entendi! ✨</button>
+    </div>`;
+    document.body.appendChild(d);
+  },
+  takePhoto(){
+    SFX.shutter();
+    const flash=document.getElementById('cam-flash');flash.style.opacity='1';
+    setTimeout(()=>{flash.style.transition='opacity .4s';flash.style.opacity='0';setTimeout(()=>flash.style.transition='',400)},100);
+    const cx=window.innerWidth/2,cy=window.innerHeight/2,r=80;
+    let hit=false,hiddenHit=false;
+    document.querySelectorAll('.creature').forEach(el=>{
+      const idx=parseInt(el.dataset.idx);
+      const rect=el.getBoundingClientRect();
+      const ex=rect.left+rect.width/2,ey=rect.top+rect.height/2;
+      if(Math.abs(ex-cx)<r&&Math.abs(ey-cy)<r&&!el.classList.contains('found')){
+        if(this.isHidden(rect)){
+          hiddenHit=true;return;
+        }
+        SFX.success();
+        el.classList.add('found');el.style.filter='drop-shadow(0 0 12px rgba(0,229,255,.6))';
+        document.querySelector(`.silhouette-item[data-idx="${idx}"]`).classList.add('found');
+        this.found++;
+        App.updateProgress((this.found/this.total)*100);
+        const emoji=this.creatures[idx].emoji;
+        const name=this.creatures[idx].name;
+        const info=this.creatureInfo[emoji]||'Animal registrado!';
+        setTimeout(()=>this.showInfoDialog(emoji,name,info),500);
+        hit=true;
+        if(this.found>=this.total)setTimeout(()=>App.completeChallenge(),3000);
+      }
+    });
+    if(hiddenHit&&!hit) { SFX.error(); App.showFeedback('🪨 O animal está escondido! Espere ele sair.',1800); }
+    else if(!hit&&!hiddenHit) { SFX.error(); App.showFeedback('Hmm, não ficou boa! 🤔',1000); }
+  }
+};
+
+// ===== CLEANUP MINIGAME =====
+const CleanupGame={
+  phase:0,phases:['🏖️ Praia','🌊 Superfície','🐠 Profundezas'],
+  phaseColors:['linear-gradient(180deg,#87CEEB 0%,#f5e6c8 60%,#d4a76a 100%)','linear-gradient(180deg,#2196F3 0%,#0c3d5f 100%)','linear-gradient(180deg,#0c3d5f 0%,#061b2e 100%)'],
+  trashSets:[
+    [{e:'🥤',x:15,y:75},{e:'👜',x:35,y:80},{e:'🥫',x:55,y:72},{e:'🧴',x:75,y:78},{e:'🪣',x:90,y:70}],
+    [{e:'🍶',x:20,y:45},{e:'🛍️',x:40,y:55},{e:'🥡',x:60,y:40},{e:'🧃',x:80,y:50}],
+    [{e:'🔋',x:25,y:60},{e:'🪣',x:50,y:70},{e:'👟',x:70,y:55},{e:'🧴',x:85,y:65}]
+  ],
+  decorSets:[
+    [{e:'🌴',x:5,y:55,s:50},{e:'☀️',x:80,y:8,s:40},{e:'⛱️',x:45,y:58,s:44},{e:'🐚',x:65,y:82,s:24}],
+    [{e:'🌊',x:10,y:20,s:36},{e:'🐟',x:50,y:35,s:28},{e:'🦀',x:30,y:60,s:24}],
+    [{e:'🪸',x:15,y:75,s:40},{e:'🫧',x:40,y:30,s:20},{e:'🐙',x:70,y:50,s:36},{e:'🌿',x:55,y:80,s:30}]
+  ],
+  collected:0,totalInPhase:0,
+  start(area){
+    this.phase=0;App.updateProgress(0,'🧹 Mutirão de Limpeza');
+    App.activeGame=this;this.renderPhase(area);
+  },
+  renderPhase(area){
+    if(!area)area=document.getElementById('game-area');
+    const p=this.phase;if(p>=3)return App.completeChallenge();
+    this.collected=0;this.totalInPhase=this.trashSets[p].length;
+    const pct=(p/3)*100;App.updateProgress(pct);
+    let decor='';this.decorSets[p].forEach(d=>{
+      decor+=`<span style="position:absolute;left:${d.x}%;top:${d.y}%;font-size:${d.s}px;z-index:1;pointer-events:none;opacity:.7">${d.e}</span>`;
+    });
+    let trash='';this.trashSets[p].forEach((t,i)=>{
+      trash+=`<div class="trash-item" data-idx="${i}" style="left:${t.x}%;top:${t.y}%">${t.e}</div>`;
+    });
+    const icons=['⛱️','🌊','🐠'];
+    let progIcons='';icons.forEach((ic,i)=>{
+      progIcons+=`<span style="opacity:${i<=p?1:.3}">${ic}</span>`;
+    });
+    document.getElementById('game-progress-icons').innerHTML=progIcons;
+    area.innerHTML=`
+      <div class="cleanup-viewport" style="background:${this.phaseColors[p]}">
+        <div class="cleanup-phase-label">${this.phases[p]}</div>
+        ${decor}${trash}
+        <div class="cleanup-bag">🗑️</div>
+      </div>`;
+    area.querySelectorAll('.trash-item').forEach(el=>{
+      el.addEventListener('click',()=>this.collectTrash(el));
+    });
+  },
+  collectTrash(el){
+    if(el.classList.contains('collected'))return;
+    SFX.collect();
+    el.classList.add('collected');this.collected++;
+    const msgs=['Boa! 🎉','Lixo coletado! ♻️','Excelente! 🌊','Mais um! 💪','Quase lá! ⭐'];
+    App.showFeedback(msgs[Math.min(this.collected-1,msgs.length-1)],800);
+    const basePct=(this.phase/3)*100;
+    const phasePct=(this.collected/this.totalInPhase)*(100/3);
+    App.updateProgress(basePct+phasePct);
+    if(this.collected>=this.totalInPhase){
+      setTimeout(()=>{
+        this.phase++;
+        if(this.phase>=3){App.updateProgress(100);setTimeout(()=>App.completeChallenge(),800)}
+        else{App.showFeedback(`${this.phases[this.phase]} — Próxima área!`,1200);setTimeout(()=>this.renderPhase(),1400)}
+      },600);
+    }
+  }
+};
+
+// ===== FISHING MINIGAME =====
+const FishingGame={
+  caught:0,goal:3,timingAnim:null,fishAnim:null,hookY:280,
+  fishTypes:[
+    {e:'🐟',name:'Robalo adulto',ok:true,speed:1.2,info:'O robalo é um peixe nobre de água salgada. Adultos podem pesar até 7kg!'},
+    {e:'🐠',name:'Peixe-palhaço filhote',ok:false,speed:1.5,info:'Esse é filhote! Precisa crescer para manter o equilíbrio do recife.'},
+    {e:'🐟',name:'Tainha adulta',ok:true,speed:1,info:'A tainha é um dos peixes mais pescados no Brasil. Adultos sustentam famílias inteiras!'},
+    {e:'🐡',name:'Baiacu filhote',ok:false,speed:0.8,info:'Baiacus filhotes são pequenos e vulneráveis. Devolva ao mar!'},
+    {e:'🐟',name:'Pescada adulta',ok:true,speed:1.1,info:'A pescada é saborosa e nutritiva. Pescar apenas adultos garante as próximas gerações!'},
+    {e:'🐠',name:'Peixe-anjo filhote',ok:false,speed:1.3,info:'Esse peixe-anjo ainda é bebê! Ele precisa do recife para crescer.'},
+  ],
+  start(area){
+    this.caught=0;App.updateProgress(0,'🎣 Pesca Sustentável');App.activeGame=this;
+    this.showEquipment(area);
+  },
+  showEquipment(area){
+    if(!area)area=document.getElementById('game-area');
+    area.innerHTML=`<div class="fishing-phase">
+      <div class="fishing-title">Escolha o equipamento</div>
+      <div class="fishing-narrator">"Preciso de uma vara que não pesque mais do que eu preciso" — Seu Joaquim</div>
+      <div class="fishing-options">
+        <div class="fishing-option" data-c="wrong" onclick="FishingGame.pickEquip(this)">
+          <div class="fo-icon">🪤</div><div class="fo-label">Rede de Arrasto</div>
+        </div>
+        <div class="fishing-option" data-c="ok" onclick="FishingGame.pickEquip(this)">
+          <div class="fo-icon">🎣</div><div class="fo-label">Vara Artesanal</div>
+        </div>
+      </div></div>`;
+  },
+  pickEquip(el){
+    if(el.dataset.c==='ok'){
+      SFX.success();
+      el.classList.add('correct');App.showFeedback('Boa escolha! 🎣');
+      setTimeout(()=>this.startFishing(),1200);
+    }else{
+      SFX.error();
+      el.classList.add('wrong');App.showFeedback('A rede pega tudo sem critério! ❌',1500);
+      setTimeout(()=>el.classList.remove('wrong'),800);
+    }
+  },
+  startFishing(){
+    const area=document.getElementById('game-area');
+    this.hookY=55;
+    area.innerHTML=`
+      <div style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#87CEEB 0%,#5b9bd5 25%,#2980b9 40%,#1a5276 60%,#0c3547 100%)">
+        <!-- sky/pier -->
+        <div style="position:absolute;top:0;left:0;right:0;height:28%;background:linear-gradient(180deg,#87CEEB,#5dade2);z-index:1">
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:16px;color:#8B4513;font-weight:700">🌴 Pier de Pedra Azul 🌴</div>
+        </div>
+        <!-- rod -->
+        <div style="position:absolute;top:8%;right:22%;font-size:48px;z-index:3;transform:rotate(25deg)">🎣</div>
+        <!-- fishing line -->
+        <div id="fish-line" style="position:absolute;top:18%;right:24%;width:2px;height:37%;background:rgba(255,255,255,.4);z-index:2"></div>
+        <!-- hook area -->
+        <div id="fish-hook" style="position:absolute;top:${this.hookY}%;right:23%;font-size:24px;z-index:3;transition:top .3s">🪝</div>
+        <!-- water surface line -->
+        <div style="position:absolute;top:28%;left:0;right:0;height:3px;background:rgba(255,255,255,.2);z-index:1"></div>
+        <!-- swimming fish area -->
+        <div id="fish-swim-area" style="position:absolute;top:30%;left:0;right:0;bottom:0;overflow:hidden;z-index:2"></div>
+        <!-- underwater decor -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:15%;z-index:1;display:flex;justify-content:space-around;align-items:flex-end;padding:0 20px;opacity:.5">
+          <span style="font-size:36px">🪸</span><span style="font-size:28px">🌿</span><span style="font-size:32px">🪨</span>
+          <span style="font-size:24px">🐚</span><span style="font-size:30px">🪸</span><span style="font-size:26px">🌿</span>
+        </div>
+        <!-- HUD -->
+        <div id="fish-hud" style="position:absolute;top:70px;left:16px;z-index:10;background:rgba(6,27,46,.7);padding:10px 16px;border-radius:12px;backdrop-filter:blur(6px);font-size:14px;font-weight:600">
+          🐟 Peixes: <span id="fish-caught">0</span>/3
+        </div>
+        <div id="fish-instruction" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;background:rgba(6,27,46,.8);padding:10px 20px;border-radius:20px;font-size:14px;color:var(--gold);backdrop-filter:blur(6px);text-align:center">
+          Espere um peixe se aproximar do anzol e toque para fisgar! 🎣
+        </div>
+        <!-- hook button -->
+        <button id="hook-btn" onclick="FishingGame.tryHook()" style="position:absolute;bottom:70px;left:50%;transform:translateX(-50%);width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#e74c3c,#c0392b);border:4px solid #fff;font-size:28px;color:#fff;z-index:10;cursor:pointer;box-shadow:0 4px 20px rgba(231,76,60,.5);display:flex;align-items:center;justify-content:center">🎯</button>
+      </div>`;
+    this.spawnFish();
+  },
+  spawnFish(){
+    if(this.fishAnim)clearInterval(this.fishAnim);
+    const swimArea=document.getElementById('fish-swim-area');
+    if(!swimArea)return;
+    // spawn fish periodically
+    this.fishAnim=setInterval(()=>{
+      if(!document.getElementById('fish-swim-area'))return clearInterval(this.fishAnim);
+      const type=this.fishTypes[Math.floor(Math.random()*this.fishTypes.length)];
+      const fromLeft=Math.random()>0.5;
+      const yPct=15+Math.random()*55;
+      const sz=type.ok?44:30;
+      const f=document.createElement('div');
+      f.className='swim-fish';
+      f.dataset.ok=type.ok;f.dataset.name=type.name;f.dataset.info=type.info;f.dataset.emoji=type.e;
+      f.style.cssText=`position:absolute;top:${yPct}%;${fromLeft?'left:-60px':'right:-60px'};font-size:${sz}px;z-index:3;transition:none;transform:scaleX(${fromLeft?1:-1});pointer-events:none`;
+      f.textContent=type.e;
+      swimArea.appendChild(f);
+      let pos=fromLeft?-60:swimArea.clientWidth+60;
+      const dir=fromLeft?1:-1;
+      const speed=type.speed*(1+Math.random()*0.5);
+      const moveInt=setInterval(()=>{
+        pos+=dir*speed;
+        f.style[fromLeft?'left':'right']='auto';
+        f.style.left=pos+'px';
+        // wobble
+        const wy=parseFloat(f.style.top)||yPct;
+        f.style.top=(yPct+Math.sin(pos*0.02)*8)+'%';
+        if(pos>swimArea.clientWidth+80||pos<-80){clearInterval(moveInt);f.remove()}
+      },16);
+      f._moveInt=moveInt;
+    },1800);
+  },
+  tryHook(){
+    const hookEl=document.getElementById('fish-hook');
+    if(!hookEl)return;
+    const hookRect=hookEl.getBoundingClientRect();
+    const hx=hookRect.left+hookRect.width/2;
+    const hy=hookRect.top+hookRect.height/2;
+    let closest=null,closestDist=120;
+    document.querySelectorAll('.swim-fish').forEach(f=>{
+      const fr=f.getBoundingClientRect();
+      const fx=fr.left+fr.width/2,fy=fr.top+fr.height/2;
+      const dist=Math.sqrt((fx-hx)**2+(fy-hy)**2);
+      if(dist<closestDist){closestDist=dist;closest=f}
+    });
+    if(!closest){
+      SFX.error();
+      App.showFeedback('Nenhum peixe perto do anzol! 🎣',1000);return;
+    }
+    // hooked! stop fish, start fight
+    SFX.hook();
+    clearInterval(this.fishAnim);
+    if(closest._moveInt)clearInterval(closest._moveInt);
+    closest.style.left=hookEl.style.right;
+    closest.style.top=hookEl.style.top;
+    const fishData={ok:closest.dataset.ok==='true',name:closest.dataset.name,info:closest.dataset.info,emoji:closest.dataset.emoji,el:closest};
+    // remove other fish
+    document.querySelectorAll('.swim-fish').forEach(f=>{if(f!==closest){if(f._moveInt)clearInterval(f._moveInt);f.remove()}});
+    App.showFeedback('Fisgou um peixe! 🐟',1000);
+    document.getElementById('fish-instruction').textContent='O peixe está brigando! Acerte a zona verde para puxar!';
+    setTimeout(()=>this.startFight(fishData),1200);
+  },
+  startFight(fishData){
+    const totalRounds=2+Math.floor(Math.random()*2); // 2 or 3 pairs = 4-6 steps
+    this.fightSteps=[];
+    for(let i=0;i<totalRounds;i++){this.fightSteps.push('timing');this.fightSteps.push('reel')}
+    this.fightStep=0;this.fightFish=fishData;
+    this.fightFishY=65;
+    this.showFightStep();
+  },
+  updateFishPos(){
+    const pct=this.fightStep/this.fightSteps.length;
+    const targetY=65-pct*32;
+    this.fightFishY=targetY;
+    const hookEl=document.getElementById('fish-hook');
+    if(hookEl)hookEl.style.top=targetY+'%';
+    const lineEl=document.getElementById('fish-line');
+    if(lineEl)lineEl.style.height=(targetY-18)+'%';
+    const fishEl=this.fightFish.el;
+    if(fishEl){fishEl.style.position='absolute';fishEl.style.top=(targetY-2)+'%';fishEl.style.left='70%';fishEl.style.fontSize='48px';fishEl.style.animation='shake .3s infinite'}
+  },
+  showFightStep(){
+    if(this.fightStep>=this.fightSteps.length){
+      const ov=document.getElementById('fight-overlay');if(ov)ov.remove();
+      setTimeout(()=>this.fishCaught(this.fightFish),600);return;
+    }
+    this.updateFishPos();
+    const type=this.fightSteps[this.fightStep];
+    const step=this.fightStep+1;const total=this.fightSteps.length;
+    const instr=document.getElementById('fish-instruction');
+    if(type==='timing'){
+      if(instr)instr.textContent='🐟 O peixe puxa! Acerte a zona verde!';
+      this.showTimingRound(step,total);
+    }else{
+      if(instr)instr.textContent='🔄 O peixe cansou! Gire o molinete rápido!';
+      this.showReelRound(step,total);
+    }
+  },
+  showTimingRound(step,total){
+    let existing=document.getElementById('fight-overlay');if(existing)existing.remove();
+    const ov=document.createElement('div');ov.id='fight-overlay';
+    ov.style.cssText='position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:12px;background:rgba(6,27,46,.85);padding:20px 28px;border-radius:16px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15)';
+    ov.innerHTML=`
+      <div style="font-size:13px;font-weight:600;color:var(--gold)">⏱️ Puxada ${step}/${total} — Segure!</div>
+      <div class="fishing-timing-bar" id="timing-bar" style="width:240px">
+        <div class="fishing-timing-zone" style="left:${25+Math.random()*25}%;width:${14+Math.random()*6}%"></div>
+        <div class="fishing-timing-cursor" id="timing-cursor" style="left:0%"></div>
+      </div>
+      <button class="btn btn-primary" onclick="FishingGame.fightPull()" style="padding:10px 28px;font-size:15px">💪 Puxar!</button>`;
+    (document.getElementById('fish-swim-area')||document.getElementById('game-area')).appendChild(ov);
+    this.timingPos=0;this.timingDir=1;
+    const zone=ov.querySelector('.fishing-timing-zone');
+    this.zoneLeft=parseFloat(zone.style.left);
+    this.zoneRight=this.zoneLeft+parseFloat(zone.style.width);
+    const cursor=document.getElementById('timing-cursor');
+    if(this.timingAnim)clearInterval(this.timingAnim);
+    const speed=1.2+Math.floor(this.fightStep/2)*0.5;
+    this.timingAnim=setInterval(()=>{
+      this.timingPos+=this.timingDir*speed;
+      if(this.timingPos>=95||this.timingPos<=0)this.timingDir*=-1;
+      cursor.style.left=this.timingPos+'%';
+    },20);
+  },
+  fightPull(){
+    clearInterval(this.timingAnim);
+    const hit=this.timingPos>=this.zoneLeft-2&&this.timingPos<=this.zoneRight+2;
+    if(hit){
+      SFX.pull();
+      this.fightStep++;
+      App.showFeedback('Boa puxada! 💪',800);
+      const ov=document.getElementById('fight-overlay');if(ov)ov.remove();
+      setTimeout(()=>this.showFightStep(),800);
+    }else{
+      this.fishEscaped();
+    }
+  },
+  showReelRound(step,total){
+    let existing=document.getElementById('fight-overlay');if(existing)existing.remove();
+    const ov=document.createElement('div');ov.id='fight-overlay';
+    ov.style.cssText='position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(6,27,46,.85);padding:20px 28px;border-radius:16px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15)';
+    ov.innerHTML=`
+      <div style="font-size:13px;font-weight:600;color:var(--gold)">🔄 Molinete ${step}/${total} — Gire rápido!</div>
+      <div id="reel-timer-bar" style="width:200px;height:8px;background:rgba(255,255,255,.15);border-radius:8px;overflow:hidden">
+        <div id="reel-timer-fill" style="width:100%;height:100%;background:linear-gradient(90deg,#e74c3c,#f39c12);border-radius:8px;transition:width .1s"></div>
+      </div>
+      <div class="fishing-reel" id="reel" style="width:100px;height:100px;font-size:40px;cursor:grab;touch-action:none;user-select:none">🔄</div>
+      <div id="reel-pct" style="font-size:14px;color:var(--accent)">0%</div>`;
+    (document.getElementById('fish-swim-area')||document.getElementById('game-area')).appendChild(ov);
+    // reel mechanic with timer
+    this.reelProgress=0;
+    let timeLeft=6000;
+    const reel=document.getElementById('reel');
+    let lastAngle=null,totalRot=0;
+    const getAngle=(e)=>{
+      const r=reel.getBoundingClientRect();
+      const cx=r.left+r.width/2,cy=r.top+r.height/2;
+      const px=e.touches?e.touches[0].clientX:e.clientX;
+      const py=e.touches?e.touches[0].clientY:e.clientY;
+      return Math.atan2(py-cy,px-cx)*180/Math.PI;
+    };
+    const onStart=(e)=>{e.preventDefault();lastAngle=getAngle(e)};
+    const onMove=(e)=>{
+      if(lastAngle===null)return;e.preventDefault();
+      const a=getAngle(e);let d=a-lastAngle;
+      if(d>180)d-=360;if(d<-180)d+=360;
+      totalRot+=Math.abs(d);lastAngle=a;
+      reel.style.transform=`rotate(${totalRot}deg)`;
+      this.reelProgress=Math.min(100,totalRot/500*100);
+      const pctEl=document.getElementById('reel-pct');
+      if(pctEl)pctEl.textContent=Math.round(this.reelProgress)+'%';
+      if(this.reelProgress>=100){
+        lastAngle=null;cleanup();
+        this.fightStep++;
+        SFX.success();
+        App.showFeedback('🔄 Linha recolhida!',800);
+        const ov2=document.getElementById('fight-overlay');if(ov2)ov2.remove();
+        setTimeout(()=>this.showFightStep(),800);
+      }else if(Math.random()<0.2){
+        SFX.reel();
+      }
+    };
+    const onEnd=()=>{lastAngle=null};
+    reel.addEventListener('mousedown',onStart);window.addEventListener('mousemove',onMove);window.addEventListener('mouseup',onEnd);
+    reel.addEventListener('touchstart',onStart,{passive:false});window.addEventListener('touchmove',onMove,{passive:false});window.addEventListener('touchend',onEnd);
+    // timer countdown
+    const timerFill=document.getElementById('reel-timer-fill');
+    const timerInt=setInterval(()=>{
+      timeLeft-=100;
+      const pct=Math.max(0,timeLeft/6000*100);
+      if(timerFill)timerFill.style.width=pct+'%';
+      if(timeLeft<=0){
+        cleanup();
+        if(this.reelProgress<100)this.fishEscaped();
+      }
+    },100);
+    const cleanup=()=>{
+      clearInterval(timerInt);
+      window.removeEventListener('mousemove',onMove);window.removeEventListener('mouseup',onEnd);
+      window.removeEventListener('touchmove',onMove);window.removeEventListener('touchend',onEnd);
+    };
+    this.reelCleanup=cleanup;
+  },
+  fishEscaped(){
+    SFX.escape();
+    App.showFeedback('O peixe escapou! 🐟💨',1500);
+    const ov=document.getElementById('fight-overlay');if(ov)ov.remove();
+    if(this.fightFish.el)this.fightFish.el.remove();
+    if(this.reelCleanup){this.reelCleanup();this.reelCleanup=null}
+    if(this.timingAnim){clearInterval(this.timingAnim);this.timingAnim=null}
+    setTimeout(()=>{
+      const instr=document.getElementById('fish-instruction');
+      if(instr)instr.textContent='Espere outro peixe se aproximar do anzol! 🎣';
+      const hookEl=document.getElementById('fish-hook');if(hookEl)hookEl.style.top='55%';
+      const lineEl=document.getElementById('fish-line');if(lineEl)lineEl.style.height='37%';
+      this.spawnFish();
+    },1500);
+  },
+  fishCaught(fishData){
+    if(fishData.el){fishData.el.style.animation='';fishData.el.style.top='30%';fishData.el.style.fontSize='56px'}
+    if(fishData.ok){
+      SFX.success();
+      this.caught++;
+      document.getElementById('fish-caught').textContent=this.caught;
+      App.updateProgress((this.caught/this.goal)*100);
+      this.showFishDialog(fishData.emoji,fishData.name,fishData.info,true);
+      if(this.caught>=this.goal){
+        setTimeout(()=>App.completeChallenge(),3500);
+      }else{
+        setTimeout(()=>{
+          if(fishData.el)fishData.el.remove();
+          document.getElementById('fish-instruction').textContent='Espere outro peixe se aproximar! 🎣';
+          const hookEl=document.getElementById('fish-hook');if(hookEl)hookEl.style.top='55%';
+          const lineEl=document.getElementById('fish-line');if(lineEl)lineEl.style.height='37%';
+          this.spawnFish();
+        },3000);
+      }
+    }else{
+      SFX.error();
+      this.showFishDialog(fishData.emoji,fishData.name,fishData.info,false);
+      setTimeout(()=>{
+        if(fishData.el)fishData.el.remove();
+        document.getElementById('fish-instruction').textContent='Esse era filhote! Vamos tentar pegar um adulto! 🎣';
+        const hookEl=document.getElementById('fish-hook');if(hookEl)hookEl.style.top='55%';
+        const lineEl=document.getElementById('fish-line');if(lineEl)lineEl.style.height='37%';
+        this.spawnFish();
+      },3000);
+    }
+  },
+  showFishDialog(emoji,name,info,isOk){
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(6,27,46,.7);backdrop-filter:blur(6px);animation:fadeInUp .3s';
+    const color=isOk?'#00e5ff':'#ff6b6b';
+    const title=isOk?'✅ Peixe pescado!':'🔄 Devolva ao mar!';
+    const sub=isOk?`Seu Joaquim: "Esse é um ${name}! Boa pesca!"`:`Seu Joaquim: "Esse é ${name}. Ele precisa crescer!"`;
+    d.innerHTML=`<div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:28px;max-width:360px;text-align:center;backdrop-filter:blur(12px)">
+      <div style="font-size:64px;margin-bottom:8px">${emoji}</div>
+      <div style="font-size:18px;font-weight:700;color:${color};margin-bottom:6px">${title}</div>
+      <div style="font-size:14px;color:var(--gold);font-style:italic;margin-bottom:10px;font-family:'Quicksand',sans-serif">${sub}</div>
+      <div style="font-size:13px;line-height:1.5;font-family:'Quicksand',sans-serif;color:#e8f4f8">${info}</div>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top:14px;padding:10px 28px;border-radius:50px;background:linear-gradient(135deg,#00b4d8,#0077b6);color:#fff;font-size:14px;font-weight:600;font-family:'Fredoka',sans-serif;border:none;cursor:pointer">OK 👍</button>
+    </div>`;
+    document.body.appendChild(d);
+  }
+};
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>App.init());
+
+  
+  </script>
+  <script>
+  // 3. Bloqueia o clique direito (Menu de contexto)
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+  // 4. Previne comportamentos extras de arrasto (drag and drop de imagens)
+  document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+  });
+</script>
+</body>
+</html>
