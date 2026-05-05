@@ -926,7 +926,7 @@ const FishingGame={
     const ov=document.createElement('div');ov.id='fight-overlay';
     ov.style.cssText='position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:12px;background:rgba(6,27,46,.85);padding:20px 28px;border-radius:16px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15)';
     ov.innerHTML=`
-      <div style="font-size:13px;font-weight:600;color:var(--gold)">⏱️ Puxada ${step}/${total} — Segure!</div>
+      <div style="font-size:13px;margin-top:-50px;font-weight:600;color:var(--gold)">⏱️ Puxada ${step}/${total} — Segure!</div>
       <div class="fishing-timing-bar" id="timing-bar" style="width:240px">
         <div class="fishing-timing-zone" style="left:${25+Math.random()*25}%;width:${14+Math.random()*6}%"></div>
         <div class="fishing-timing-cursor" id="timing-cursor" style="left:0%"></div>
