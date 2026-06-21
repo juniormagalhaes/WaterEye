@@ -51,7 +51,6 @@
             flex-direction: column;
         }
 
-        /* Glassmorphism Classes */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -60,7 +59,6 @@
             border-radius: 20px;
         }
 
-        /* Screens */
         .screen {
             position: absolute;
             top: 0;
@@ -82,7 +80,6 @@
             transform: scale(1);
         }
 
-        /* Typography */
         h1 {
             font-size: 3rem;
             font-weight: 800;
@@ -98,7 +95,6 @@
         h2 { font-size: 1.8rem; text-align: center; margin-bottom: 20px; }
         p { font-size: 1rem; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
 
-        /* Buttons */
         .btn {
             background: linear-gradient(45deg, var(--primary), #7209b7);
             color: white;
@@ -123,7 +119,6 @@
             box-shadow: none;
         }
 
-        /* Inputs */
         input {
             width: 100%;
             padding: 15px;
@@ -138,7 +133,6 @@
         }
         input:focus { border-color: var(--primary); }
 
-        /* Gameplay Screen */
         .visualizer-container {
             flex-grow: 1;
             display: flex;
@@ -189,7 +183,6 @@
             100% { transform: scale(1.8); opacity: 0; }
         }
 
-        /* Options Grid */
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -215,14 +208,11 @@
         .option-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); }
         .option-btn.selected { background: var(--primary); border-color: var(--accent); }
 
-        /* Reveal Screen */
-        .result-bar-container {
-            margin-bottom: 15px;
-        }
+        .result-bar-container { margin-bottom: 15px; }
         .result-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             font-size: 1.1rem;
         }
         .result-bar-bg {
@@ -238,7 +228,6 @@
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Utility */
         .spacer { flex-grow: 1; }
         .center-content { display: flex; flex-direction: column; justify-content: center; height: 100%; }
         
@@ -250,7 +239,6 @@
             color: var(--accent);
         }
 
-        /* Toast */
         #toast {
             position: absolute;
             top: 20px;
@@ -266,6 +254,15 @@
             pointer-events: none;
             z-index: 100;
         }
+        
+        .player-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -280,30 +277,40 @@
             <p>Sinta a música. Combine com o mundo.</p>
             <div class="spacer"></div>
             <button class="btn" onclick="startSolo()">🎧 Jogar Solo</button>
-            <button class="btn btn-secondary" onclick="showLobby()">👥 Vibe Party (P2P)</button>
+            <button class="btn btn-secondary" onclick="showLobby()">👥 Vibe Party (Multijogador)</button>
         </div>
     </div>
 
-    <!-- TELA 2: LOBBY P2P -->
+    <!-- TELA 2: LOBBY -->
     <div id="screen-lobby" class="screen">
         <h2>Vibe Party</h2>
-        <p>Conecte-se com um amigo para jogar a mesma sessão juntos!</p>
+        <input type="text" id="player-name" placeholder="Seu Apelido (ex: João)" />
         
-        <div class="glass" style="padding: 20px; margin-bottom: 20px;">
-            <h3>Criar Sala</h3>
-            <p>Seu código é:</p>
-            <h1 id="my-peer-id">...</h1>
-            <button class="btn" id="btn-create-room" onclick="initPeer()">Gerar Código</button>
+        <div id="lobby-options">
+            <div class="glass" style="padding: 20px; margin-bottom: 20px;">
+                <h3>Hostear Sala</h3>
+                <p>Crie uma sala para seus amigos entrarem.</p>
+                <button class="btn" id="btn-create-room" onclick="initHost()">Criar Sala</button>
+            </div>
+
+            <div class="glass" style="padding: 20px;">
+                <h3>Entrar na Sala</h3>
+                <input type="text" id="join-id" placeholder="Código numérico" />
+                <button class="btn btn-secondary" onclick="joinRoom()">Conectar</button>
+            </div>
         </div>
 
-        <div class="glass" style="padding: 20px;">
-            <h3>Entrar na Sala</h3>
-            <input type="text" id="join-id" placeholder="Digite o código" />
-            <button class="btn btn-secondary" onclick="joinRoom()">Conectar</button>
+        <div id="lobby-waiting" style="display:none; text-align:center;">
+            <h3>Sala: <span id="my-peer-id" style="color:var(--accent); font-size:2.5rem; display:block; margin: 10px 0;">...</span></h3>
+            <p>Jogadores Conectados:</p>
+            <div id="player-list" class="glass" style="padding:15px; margin-bottom:20px; text-align:center; min-height: 100px;">
+            </div>
+            <button class="btn" id="btn-start-multiplayer" style="display:none;" onclick="startGameHost()">Começar Jogo</button>
+            <p id="waiting-host-msg" style="display:none; color:var(--accent);">Aguardando o host iniciar...</p>
         </div>
         
         <div class="spacer"></div>
-        <button class="btn btn-secondary" style="border:none;" onclick="showScreen('screen-home')">← Voltar</button>
+        <button class="btn btn-secondary" style="border:none;" onclick="location.reload()">← Voltar</button>
     </div>
 
     <!-- TELA 3: GAMEPLAY -->
@@ -326,21 +333,22 @@
         <h2 id="question-title">Qual é a vibe dessa música?</h2>
         
         <div class="options-grid" id="options-container">
-            <!-- Buttons injected by JS -->
+            <!-- Injetado por JS -->
         </div>
     </div>
 
     <!-- TELA 4: REVEAL -->
     <div id="screen-reveal" class="screen">
         <h2>Resultado da Vibe</h2>
-        <p id="reveal-subtitle">Veja como o mundo (ou seu amigo) sentiu:</p>
+        <p id="reveal-subtitle">Veja como a galera sentiu:</p>
         
-        <div class="glass" style="padding: 20px; flex-grow: 1; display:flex; flex-direction:column; justify-content:center;" id="reveal-bars">
-            <!-- Bars injected by JS -->
+        <div class="glass" style="padding: 20px; flex-grow: 1; display:flex; flex-direction:column; justify-content:center; overflow-y: auto;" id="reveal-bars">
+            <!-- Barras injetadas por JS -->
         </div>
 
         <div class="spacer"></div>
-        <button class="btn" id="btn-next-round" onclick="nextRound()">Próxima Rodada</button>
+        <button class="btn" id="btn-next-round" style="display:none;" onclick="nextRound()">Próxima Rodada</button>
+        <p id="waiting-next-msg" style="display:none; color:var(--accent); text-align:center;">Aguardando o host...</p>
     </div>
 
     <!-- TELA 5: RESULTADOS -->
@@ -352,7 +360,7 @@
                 <p>Pontuação Total</p>
                 <h1 id="final-score">0</h1>
                 
-                <p style="margin-top:20px;">Seu Match de Vibe</p>
+                <p style="margin-top:20px;">Match de Vibe</p>
                 <h2 id="final-match-pct" style="color:var(--accent); font-size:3rem;">0%</h2>
             </div>
             
@@ -368,16 +376,22 @@
     // --- ESTADO DO JOGO ---
     let isMultiplayer = false;
     let isHost = false;
+    let myId = 'solo';
+    let myName = 'Você';
     let currentRound = 0;
     let totalScore = 0;
+    
     let myAnswer = null;
-    let otherAnswer = null;
     let roundTimer = null;
     let timeRemaining = 15;
     
+    // Arrays para P2P
+    let players = []; 
+    let conns = [];
+    let roundAnswers = {}; 
+    
     // --- PEERJS (WEB RTC) ---
     let peer = null;
-    let conn = null;
 
     function showToast(msg) {
         const t = document.getElementById('toast');
@@ -393,62 +407,125 @@
 
     function startSolo() {
         isMultiplayer = false;
-        startGame();
+        myId = 'solo';
+        myName = 'Você';
+        players = [{id: myId, name: myName}];
+        currentRound = 0;
+        totalScore = 0;
+        playRound(0);
     }
 
     function showLobby() {
         showScreen('screen-lobby');
     }
 
-    // Gerar um código numérico de 4 dígitos para facilitar
-    function generateSimpleId() {
-        return Math.floor(1000 + Math.random() * 9000).toString();
+    function getPlayerName() {
+        let name = document.getElementById('player-name').value.trim();
+        return name || 'Jogador ' + Math.floor(Math.random() * 1000);
     }
 
-    function initPeer() {
-        const id = generateSimpleId();
+    function updatePlayerListUI() {
+        const list = document.getElementById('player-list');
+        list.innerHTML = '';
+        players.forEach(p => {
+            let badge = document.createElement('span');
+            badge.className = 'player-badge';
+            badge.innerText = p.name + (p.id === myId ? ' (Você)' : '');
+            list.appendChild(badge);
+        });
+    }
+
+    function initHost() {
+        myName = getPlayerName();
+        const id = Math.floor(1000 + Math.random() * 9000).toString();
         peer = new Peer('vibematch-' + id);
         
         peer.on('open', (peerId) => {
+            myId = peerId;
+            isHost = true;
+            isMultiplayer = true;
+            players = [{id: myId, name: myName + ' 👑'}];
+            
             document.getElementById('my-peer-id').innerText = id;
-            document.getElementById('btn-create-room').style.display = 'none';
+            document.getElementById('lobby-options').style.display = 'none';
+            document.getElementById('lobby-waiting').style.display = 'block';
+            document.getElementById('btn-start-multiplayer').style.display = 'block';
+            updatePlayerListUI();
         });
 
         peer.on('connection', (connection) => {
-            conn = connection;
-            setupConnection();
-            isHost = true;
-            isMultiplayer = true;
-            showToast("Amigo conectado! Iniciando...");
-            setTimeout(startGame, 1500);
+            conns.push(connection);
+            setupConnection(connection);
         });
     }
 
     function joinRoom() {
+        myName = getPlayerName();
         const roomCode = document.getElementById('join-id').value;
         if(roomCode.length < 4) return showToast("Código inválido");
         
-        peer = new Peer(); // no specific ID needed for client
-        peer.on('open', () => {
-            conn = peer.connect('vibematch-' + roomCode);
-            conn.on('open', () => {
-                setupConnection();
-                isHost = false;
-                isMultiplayer = true;
+        peer = new Peer();
+        peer.on('open', (id) => {
+            myId = id;
+            isHost = false;
+            isMultiplayer = true;
+            const connection = peer.connect('vibematch-' + roomCode);
+            conns.push(connection);
+            
+            connection.on('open', () => {
+                setupConnection(connection);
+                document.getElementById('lobby-options').style.display = 'none';
+                document.getElementById('lobby-waiting').style.display = 'block';
+                document.getElementById('my-peer-id').innerText = roomCode;
+                document.getElementById('waiting-host-msg').style.display = 'block';
+                
+                connection.send({type: 'JOIN', id: myId, name: myName});
                 showToast("Conectado! Aguardando Host...");
             });
         });
     }
 
-    function setupConnection() {
+    function setupConnection(conn) {
         conn.on('data', (data) => {
-            if(data.type === 'START_GAME') startGameFromHost();
-            if(data.type === 'START_ROUND') playRound(data.roundIndex);
-            if(data.type === 'ANSWER') {
-                otherAnswer = data.answer;
-                checkReveal();
+            if(data.type === 'JOIN') {
+                if(isHost) {
+                    players.push({id: data.id, name: data.name});
+                    updatePlayerListUI();
+                    broadcast({type: 'PLAYER_LIST', players: players});
+                    showToast(data.name + " entrou!");
+                }
             }
-            if(data.type === 'NEXT_ROUND') nextRoundFromHost();
+            if(data.type === 'PLAYER_LIST') {
+                players = data.players;
+                updatePlayerListUI();
+            }
+            if(data.type === 'START_GAME') {
+                currentRound = 0;
+                totalScore = 0;
+            }
+            if(data.type === 'START_ROUND') {
+                playRound(data.roundIndex);
+            }
+            if(data.type === 'ANSWER') {
+                if(isHost) {
+                    roundAnswers[data.id] = data.answer;
+                    checkReveal();
+                }
+            }
+            if(data.type === 'REVEAL') {
+                roundAnswers = data.answers;
+                doRevealMultiplayer();
+            }
+            if(data.type === 'NEXT_ROUND') {
+                if(currentRound < 4) playRound(currentRound + 1);
+                else showResults();
+            }
+        });
+    }
+
+    function broadcast(data) {
+        conns.forEach(c => {
+            if(c.open) c.send(data);
         });
     }
 
@@ -457,18 +534,11 @@
     let audioCtx;
     let currentOscillators = [];
 
-    // Músicas em formato { f: frequencia, d: duração em batidas }
-    // M1: Seven Nation Army
     const song1 = { tempo: 120, notes: [ {f:330,d:1.5}, {f:330,d:0.5}, {f:392,d:0.5}, {f:330,d:0.5}, {f:294,d:0.5}, {f:262,d:2}, {f:247,d:2} ]};
-    // M2: Star Wars
     const song2 = { tempo: 100, notes: [ {f:392,d:1}, {f:392,d:1}, {f:392,d:1}, {f:311,d:0.75}, {f:466,d:0.25}, {f:392,d:1}, {f:311,d:0.75}, {f:466,d:0.25}, {f:392,d:2} ]};
-    // M3: Tetris
     const song3 = { tempo: 140, notes: [ {f:659,d:1}, {f:494,d:0.5}, {f:523,d:0.5}, {f:587,d:1}, {f:523,d:0.5}, {f:494,d:0.5}, {f:440,d:1}, {f:440,d:0.5}, {f:523,d:0.5}, {f:659,d:1} ]};
-    // M4: Ode to Joy
     const song4 = { tempo: 120, notes: [ {f:330,d:1}, {f:330,d:1}, {f:349,d:1}, {f:392,d:1}, {f:392,d:1}, {f:349,d:1}, {f:330,d:1}, {f:294,d:1}, {f:262,d:1}, {f:262,d:1} ]};
-    // M5: Super Mario
     const song5 = { tempo: 150, notes: [ {f:659,d:0.5}, {f:659,d:1}, {f:659,d:1}, {f:523,d:0.5}, {f:659,d:1}, {f:784,d:2}, {f:392,d:2} ]};
-
     const playlist = [song1, song2, song3, song4, song5];
 
     function stopAudio() {
@@ -484,7 +554,6 @@
         const beatLen = 60 / song.tempo;
         let time = audioCtx.currentTime + 0.1;
         
-        // Loop a sequência pra durar os 15s
         for(let loop=0; loop<4; loop++){
             song.notes.forEach(note => {
                 if(note.f > 0) {
@@ -493,7 +562,6 @@
                     osc.type = 'square';
                     osc.frequency.value = note.f;
                     
-                    // Efeito Lowpass para ficar menos estridente
                     const filter = audioCtx.createBiquadFilter();
                     filter.type = 'lowpass';
                     filter.frequency.value = 1000;
@@ -523,24 +591,24 @@
     ];
 
     // --- FLUXO DO JOGO ---
-    function startGame() {
-        if(isHost) conn.send({type: 'START_GAME'});
+    function startGameHost() {
+        if(players.length < 2) {
+            showToast("Aguarde pelo menos 1 convidado!");
+            return;
+        }
+        broadcast({type: 'START_GAME'});
         currentRound = 0;
         totalScore = 0;
         playRound(0);
     }
 
-    function startGameFromHost() {
-        currentRound = 0;
-        totalScore = 0;
-        // Espera host mandar START_ROUND
-    }
-
     function playRound(index) {
-        if(isHost) conn.send({type: 'START_ROUND', roundIndex: index});
+        if(isMultiplayer && isHost) {
+            broadcast({type: 'START_ROUND', roundIndex: index});
+        }
         currentRound = index;
         myAnswer = null;
-        otherAnswer = null;
+        roundAnswers = {};
         timeRemaining = 15;
         
         document.getElementById('round-counter').innerText = `Rodada ${currentRound + 1}/5`;
@@ -563,7 +631,6 @@
         showScreen('screen-gameplay');
         document.getElementById('record-disk').classList.add('playing');
         
-        // Toca música baseada no round
         playAudioSequence(playlist[currentRound]);
 
         clearInterval(roundTimer);
@@ -572,30 +639,48 @@
             document.getElementById('timer').innerText = timeRemaining;
             if(timeRemaining <= 0) {
                 clearInterval(roundTimer);
-                if(myAnswer === null) selectOption(Math.floor(Math.random()*4), null); // fallback
+                if(myAnswer === null) selectOption(Math.floor(Math.random()*4), null);
+                
+                // Host garante que a revelação ocorra
+                if(isMultiplayer && isHost) {
+                    setTimeout(() => {
+                        players.forEach(p => {
+                            if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = Math.floor(Math.random()*4);
+                        });
+                        checkReveal();
+                    }, 500);
+                }
             }
         }, 1000);
     }
 
     function selectOption(optId, btnElement) {
-        if(myAnswer !== null) return; // Ja respondeu
+        if(myAnswer !== null) return;
         myAnswer = optId;
         
         if(btnElement) btnElement.classList.add('selected');
         
         if(isMultiplayer) {
-            conn.send({type: 'ANSWER', answer: optId});
-            document.getElementById('question-title').innerText = "Aguardando o outro jogador...";
-            checkReveal();
+            if(isHost) {
+                roundAnswers[myId] = optId;
+                checkReveal();
+            } else {
+                conns[0].send({type: 'ANSWER', id: myId, answer: optId});
+            }
+            document.getElementById('question-title').innerText = "Aguardando outros jogadores...";
         } else {
+            document.getElementById('question-title').innerText = "Processando...";
             setTimeout(() => doRevealSolo(optId), 1000);
         }
     }
 
     function checkReveal() {
-        if(myAnswer !== null && otherAnswer !== null) {
-            clearInterval(roundTimer);
-            setTimeout(doRevealMultiplayer, 500);
+        if(isMultiplayer && isHost) {
+            if(Object.keys(roundAnswers).length === players.length) {
+                clearInterval(roundTimer);
+                broadcast({type: 'REVEAL', answers: roundAnswers});
+                setTimeout(doRevealMultiplayer, 500);
+            }
         }
     }
 
@@ -608,13 +693,11 @@
         const barsContainer = document.getElementById('reveal-bars');
         barsContainer.innerHTML = '';
         
-        // Gerar fake data onde a sua resposta tem uma chance de ser maioria
         let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
-        votes[myOpt] += 1.0; // Boost
+        votes[myOpt] += 1.0; 
         const sum = votes.reduce((a,b)=>a+b, 0);
         const percentages = votes.map(v => Math.round((v/sum)*100));
         
-        // Ajuste para dar 100%
         let pSum = percentages.reduce((a,b)=>a+b,0);
         percentages[0] += (100 - pSum);
 
@@ -636,18 +719,15 @@
             barsContainer.innerHTML += html;
         });
 
-        // Anim bars
         setTimeout(() => {
             document.querySelectorAll('.result-bar-fill').forEach(el => {
                 el.style.width = el.getAttribute('data-target') + '%';
             });
         }, 100);
 
-        // Pontos = porcentagem que escolheu o mesmo
-        const pts = percentages[myOpt];
-        totalScore += pts;
-        
+        totalScore += percentages[myOpt];
         document.getElementById('btn-next-round').style.display = 'block';
+        document.getElementById('waiting-next-msg').style.display = 'none';
     }
 
     function doRevealMultiplayer() {
@@ -658,41 +738,67 @@
         const roundData = rounds[currentRound];
         const barsContainer = document.getElementById('reveal-bars');
         barsContainer.innerHTML = '';
-        
-        document.getElementById('reveal-subtitle').innerText = "Vibe Match P2P:";
+        document.getElementById('reveal-subtitle').innerText = "Votos da Galera:";
 
-        let match = (myAnswer === otherAnswer);
-        let pts = match ? 100 : 0;
-        totalScore += pts;
+        let counts = {};
+        let voters = {};
+        roundData.opts.forEach(opt => {
+            counts[opt.id] = 0;
+            voters[opt.id] = [];
+        });
 
-        const myOptText = roundData.opts.find(o=>o.id === myAnswer).l;
-        const otherOptText = roundData.opts.find(o=>o.id === otherAnswer).l;
+        players.forEach(p => {
+            let ans = roundAnswers[p.id];
+            if(ans !== undefined) {
+                counts[ans]++;
+                voters[ans].push(p.name);
+            }
+        });
 
-        barsContainer.innerHTML = `
-            <div style="text-align:center; font-size:1.5rem; margin-bottom:20px;">
-                <p>Sua escolha: <br><strong style="color:var(--primary)">${myOptText}</strong></p>
-                <p style="margin-top:20px;">Amigo escolheu: <br><strong style="color:var(--accent)">${otherOptText}</strong></p>
-                <h1 style="margin-top:30px; color:${match?'#00f5d4':'#ff006e'}">${match ? '🔥 MATCH! +100pts' : '❌ Diferentes'}</h1>
-            </div>
-        `;
+        let totalVotes = players.length;
+        let myAns = roundAnswers[myId];
+        let myPct = Math.round((counts[myAns] / totalVotes) * 100);
+        totalScore += myPct; // Você ganha pontos = % de quem concordou com você
+
+        roundData.opts.forEach(opt => {
+            if(counts[opt.id] > 0) {
+                const pct = Math.round((counts[opt.id] / totalVotes) * 100);
+                const isMe = (myAns === opt.id);
+                const html = `
+                    <div class="result-bar-container">
+                        <div class="result-label">
+                            <span style="font-weight:600;">${opt.l} ${isMe ? '👈' : ''}</span>
+                            <span>${pct}%</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">
+                            ${voters[opt.id].join(', ')}
+                        </div>
+                        <div class="result-bar-bg">
+                            <div class="result-bar-fill" style="width: 0%" data-target="${pct}"></div>
+                        </div>
+                    </div>
+                `;
+                barsContainer.innerHTML += html;
+            }
+        });
+
+        setTimeout(() => {
+            document.querySelectorAll('.result-bar-fill').forEach(el => {
+                el.style.width = el.getAttribute('data-target') + '%';
+            });
+        }, 100);
 
         if(isHost) {
             document.getElementById('btn-next-round').style.display = 'block';
+            document.getElementById('waiting-next-msg').style.display = 'none';
         } else {
             document.getElementById('btn-next-round').style.display = 'none';
+            document.getElementById('waiting-next-msg').style.display = 'block';
         }
     }
 
     function nextRound() {
-        if(isHost) conn.send({type: 'NEXT_ROUND'});
-        if(currentRound < 4) {
-            playRound(currentRound + 1);
-        } else {
-            showResults();
-        }
-    }
-
-    function nextRoundFromHost() {
+        if(isHost && isMultiplayer) broadcast({type: 'NEXT_ROUND'});
         if(currentRound < 4) {
             playRound(currentRound + 1);
         } else {
@@ -704,19 +810,16 @@
         showScreen('screen-results');
         document.getElementById('final-score').innerText = totalScore;
         
-        let maxScore = isMultiplayer ? 500 : 500; // max possible aprox
-        let pct = Math.min(100, Math.round((totalScore / maxScore) * 100));
+        let pct = Math.min(100, Math.round((totalScore / 500) * 100));
         
-        // No multiplayer, if host and guest match 3 times, score is 300 out of 500 = 60%
         document.getElementById('final-match-pct').innerText = pct + "%";
 
         if(isMultiplayer) {
-            document.getElementById('multiplayer-result-msg').innerText = "A sintonia de vocês é de " + pct + "%!";
+            document.getElementById('multiplayer-result-msg').innerText = "Essa foi a sua sincronia com a sala!";
         } else {
-            document.getElementById('multiplayer-result-msg').innerText = "Você tem " + pct + "% de sintonia com a comunidade.";
+            document.getElementById('multiplayer-result-msg').innerText = "Sua sincronia com a comunidade!";
         }
     }
-
 </script>
 
 </body>
