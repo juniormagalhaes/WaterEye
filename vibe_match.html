@@ -320,7 +320,7 @@
             <span id="score-counter">0 pts</span>
         </div>
         
-        <div id="timer">15</div>
+        <div id="timer">30</div>
 
         <div class="visualizer-container">
             <div class="record" id="record-disk">
@@ -383,7 +383,7 @@
     
     let myAnswer = null;
     let roundTimer = null;
-    let timeRemaining = 15;
+    let timeRemaining = 30;
     
     // Arrays para P2P
     let players = []; 
@@ -420,8 +420,7 @@
     }
 
     function getPlayerName() {
-        let name = document.getElementById('player-name').value.trim();
-        return name || 'Jogador ' + Math.floor(Math.random() * 1000);
+        return document.getElementById('player-name').value.trim();
     }
 
     function updatePlayerListUI() {
@@ -437,6 +436,8 @@
 
     function initHost() {
         myName = getPlayerName();
+        if(!myName) return showToast("Digite seu apelido primeiro!");
+        
         const id = Math.floor(1000 + Math.random() * 9000).toString();
         peer = new Peer('vibematch-' + id);
         
@@ -461,6 +462,8 @@
 
     function joinRoom() {
         myName = getPlayerName();
+        if(!myName) return showToast("Digite seu apelido primeiro!");
+        
         const roomCode = document.getElementById('join-id').value;
         if(roomCode.length < 4) return showToast("Código inválido");
         
@@ -554,7 +557,7 @@
         const beatLen = 60 / song.tempo;
         let time = audioCtx.currentTime + 0.1;
         
-        for(let loop=0; loop<4; loop++){
+        for(let loop=0; loop<8; loop++){
             song.notes.forEach(note => {
                 if(note.f > 0) {
                     const osc = audioCtx.createOscillator();
@@ -609,7 +612,7 @@
         currentRound = index;
         myAnswer = null;
         roundAnswers = {};
-        timeRemaining = 15;
+        timeRemaining = 30;
         
         document.getElementById('round-counter').innerText = `Rodada ${currentRound + 1}/5`;
         document.getElementById('score-counter').innerText = `${totalScore} pts`;
@@ -639,13 +642,13 @@
             document.getElementById('timer').innerText = timeRemaining;
             if(timeRemaining <= 0) {
                 clearInterval(roundTimer);
-                if(myAnswer === null) selectOption(Math.floor(Math.random()*4), null);
+                if(myAnswer === null) selectOption(-1, null);
                 
                 // Host garante que a revelação ocorra
                 if(isMultiplayer && isHost) {
                     setTimeout(() => {
                         players.forEach(p => {
-                            if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = Math.floor(Math.random()*4);
+                            if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = -1;
                         });
                         checkReveal();
                     }, 500);
@@ -694,7 +697,7 @@
         barsContainer.innerHTML = '';
         
         let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
-        votes[myOpt] += 1.0; 
+        if(myOpt !== -1) votes[myOpt] += 1.0; 
         const sum = votes.reduce((a,b)=>a+b, 0);
         const percentages = votes.map(v => Math.round((v/sum)*100));
         
@@ -719,13 +722,17 @@
             barsContainer.innerHTML += html;
         });
 
+        if(myOpt === -1) {
+            barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:20px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
+        } else {
+            totalScore += percentages[myOpt];
+        }
+
         setTimeout(() => {
             document.querySelectorAll('.result-bar-fill').forEach(el => {
                 el.style.width = el.getAttribute('data-target') + '%';
             });
         }, 100);
-
-        totalScore += percentages[myOpt];
         document.getElementById('btn-next-round').style.display = 'block';
         document.getElementById('waiting-next-msg').style.display = 'none';
     }
@@ -749,16 +756,21 @@
 
         players.forEach(p => {
             let ans = roundAnswers[p.id];
-            if(ans !== undefined) {
+            if(ans !== undefined && ans !== -1) {
                 counts[ans]++;
                 voters[ans].push(p.name);
             }
         });
 
-        let totalVotes = players.length;
+        let validPlayers = players.filter(p => roundAnswers[p.id] !== -1);
+        let totalVotes = validPlayers.length;
+        if(totalVotes === 0) totalVotes = 1;
+
         let myAns = roundAnswers[myId];
-        let myPct = Math.round((counts[myAns] / totalVotes) * 100);
-        totalScore += myPct; // Você ganha pontos = % de quem concordou com você
+        if(myAns !== -1) {
+            let myPct = Math.round((counts[myAns] / totalVotes) * 100);
+            totalScore += myPct;
+        }
 
         roundData.opts.forEach(opt => {
             if(counts[opt.id] > 0) {
@@ -781,6 +793,14 @@
                 barsContainer.innerHTML += html;
             }
         });
+
+        let missedPlayers = players.filter(p => roundAnswers[p.id] === -1).map(p => p.name);
+        if(missedPlayers.length > 0) {
+            barsContainer.innerHTML += `<div style="text-align:center; color:var(--text-muted); margin-top:20px; font-size:0.9rem;">Não responderam a tempo: ${missedPlayers.join(', ')}</div>`;
+        }
+        if(myAns === -1) {
+            barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:10px; font-weight:bold;">Você não pontuou nessa rodada.</div>`;
+        }
 
         setTimeout(() => {
             document.querySelectorAll('.result-bar-fill').forEach(el => {
