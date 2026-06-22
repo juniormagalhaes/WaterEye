@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vibe Match - Web PoC</title>
+    <title>Vibe Match - Prova de conceito</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0914;
@@ -197,6 +199,7 @@
             <div class="pulse-ring"></div>
             <div class="pulse-ring" style="animation-delay: 0.75s;"></div>
         </div>
+        <p id="song-name" style="text-align:center; color:var(--accent); font-size:1rem; font-weight:600; margin-bottom:10px;"></p>
 
         <h2 id="question-title">Qual é a vibe dessa música?</h2>
         
@@ -235,8 +238,8 @@
             </div>
             
             <div class="spacer"></div>
-            <button class="btn btn-secondary" onclick="shareResult()" style="margin-bottom: 15px;">📤 Compartilhar Vibe</button>
-            <button class="btn" onclick="location.reload()">Jogar Novamente</button>
+            <button id="btn-share" class="btn btn-secondary" onclick="shareResult()" style="margin-bottom: 15px;">📤 Compartilhar Vibe</button>
+            <button id="btn-reload" class="btn" onclick="location.reload()">Jogar Novamente</button>
         </div>
     </div>
 </div>
@@ -258,6 +261,7 @@
     let conns = [];
     let roundAnswers = {}; 
     let playerScores = {}; // Mapeia id -> pontuação total
+    let matchSequence = []; // Define a ordem das 5 rodadas (qual música e qual pergunta)
     
     // --- PEERJS (WEB RTC) ---
     let peer = null;
@@ -294,6 +298,7 @@
         myName = 'Você';
         players = [{id: myId, name: myName}];
         playerScores = { 'solo': 0 };
+        generateMatchSequence();
         currentRound = 0;
         playRound(0);
     }
@@ -389,7 +394,7 @@
                 }
             }
             if(data.type === 'PLAYER_LIST') { players = data.players; updatePlayerListUI(); }
-            if(data.type === 'START_GAME') { currentRound = 0; playerScores = {}; }
+            if(data.type === 'START_GAME') { matchSequence = data.sequence; currentRound = 0; playerScores = {}; }
             if(data.type === 'START_ROUND') { playRound(data.roundIndex); }
             if(data.type === 'ANSWER') {
                 if(isHost) { roundAnswers[data.id] = data.answer; checkReveal(); }
@@ -414,12 +419,48 @@
     let audioCtx;
     let currentOscillators = [];
 
-    const song1 = { tempo: 120, notes: [ {f:330,d:1.5}, {f:330,d:0.5}, {f:392,d:0.5}, {f:330,d:0.5}, {f:294,d:0.5}, {f:262,d:2}, {f:247,d:2} ]};
-    const song2 = { tempo: 100, notes: [ {f:392,d:1}, {f:392,d:1}, {f:392,d:1}, {f:311,d:0.75}, {f:466,d:0.25}, {f:392,d:1}, {f:311,d:0.75}, {f:466,d:0.25}, {f:392,d:2} ]};
-    const song3 = { tempo: 140, notes: [ {f:659,d:1}, {f:494,d:0.5}, {f:523,d:0.5}, {f:587,d:1}, {f:523,d:0.5}, {f:494,d:0.5}, {f:440,d:1}, {f:440,d:0.5}, {f:523,d:0.5}, {f:659,d:1} ]};
-    const song4 = { tempo: 120, notes: [ {f:330,d:1}, {f:330,d:1}, {f:349,d:1}, {f:392,d:1}, {f:392,d:1}, {f:349,d:1}, {f:330,d:1}, {f:294,d:1}, {f:262,d:1}, {f:262,d:1} ]};
-    const song5 = { tempo: 150, notes: [ {f:659,d:0.5}, {f:659,d:1}, {f:659,d:1}, {f:523,d:0.5}, {f:659,d:1}, {f:784,d:2}, {f:392,d:2} ]};
-    const playlist = [song1, song2, song3, song4, song5];
+    // 1. Ode to Joy — Beethoven (120 BPM)
+    const song1 = { name: "🎻 Ode à Alegria — Beethoven", tempo: 120, notes: [{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:330,d:1.5},{f:294,d:0.5},{f:294,d:2},{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:294,d:1.5},{f:262,d:0.5},{f:262,d:2},{f:294,d:1},{f:294,d:1},{f:330,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:294,d:1},{f:196,d:2},{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:294,d:1.5},{f:262,d:0.5},{f:262,d:2}]};
+    // 2. Garota de Ipanema — Tom Jobim (100 BPM)
+    const song2 = { name: "🏖️ Garota de Ipanema — Tom Jobim", tempo: 100, notes: [{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:349,d:0.5},{f:294,d:0.5},{f:294,d:2},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:349,d:0.5},{f:0,d:0.5},{f:294,d:2},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:2},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:349,d:0.5},{f:294,d:0.5},{f:294,d:2}]};
+    // 3. Tetris / Korobeiniki (140 BPM)
+    const song3 = { name: "🧱 Tema do Tetris", tempo: 140, notes: [{f:659,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2},{f:0,d:0.5},{f:587,d:1},{f:698,d:0.5},{f:880,d:1},{f:784,d:0.5},{f:698,d:0.5},{f:659,d:1.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2},{f:659,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2}]};
+    // 4. Super Mario Bros (150 BPM)
+    const song4 = { name: "🍄 Super Mario Bros", tempo: 150, notes: [{f:659,d:0.5},{f:659,d:1},{f:659,d:1},{f:523,d:0.5},{f:659,d:1},{f:784,d:2},{f:392,d:2},{f:523,d:1.5},{f:392,d:1.5},{f:330,d:1.5},{f:440,d:1},{f:494,d:1},{f:466,d:0.5},{f:440,d:1},{f:392,d:0.67},{f:659,d:0.67},{f:784,d:0.67},{f:880,d:1},{f:698,d:0.5},{f:784,d:0.5},{f:0,d:0.5},{f:659,d:1},{f:523,d:0.5},{f:587,d:0.5},{f:494,d:1.5},{f:523,d:1.5},{f:392,d:1.5},{f:330,d:1.5},{f:440,d:1},{f:494,d:1},{f:466,d:0.5},{f:440,d:1},{f:392,d:0.67},{f:659,d:0.67},{f:784,d:0.67},{f:880,d:1},{f:698,d:0.5},{f:784,d:0.5},{f:0,d:0.5},{f:659,d:1},{f:523,d:0.5},{f:587,d:0.5},{f:494,d:1.5}]};
+    // 5. Marcha Imperial — Star Wars (100 BPM)
+    const song5 = { name: "⚔️ Marcha Imperial — Star Wars", tempo: 100, notes: [{f:392,d:1},{f:392,d:1},{f:392,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:2},{f:587,d:1},{f:587,d:1},{f:587,d:1},{f:622,d:0.75},{f:466,d:0.25},{f:370,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:2},{f:784,d:1},{f:392,d:0.75},{f:392,d:0.25},{f:784,d:1},{f:740,d:0.75},{f:698,d:0.25},{f:659,d:0.25},{f:622,d:0.25},{f:659,d:0.5},{f:0,d:0.5},{f:415,d:0.5},{f:554,d:1},{f:523,d:0.75},{f:494,d:0.25},{f:466,d:0.25},{f:440,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:311,d:0.5},{f:370,d:1},{f:311,d:0.75},{f:370,d:0.25},{f:466,d:1},{f:392,d:0.75},{f:466,d:0.25},{f:587,d:2}]};
+    // 6. Pantera Cor-de-Rosa (120 BPM)
+    const song6 = { name: "🕵️ Pantera Cor-de-Rosa", tempo: 120, notes: [{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:330,d:0.5},{f:392,d:0.5},{f:494,d:0.5},{f:466,d:2},{f:0,d:1},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:466,d:2},{f:0,d:1},{f:330,d:1},{f:349,d:1},{f:330,d:1},{f:262,d:1},{f:330,d:2},{f:0,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:440,d:1},{f:262,d:2},{f:0,d:1},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:330,d:0.5},{f:392,d:0.5},{f:494,d:0.5},{f:466,d:2}]};
+    // 7. Missão Impossível (160 BPM)
+    const song7 = { name: "💥 Missão Impossível", tempo: 160, notes: [{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:523,d:0.5},{f:0,d:0.5},{f:466,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:523,d:0.5},{f:0,d:0.5},{f:466,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:0,d:0.5},{f:698,d:1},{f:784,d:2},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:784,d:2}]};
+    // 8. Seven Nation Army — White Stripes (120 BPM)
+    const song8 = { name: "🎸 Seven Nation Army — White Stripes", tempo: 120, notes: [{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:1.5},{f:294,d:1},{f:262,d:1.5},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:1.5},{f:294,d:1},{f:262,d:1.5},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:2},{f:294,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2}]};
+    // 9. Parabéns pra Você (120 BPM)
+    const song9 = { name: "🎂 Parabéns pra Você", tempo: 120, notes: [{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:587,d:1},{f:523,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:784,d:1},{f:659,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:698,d:0.5},{f:698,d:0.5},{f:659,d:1},{f:523,d:1},{f:587,d:1},{f:523,d:2},{f:0,d:1},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:587,d:1},{f:523,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:784,d:1},{f:659,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:698,d:0.5},{f:698,d:0.5},{f:659,d:1},{f:523,d:1},{f:587,d:1},{f:523,d:2}]};
+    // 10. Asa Branca — Luiz Gonzaga (110 BPM)
+    const song10 = { name: "🌵 Asa Branca — Luiz Gonzaga", tempo: 110, notes: [{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:494,d:1},{f:523,d:1},{f:523,d:1},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:494,d:1},{f:523,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:0,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:1},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2}]};
+    // 11. Hedwig's Theme — Harry Potter (120 BPM)
+    const song11 = { name: "✨ Tema do Harry Potter", tempo: 120, notes: [{f:494,d:1},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:659,d:2},{f:988,d:1},{f:880,d:2.5},{f:740,d:2.5},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:622,d:2},{f:698,d:1},{f:494,d:3},{f:494,d:1},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:659,d:2},{f:988,d:1},{f:1175,d:1},{f:1109,d:1},{f:1047,d:1},{f:831,d:1},{f:1047,d:1.5},{f:988,d:0.5},{f:932,d:1},{f:740,d:2},{f:784,d:1},{f:659,d:3}]};
+    // 12. Fur Elise — Beethoven (130 BPM)
+    const song12 = { name: "🎹 Fur Elise — Beethoven", tempo: 130, notes: [{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:1.5},{f:0,d:0.5},{f:262,d:0.5},{f:330,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:415,d:0.5},{f:494,d:0.5},{f:523,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:1.5},{f:0,d:0.5},{f:262,d:0.5},{f:330,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:2},{f:0,d:0.5},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:0.5},{f:659,d:1.5},{f:392,d:0.5},{f:698,d:0.5},{f:659,d:0.5},{f:587,d:1.5},{f:349,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1.5},{f:330,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:2}]};
+    // 13. Take On Me — A-ha (168 BPM)
+    const song13 = { name: "🎙️ Take On Me — A-ha", tempo: 168, notes: [{f:740,d:0.5},{f:740,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:740,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:740,d:0.5},{f:740,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:740,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:2},{f:587,d:1},{f:659,d:1},{f:740,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2}]};
+    // 14. Tema de Zelda (110 BPM)
+    const song14 = { name: "🗡️ Tema de Zelda", tempo: 110, notes: [{f:494,d:2},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:2},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:659,d:1},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:587,d:1},{f:659,d:2},{f:784,d:1},{f:880,d:2},{f:784,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:0,d:1},{f:494,d:2}]};
+    // 15. Smoke on the Water — Deep Purple (112 BPM)
+    const song15 = { name: "💨 Smoke on the Water — Deep Purple", tempo: 112, notes: [{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2},{f:0,d:1},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2},{f:0,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:262,d:1},{f:233,d:1},{f:262,d:2},{f:0,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:262,d:1},{f:233,d:0.5},{f:196,d:0.5},{f:233,d:2},{f:0,d:1},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2}]};
+    // 16. Brilha Brilha Estrelinha (100 BPM)
+    const song16 = { name: "⭐ Brilha Brilha Estrelinha", tempo: 100, notes: [{f:262,d:1},{f:262,d:1},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:440,d:1},{f:392,d:2},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:1},{f:294,d:1},{f:262,d:2},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:2},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:2},{f:262,d:1},{f:262,d:1},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:440,d:1},{f:392,d:2},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:1},{f:294,d:1},{f:262,d:2}]};
+    // 17. Cantina Band — Star Wars (200 BPM)
+    const song17 = { name: "🌟 Cantina Band — Star Wars", tempo: 200, notes: [{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:2},{f:0,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:1},{f:392,d:1},{f:440,d:2}]};
+    // 18. Tema do Shire — Senhor dos Anéis (100 BPM)
+    const song18 = { name: "🧙 Tema do Shire — Senhor dos Anéis", tempo: 100, notes: [{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:440,d:0.5},{f:392,d:2},{f:440,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:392,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:1},{f:294,d:2},{f:0,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:440,d:0.5},{f:392,d:2},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:349,d:1},{f:294,d:2}]};
+    // 19. Piratas do Caribe (140 BPM)
+    const song19 = { name: "🏴‍☠️ Piratas do Caribe", tempo: 140, notes: [{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:330,d:2},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:294,d:2},{f:440,d:1},{f:523,d:1},{f:587,d:1.5},{f:587,d:0.5},{f:587,d:0.5},{f:659,d:0.5},{f:698,d:1.5},{f:698,d:0.5},{f:698,d:0.5},{f:784,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:523,d:0.5},{f:587,d:0.5},{f:440,d:2},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:330,d:2}]};
+    // 20. Careless Whisper — George Michael (100 BPM)
+    const song20 = { name: "🎷 Careless Whisper — George Michael", tempo: 100, notes: [{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:2},{f:0,d:1},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:349,d:1.5},{f:0,d:0.5},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:2},{f:0,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:2},{f:0,d:1},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:349,d:1.5},{f:0,d:0.5},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:294,d:2}]};
+
+    const playlist = [song1, song2, song3, song4, song5, song6, song7, song8, song9, song10, song11, song12, song13, song14, song15, song16, song17, song18, song19, song20];
 
     function stopAudio() { currentOscillators.forEach(osc => { try { osc.stop(); } catch(e){} }); currentOscillators = []; }
 
@@ -431,7 +472,7 @@
         const beatLen = 60 / song.tempo;
         let time = audioCtx.currentTime + 0.1;
         
-        for(let loop=0; loop<8; loop++){
+        for(let loop=0; loop<10; loop++){
             song.notes.forEach(note => {
                 if(note.f > 0) {
                     const osc = audioCtx.createOscillator();
@@ -451,22 +492,43 @@
                 }
                 time += note.d * beatLen;
             });
+            if(time > audioCtx.currentTime + 30) break; 
         }
     }
 
-    const rounds = [
+    const roundsPool = [
         { q: "Que cor é essa música?", opts: [{id:0, l:"🔴 Vermelho"}, {id:1, l:"🔵 Azul"}, {id:2, l:"🟡 Amarelo"}, {id:3, l:"🟢 Verde"}] },
         { q: "Qual a energia?", opts: [{id:0, l:"⚡ Eletrizante"}, {id:1, l:"🛌 Calma"}, {id:2, l:"💃 Dançante"}, {id:3, l:"🌑 Sombria"}] },
         { q: "Onde tocaria?", opts: [{id:0, l:"🏖️ Praia"}, {id:1, l:"🏙️ Cidade"}, {id:2, l:"🌲 Floresta"}, {id:3, l:"🏰 Castelo"}] },
         { q: "Emoji da vibe?", opts: [{id:0, l:"🔥"}, {id:1, l:"🧊"}, {id:2, l:"👽"}, {id:3, l:"🤠"}] },
-        { q: "Momento do dia?", opts: [{id:0, l:"🌅 Manhã"}, {id:1, l:"☀️ Tarde"}, {id:2, l:"🌆 Entardecer"}, {id:3, l:"🌌 Madrugada"}] }
+        { q: "Momento do dia?", opts: [{id:0, l:"🌅 Manhã"}, {id:1, l:"☀️ Tarde"}, {id:2, l:"🌆 Entardecer"}, {id:3, l:"🌌 Madrugada"}] },
+        { q: "Se fosse um tecido?", opts: [{id:0, l:"🧣 Veludo"}, {id:1, l:"👖 Jeans"}, {id:2, l:"👘 Seda"}, {id:3, l:"🧻 Lixa"}] },
+        { q: "Qual a temperatura?", opts: [{id:0, l:"❄️ Congelante"}, {id:1, l:"🥶 Frio"}, {id:2, l:"🥵 Quente"}, {id:3, l:"🌋 Fervendo"}] },
+        { q: "Qual clima combina?", opts: [{id:0, l:"☀️ Ensolarado"}, {id:1, l:"🌧️ Chuvoso"}, {id:2, l:"⛈️ Tempestade"}, {id:3, l:"🌫️ Nevoeiro"}] },
+        { q: "Que animal seria?", opts: [{id:0, l:"🦅 Águia"}, {id:1, l:"🐈 Gato"}, {id:2, l:"🐻 Urso"}, {id:3, l:"🐬 Golfinho"}] },
+        { q: "Qual elemento natural?", opts: [{id:0, l:"🔥 Fogo"}, {id:1, l:"💧 Água"}, {id:2, l:"🌍 Terra"}, {id:3, l:"💨 Ar"}] }
     ];
+
+    function generateMatchSequence() {
+        matchSequence = [];
+        let availableSongs = Array.from({length: playlist.length}, (_, i) => i);
+        let availableQuestions = Array.from({length: roundsPool.length}, (_, i) => i);
+        
+        const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+        shuffle(availableSongs);
+        shuffle(availableQuestions);
+        
+        for(let i=0; i<5; i++) {
+            matchSequence.push({ songIdx: availableSongs[i], qIdx: availableQuestions[i] });
+        }
+    }
 
     function startGameHost() {
         if(players.length < 2) return showToast("Aguarde pelo menos 1 convidado!");
         playerScores = {};
         players.forEach(p => playerScores[p.id] = 0);
-        broadcast({type: 'START_GAME'});
+        generateMatchSequence();
+        broadcast({type: 'START_GAME', sequence: matchSequence});
         currentRound = 0;
         playRound(0);
     }
@@ -479,21 +541,18 @@
         document.getElementById('score-counter').innerText = `${playerScores[myId] || 0} pts`;
         document.getElementById('timer').innerText = timeRemaining;
         
-        const roundData = rounds[currentRound];
-        document.getElementById('question-title').innerText = roundData.q;
+        const roundData = roundsPool[matchSequence[currentRound].qIdx];
+        const songData = playlist[matchSequence[currentRound].songIdx];
         
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        roundData.opts.forEach(opt => {
-            const b = document.createElement('div');
-            b.className = 'option-btn'; b.innerText = opt.l;
-            b.onclick = () => selectOption(opt.id, b);
-            container.appendChild(b);
-        });
+        document.getElementById('question-title').innerText = roundData.q;
+        document.getElementById('song-name').innerText = '🎵 ' + songData.name;
+        document.getElementById('options-container').innerHTML = roundData.opts.map(opt => 
+            `<div class="option-btn" id="opt-${opt.id}" onclick="selectOption(${opt.id}, this)">${opt.l}</div>`
+        ).join('');
 
         showScreen('screen-gameplay');
         document.getElementById('record-disk').classList.add('playing');
-        playAudioSequence(playlist[currentRound]);
+        playAudioSequence(songData);
 
         clearInterval(roundTimer);
         roundTimer = setInterval(() => {
@@ -541,7 +600,7 @@
         stopAudio(); document.getElementById('record-disk').classList.remove('playing');
         showScreen('screen-reveal');
         
-        const roundData = rounds[currentRound];
+        const roundData = roundsPool[matchSequence[currentRound].qIdx];
         const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
         
         let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
@@ -648,25 +707,56 @@
         }
     }
 
-    function shareResult() {
-        let myTotal = playerScores[myId] || 0;
-        let pct = Math.min(100, Math.round((myTotal / 500) * 100));
-        let isLocal = window.location.protocol === 'file:';
-        let link = isLocal ? '' : '\n' + window.location.href.split('?')[0];
-        let text = `🎧 Joguei Vibe Match!\n✨ Tive ${pct}% de sintonia musical!\n🎶 Consegue bater minha vibe?${link}`;
+    async function shareResult() {
+        const btnShare = document.getElementById('btn-share');
+        const btnReload = document.getElementById('btn-reload');
         
-        if (navigator.share && !isLocal) {
-            navigator.share({
-                title: 'Vibe Match',
-                text: text
-            }).catch(console.error);
-        } else {
-            // Fallback para área de transferência em arquivos locais (file://) ou navegadores sem suporte
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Resultado copiado!");
-            }).catch(err => {
-                showToast("Erro ao copiar.");
+        // Oculta botões temporariamente para não saírem na print
+        btnShare.style.display = 'none';
+        btnReload.style.display = 'none';
+        showToast("Gerando Vibe Card...");
+
+        const targetElement = document.querySelector('#screen-results .center-content');
+
+        try {
+            const canvas = await html2canvas(targetElement, {
+                backgroundColor: '#0b0914', // cor de fundo do app
+                scale: 2 // alta resolução
             });
+
+            // Restaura botões
+            btnShare.style.display = 'block';
+            btnReload.style.display = 'block';
+            
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], 'vibe_card.png', { type: 'image/png' });
+                
+                let myTotal = playerScores[myId] || 0;
+                let pct = Math.min(100, Math.round((myTotal / 500) * 100));
+                let isLocal = window.location.protocol === 'file:';
+                let text = `🎧 Joguei Vibe Match e tive ${pct}% de sintonia!`;
+
+                // Tenta usar o compartilhamento nativo de arquivos (como no celular)
+                if (navigator.canShare && navigator.canShare({ files: [file] }) && !isLocal) {
+                    await navigator.share({
+                        title: 'Vibe Match',
+                        text: text,
+                        files: [file]
+                    });
+                } else {
+                    // Fallback para PC ou arquivo local: faz o download automático da imagem
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'vibe_card.png';
+                    a.click();
+                    showToast("Imagem salva! Agora é só compartilhar.");
+                }
+            });
+        } catch(err) {
+            console.error(err);
+            btnShare.style.display = 'block';
+            btnReload.style.display = 'block';
+            showToast("Erro ao gerar imagem.");
         }
     }
 
