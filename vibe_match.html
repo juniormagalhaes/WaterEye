@@ -122,7 +122,7 @@
         .podium-1 { height: 100%; background: linear-gradient(to top, #ffd700, #ff8c00); }
         .podium-2 { height: 75%; background: linear-gradient(to top, #c0c0c0, #808080); }
         .podium-3 { height: 50%; background: linear-gradient(to top, #cd7f32, #8b4513); }
-        .podium-name { position: absolute; top: -30px; font-size: 0.9rem; text-align: center; width: 100%; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .podium-name { position: absolute; bottom: 100%; font-size: 0.9rem; text-align: center; width: 100%; text-shadow: 0 2px 4px rgba(0,0,0,0.5); padding-bottom: 5px; }
         .podium-score { font-size: 0.8rem; margin-top: 5px; }
     </style>
 </head>
@@ -223,6 +223,7 @@
             
             <!-- PODIUM -->
             <div id="podium-container"></div>
+            <div id="other-ranks-container" style="display:none; flex-direction:column; gap:5px; margin: 15px 0; max-height:100px; overflow-y:auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius:10px; font-size:0.9rem; text-align:left;"></div>
 
             <div class="glass" id="personal-score-card" style="padding: 20px; margin: 20px 0; text-align: center;">
                 <p>Sua Pontuação Total</p>
@@ -659,23 +660,56 @@
 
             let sorted = players.map(p => ({name: p.name, score: playerScores[p.id]||0})).sort((a,b)=>b.score - a.score);
             
+            let denseRank = 1;
+            sorted[0].rank = denseRank;
+            for(let i=1; i<sorted.length; i++) {
+                if(sorted[i].score < sorted[i-1].score) denseRank++;
+                sorted[i].rank = denseRank;
+            }
+
+            let ranks = { 1: [], 2: [], 3: [] };
+            sorted.forEach(item => {
+                if(item.rank <= 3) ranks[item.rank].push(item);
+            });
+
             // Reordena para ficar visualmente: 2º, 1º, 3º
             let displayOrder = [];
-            if(sorted.length >= 2) displayOrder.push({p: sorted[1], rank: 2});
-            if(sorted.length >= 1) displayOrder.push({p: sorted[0], rank: 1});
-            if(sorted.length >= 3) displayOrder.push({p: sorted[2], rank: 3});
+            if(ranks[2].length > 0) displayOrder.push({rankNum: 2, group: ranks[2]});
+            if(ranks[1].length > 0) displayOrder.push({rankNum: 1, group: ranks[1]});
+            if(ranks[3].length > 0) displayOrder.push({rankNum: 3, group: ranks[3]});
 
             displayOrder.forEach(item => {
-                let pClass = `podium-${item.rank}`;
-                let isMeStyle = item.p.name.includes('Você') ? 'color:var(--accent); font-weight:800;' : '';
+                let pClass = `podium-${item.rankNum}`;
+                
+                let namesHtml = item.group.map(p => {
+                    let cleanName = p.name.replace(' 👑','').replace(' (Você)','');
+                    let isMeStyle = p.name.includes('Você') ? 'color:var(--accent); font-weight:800;' : '';
+                    return `<div style="${isMeStyle}">${cleanName}</div>`;
+                }).join('');
+
+                let scoreStr = item.group[0].score + " pts";
+
                 document.getElementById('podium-container').innerHTML += `
                     <div class="podium-bar ${pClass}">
-                        <div class="podium-name" style="${isMeStyle}">${item.p.name.replace(' 👑','').replace(' (Você)','')}</div>
-                        <div style="font-size:1.5rem;">${item.rank}º</div>
-                        <div class="podium-score">${item.p.score} pts</div>
+                        <div class="podium-name">${namesHtml}</div>
+                        <div style="font-size:1.5rem;">${item.rankNum}º</div>
+                        <div class="podium-score">${scoreStr}</div>
                     </div>
                 `;
             });
+
+            let others = sorted.filter(item => item.rank > 3);
+            let othersContainer = document.getElementById('other-ranks-container');
+            if(others.length > 0) {
+                othersContainer.style.display = 'flex';
+                othersContainer.innerHTML = others.map(item => {
+                    let isMeStyle = item.name.includes('Você') ? 'color:var(--accent); font-weight:bold;' : 'color:var(--text-muted);';
+                    let cleanName = item.name.replace(' 👑','').replace(' (Você)','');
+                    return `<div style="display:flex; justify-content:space-between; ${isMeStyle}"><span>${item.rank}º - ${cleanName}</span><span>${item.score} pts</span></div>`;
+                }).join('');
+            } else {
+                othersContainer.style.display = 'none';
+            }
 
             setTimeout(() => {
                 confetti({ particleCount: 250, spread: 120, origin: { y: 0.3 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffd700'] });
@@ -684,6 +718,9 @@
         } else {
             document.getElementById('personal-score-card').style.display = 'block';
             document.getElementById('podium-container').style.display = 'none';
+            let othersCont = document.getElementById('other-ranks-container');
+            if(othersCont) othersCont.style.display = 'none';
+            
             setTimeout(() => {
                 if(myTotal >= 250) confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
             }, 300);
