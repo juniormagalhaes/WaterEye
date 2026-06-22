@@ -225,14 +225,17 @@
             <div id="podium-container"></div>
             <div id="other-ranks-container" style="display:none; flex-direction:column; gap:5px; margin: 15px 0; max-height:100px; overflow-y:auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius:10px; font-size:0.9rem; text-align:left;"></div>
 
-            <div class="glass" id="personal-score-card" style="padding: 20px; margin: 20px 0; text-align: center;">
-                <p>Sua Pontuação Total</p>
-                <h1 id="final-score">0</h1>
-                <p style="margin-top:10px;">Match de Vibe Geral</p>
-                <h2 id="final-match-pct" style="color:var(--accent); font-size:2rem;">0%</h2>
+            <div class="glass vibe-card" id="personal-score-card" style="padding: 20px; margin: 20px 0; text-align: center; background: linear-gradient(135deg, rgba(157,78,221,0.2), rgba(255,0,110,0.2)); border: 2px solid var(--primary);">
+                <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">Meu Vibe Card</div>
+                <h3 id="card-player-name" style="margin-bottom: 15px; font-size: 1.5rem;">Você</h3>
+                <p>Pontuação Total</p>
+                <h1 id="final-score" style="font-size: 3.5rem; margin: 10px 0;">0</h1>
+                <p style="margin-top:10px;">Sintonia Musical</p>
+                <h2 id="final-match-pct" style="color:var(--accent); font-size:2rem; margin-top:5px;">0%</h2>
             </div>
             
             <div class="spacer"></div>
+            <button class="btn btn-secondary" onclick="shareResult()" style="margin-bottom: 15px;">📤 Compartilhar Vibe</button>
             <button class="btn" onclick="location.reload()">Jogar Novamente</button>
         </div>
     </div>
@@ -645,12 +648,35 @@
         }
     }
 
+    function shareResult() {
+        let myTotal = playerScores[myId] || 0;
+        let pct = Math.min(100, Math.round((myTotal / 500) * 100));
+        let isLocal = window.location.protocol === 'file:';
+        let link = isLocal ? '' : '\n' + window.location.href.split('?')[0];
+        let text = `🎧 Joguei Vibe Match!\n✨ Tive ${pct}% de sintonia musical!\n🎶 Consegue bater minha vibe?${link}`;
+        
+        if (navigator.share && !isLocal) {
+            navigator.share({
+                title: 'Vibe Match',
+                text: text
+            }).catch(console.error);
+        } else {
+            // Fallback para área de transferência em arquivos locais (file://) ou navegadores sem suporte
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Resultado copiado!");
+            }).catch(err => {
+                showToast("Erro ao copiar.");
+            });
+        }
+    }
+
     function showResults() {
         showScreen('screen-results');
         
         let myTotal = playerScores[myId] || 0;
         document.getElementById('final-score').innerText = myTotal;
         document.getElementById('final-match-pct').innerText = Math.min(100, Math.round((myTotal / 500) * 100)) + "%";
+        document.getElementById('card-player-name').innerText = myName.replace(' 👑','');
 
         if(isMultiplayer) {
             // Montar Podium
