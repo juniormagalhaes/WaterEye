@@ -638,7 +638,7 @@
         stopAudio(); document.getElementById('record-disk').classList.remove('playing');
         showScreen('screen-reveal');
         
-        const roundData = rounds[currentRound];
+        const roundData = roundsPool[matchSequence[currentRound].qIdx];
         const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
         document.getElementById('reveal-subtitle').innerText = "Votos da Galera:";
 
