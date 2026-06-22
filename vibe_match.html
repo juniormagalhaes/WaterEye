@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vibe Match - Web PoC</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- QRCode JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0914;
@@ -18,251 +23,107 @@
             --text-muted: #a0a0b0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; user-select: none; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: var(--bg-color); color: var(--text-main);
+            height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
             background-image: radial-gradient(circle at 50% 50%, #240046 0%, var(--bg-color) 80%);
-            background-attachment: fixed;
         }
 
         #app {
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            max-height: 850px;
-            position: relative;
-            background: rgba(0, 0, 0, 0.2);
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            width: 100%; max-width: 450px; height: 100%; max-height: 850px;
+            position: relative; background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column;
         }
 
         .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
         }
 
         .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 30px 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            transform: scale(0.95);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; padding: 30px 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s ease; transform: scale(0.95);
         }
 
-        .screen.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
+        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
 
         h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            text-align: center;
+            font-size: 3rem; font-weight: 800; text-align: center;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;
         }
 
         h2 { font-size: 1.8rem; text-align: center; margin-bottom: 20px; }
         p { font-size: 1rem; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
 
         .btn {
-            background: linear-gradient(45deg, var(--primary), #7209b7);
-            color: white;
-            border: none;
-            padding: 18px 24px;
-            border-radius: 15px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 15px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(45deg, var(--primary), #7209b7); color: white; border: none;
+            padding: 18px 24px; border-radius: 15px; font-size: 1.2rem; font-weight: 600; cursor: pointer;
+            width: 100%; margin-bottom: 15px; transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
         }
 
         .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(157, 78, 221, 0.5); }
         .btn:active { transform: translateY(2px); }
-        
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--primary);
-            box-shadow: none;
-        }
+        .btn-secondary { background: transparent; border: 2px solid var(--primary); box-shadow: none; }
 
         input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 15px;
-            outline: none;
+            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.1); color: white; font-size: 1.2rem; text-align: center;
+            margin-bottom: 15px; outline: none;
         }
         input:focus { border-color: var(--primary); }
 
-        .visualizer-container {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
+        .visualizer-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
         .record {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #222, #000);
-            border: 5px solid var(--primary);
-            box-shadow: 0 0 30px var(--primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: spin 4s linear infinite;
-            animation-play-state: paused;
+            width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #222, #000);
+            border: 5px solid var(--primary); box-shadow: 0 0 30px var(--primary);
+            display: flex; justify-content: center; align-items: center; animation: spin 4s linear infinite; animation-play-state: paused;
         }
-
         .record.playing { animation-play-state: running; }
-
-        .record-inner {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--secondary);
-            border: 10px solid #111;
-        }
-
+        .record-inner { width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); border: 10px solid #111; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .pulse-ring {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            animation: pulse 1.5s ease-out infinite;
-            animation-play-state: paused;
+            position: absolute; width: 200px; height: 200px; border-radius: 50%;
+            border: 2px solid var(--primary); animation: pulse 1.5s ease-out infinite; animation-play-state: paused;
         }
         .record.playing ~ .pulse-ring { animation-play-state: running; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.8); opacity: 0; }
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .option-btn {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 20px;
-            font-size: 1.1rem;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px;
+            padding: 20px; font-size: 1.1rem; color: white; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; text-align:center;
         }
-
         .option-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); }
         .option-btn.selected { background: var(--primary); border-color: var(--accent); }
 
         .result-bar-container { margin-bottom: 15px; }
-        .result-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2px;
-            font-size: 1.1rem;
-        }
-        .result-bar-bg {
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .result-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            width: 0%;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .result-label { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 1.1rem; }
+        .result-bar-bg { height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+        .result-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .spacer { flex-grow: 1; }
         .center-content { display: flex; flex-direction: column; justify-content: center; height: 100%; }
         
-        #timer {
-            font-size: 2rem;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-
-        #toast {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            color: #000;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 100;
-        }
+        #timer { font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 10px; color: var(--accent); }
+        #toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
+        .player-badge { background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px; display: inline-block; margin: 5px; font-size: 0.9rem; }
         
-        .player-badge {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 12px;
-            display: inline-block;
-            margin: 5px;
-            font-size: 0.9rem;
-        }
+        /* Podium Styles */
+        #podium-container { display: none; flex-direction: row; justify-content: center; align-items: flex-end; gap: 10px; margin: 20px 0; height: 180px; }
+        .podium-bar { width: 80px; background: linear-gradient(to top, var(--primary), var(--secondary)); border-radius: 10px 10px 0 0; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 10px; color: white; font-weight: bold; position: relative; }
+        .podium-1 { height: 100%; background: linear-gradient(to top, #ffd700, #ff8c00); }
+        .podium-2 { height: 75%; background: linear-gradient(to top, #c0c0c0, #808080); }
+        .podium-3 { height: 50%; background: linear-gradient(to top, #cd7f32, #8b4513); }
+        .podium-name { position: absolute; top: -30px; font-size: 0.9rem; text-align: center; width: 100%; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .podium-score { font-size: 0.8rem; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -301,9 +162,16 @@
         </div>
 
         <div id="lobby-waiting" style="display:none; text-align:center;">
-            <h3>Sala: <span id="my-peer-id" style="color:var(--accent); font-size:2.5rem; display:block; margin: 10px 0;">...</span></h3>
+            <h3>Sala: <span id="my-peer-id" style="color:var(--accent); font-size:2.5rem; display:block; margin: 5px 0;">...</span></h3>
+            
+            <!-- QR CODE -->
+            <div id="qrcode-container" style="display:none; align-items:center; flex-direction:column; margin-bottom:15px;">
+                <div id="qrcode" style="background:white; padding:10px; border-radius:10px; display:inline-block;"></div>
+                <p style="font-size:0.8rem; margin-top:5px;">Leia para entrar!</p>
+            </div>
+
             <p>Jogadores Conectados:</p>
-            <div id="player-list" class="glass" style="padding:15px; margin-bottom:20px; text-align:center; min-height: 100px;">
+            <div id="player-list" class="glass" style="padding:15px; margin-bottom:20px; text-align:center; min-height: 80px; overflow-y:auto; max-height:150px;">
             </div>
             <button class="btn" id="btn-start-multiplayer" style="display:none;" onclick="startGameHost()">Começar Jogo</button>
             <p id="waiting-host-msg" style="display:none; color:var(--accent);">Aguardando o host iniciar...</p>
@@ -332,9 +200,7 @@
 
         <h2 id="question-title">Qual é a vibe dessa música?</h2>
         
-        <div class="options-grid" id="options-container">
-            <!-- Injetado por JS -->
-        </div>
+        <div class="options-grid" id="options-container"></div>
     </div>
 
     <!-- TELA 4: REVEAL -->
@@ -343,7 +209,6 @@
         <p id="reveal-subtitle">Veja como a galera sentiu:</p>
         
         <div class="glass" style="padding: 20px; flex-grow: 1; display:flex; flex-direction:column; justify-content:center; overflow-y: auto;" id="reveal-bars">
-            <!-- Barras injetadas por JS -->
         </div>
 
         <div class="spacer"></div>
@@ -354,18 +219,18 @@
     <!-- TELA 5: RESULTADOS -->
     <div id="screen-results" class="screen">
         <div class="center-content">
-            <h2>✨ Sua Vibe ✨</h2>
+            <h2>✨ FIM DA SESSÃO ✨</h2>
             
-            <div class="glass" style="padding: 30px; margin: 20px 0; text-align: center;">
-                <p>Pontuação Total</p>
+            <!-- PODIUM -->
+            <div id="podium-container"></div>
+
+            <div class="glass" id="personal-score-card" style="padding: 20px; margin: 20px 0; text-align: center;">
+                <p>Sua Pontuação Total</p>
                 <h1 id="final-score">0</h1>
-                
-                <p style="margin-top:20px;">Match de Vibe</p>
-                <h2 id="final-match-pct" style="color:var(--accent); font-size:3rem;">0%</h2>
+                <p style="margin-top:10px;">Match de Vibe Geral</p>
+                <h2 id="final-match-pct" style="color:var(--accent); font-size:2rem;">0%</h2>
             </div>
             
-            <p id="multiplayer-result-msg"></p>
-
             <div class="spacer"></div>
             <button class="btn" onclick="location.reload()">Jogar Novamente</button>
         </div>
@@ -377,9 +242,8 @@
     let isMultiplayer = false;
     let isHost = false;
     let myId = 'solo';
-    let myName = 'Você';
+    let myName = '';
     let currentRound = 0;
-    let totalScore = 0;
     
     let myAnswer = null;
     let roundTimer = null;
@@ -389,9 +253,20 @@
     let players = []; 
     let conns = [];
     let roundAnswers = {}; 
+    let playerScores = {}; // Mapeia id -> pontuação total
     
     // --- PEERJS (WEB RTC) ---
     let peer = null;
+
+    // Verificar se acessou via link QR Code
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room');
+        if(room) {
+            document.getElementById('join-id').value = room;
+            showLobby();
+        }
+    };
 
     function showToast(msg) {
         const t = document.getElementById('toast');
@@ -405,23 +280,21 @@
         document.getElementById(id).classList.add('active');
     }
 
+    function getPlayerName() {
+        return document.getElementById('player-name').value.trim();
+    }
+
     function startSolo() {
         isMultiplayer = false;
         myId = 'solo';
         myName = 'Você';
         players = [{id: myId, name: myName}];
+        playerScores = { 'solo': 0 };
         currentRound = 0;
-        totalScore = 0;
         playRound(0);
     }
 
-    function showLobby() {
-        showScreen('screen-lobby');
-    }
-
-    function getPlayerName() {
-        return document.getElementById('player-name').value.trim();
-    }
+    function showLobby() { showScreen('screen-lobby'); }
 
     function updatePlayerListUI() {
         const list = document.getElementById('player-list');
@@ -451,6 +324,19 @@
             document.getElementById('lobby-options').style.display = 'none';
             document.getElementById('lobby-waiting').style.display = 'block';
             document.getElementById('btn-start-multiplayer').style.display = 'block';
+            
+            // Gerar QR Code apontando para a sala
+            let joinUrl = window.location.href.split('?')[0] + '?room=' + id;
+            document.getElementById('qrcode-container').style.display = 'flex';
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById("qrcode"), {
+                text: joinUrl,
+                width: 120,
+                height: 120,
+                colorDark : "#000000",
+                colorLight : "#ffffff"
+            });
+
             updatePlayerListUI();
         });
 
@@ -498,22 +384,11 @@
                     showToast(data.name + " entrou!");
                 }
             }
-            if(data.type === 'PLAYER_LIST') {
-                players = data.players;
-                updatePlayerListUI();
-            }
-            if(data.type === 'START_GAME') {
-                currentRound = 0;
-                totalScore = 0;
-            }
-            if(data.type === 'START_ROUND') {
-                playRound(data.roundIndex);
-            }
+            if(data.type === 'PLAYER_LIST') { players = data.players; updatePlayerListUI(); }
+            if(data.type === 'START_GAME') { currentRound = 0; playerScores = {}; }
+            if(data.type === 'START_ROUND') { playRound(data.roundIndex); }
             if(data.type === 'ANSWER') {
-                if(isHost) {
-                    roundAnswers[data.id] = data.answer;
-                    checkReveal();
-                }
+                if(isHost) { roundAnswers[data.id] = data.answer; checkReveal(); }
             }
             if(data.type === 'REVEAL') {
                 roundAnswers = data.answers;
@@ -527,12 +402,10 @@
     }
 
     function broadcast(data) {
-        conns.forEach(c => {
-            if(c.open) c.send(data);
-        });
+        conns.forEach(c => { if(c.open) c.send(data); });
     }
 
-    // --- ÁUDIO PROCEDURAL (Oscillators) ---
+    // --- ÁUDIO PROCEDURAL ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
     let currentOscillators = [];
@@ -544,10 +417,7 @@
     const song5 = { tempo: 150, notes: [ {f:659,d:0.5}, {f:659,d:1}, {f:659,d:1}, {f:523,d:0.5}, {f:659,d:1}, {f:784,d:2}, {f:392,d:2} ]};
     const playlist = [song1, song2, song3, song4, song5];
 
-    function stopAudio() {
-        currentOscillators.forEach(osc => { try { osc.stop(); } catch(e){} });
-        currentOscillators = [];
-    }
+    function stopAudio() { currentOscillators.forEach(osc => { try { osc.stop(); } catch(e){} }); currentOscillators = []; }
 
     function playAudioSequence(song) {
         stopAudio();
@@ -562,16 +432,12 @@
                 if(note.f > 0) {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.value = note.f;
+                    osc.type = 'square'; osc.frequency.value = note.f;
                     
                     const filter = audioCtx.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = 1000;
+                    filter.type = 'lowpass'; filter.frequency.value = 1000;
 
-                    osc.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(audioCtx.destination);
+                    osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
                     
                     osc.start(time);
                     gain.gain.setValueAtTime(0.05, time);
@@ -584,7 +450,6 @@
         }
     }
 
-    // --- DADOS DO JOGO ---
     const rounds = [
         { q: "Que cor é essa música?", opts: [{id:0, l:"🔴 Vermelho"}, {id:1, l:"🔵 Azul"}, {id:2, l:"🟡 Amarelo"}, {id:3, l:"🟢 Verde"}] },
         { q: "Qual a energia?", opts: [{id:0, l:"⚡ Eletrizante"}, {id:1, l:"🛌 Calma"}, {id:2, l:"💃 Dançante"}, {id:3, l:"🌑 Sombria"}] },
@@ -593,29 +458,21 @@
         { q: "Momento do dia?", opts: [{id:0, l:"🌅 Manhã"}, {id:1, l:"☀️ Tarde"}, {id:2, l:"🌆 Entardecer"}, {id:3, l:"🌌 Madrugada"}] }
     ];
 
-    // --- FLUXO DO JOGO ---
     function startGameHost() {
-        if(players.length < 2) {
-            showToast("Aguarde pelo menos 1 convidado!");
-            return;
-        }
+        if(players.length < 2) return showToast("Aguarde pelo menos 1 convidado!");
+        playerScores = {};
+        players.forEach(p => playerScores[p.id] = 0);
         broadcast({type: 'START_GAME'});
         currentRound = 0;
-        totalScore = 0;
         playRound(0);
     }
 
     function playRound(index) {
-        if(isMultiplayer && isHost) {
-            broadcast({type: 'START_ROUND', roundIndex: index});
-        }
-        currentRound = index;
-        myAnswer = null;
-        roundAnswers = {};
-        timeRemaining = 30;
+        if(isMultiplayer && isHost) broadcast({type: 'START_ROUND', roundIndex: index});
+        currentRound = index; myAnswer = null; roundAnswers = {}; timeRemaining = 30;
         
         document.getElementById('round-counter').innerText = `Rodada ${currentRound + 1}/5`;
-        document.getElementById('score-counter').innerText = `${totalScore} pts`;
+        document.getElementById('score-counter').innerText = `${playerScores[myId] || 0} pts`;
         document.getElementById('timer').innerText = timeRemaining;
         
         const roundData = rounds[currentRound];
@@ -625,15 +482,13 @@
         container.innerHTML = '';
         roundData.opts.forEach(opt => {
             const b = document.createElement('div');
-            b.className = 'option-btn';
-            b.innerText = opt.l;
+            b.className = 'option-btn'; b.innerText = opt.l;
             b.onclick = () => selectOption(opt.id, b);
             container.appendChild(b);
         });
 
         showScreen('screen-gameplay');
         document.getElementById('record-disk').classList.add('playing');
-        
         playAudioSequence(playlist[currentRound]);
 
         clearInterval(roundTimer);
@@ -643,13 +498,9 @@
             if(timeRemaining <= 0) {
                 clearInterval(roundTimer);
                 if(myAnswer === null) selectOption(-1, null);
-                
-                // Host garante que a revelação ocorra
                 if(isMultiplayer && isHost) {
                     setTimeout(() => {
-                        players.forEach(p => {
-                            if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = -1;
-                        });
+                        players.forEach(p => { if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = -1; });
                         checkReveal();
                     }, 500);
                 }
@@ -660,16 +511,11 @@
     function selectOption(optId, btnElement) {
         if(myAnswer !== null) return;
         myAnswer = optId;
-        
         if(btnElement) btnElement.classList.add('selected');
         
         if(isMultiplayer) {
-            if(isHost) {
-                roundAnswers[myId] = optId;
-                checkReveal();
-            } else {
-                conns[0].send({type: 'ANSWER', id: myId, answer: optId});
-            }
+            if(isHost) { roundAnswers[myId] = optId; checkReveal(); }
+            else { conns[0].send({type: 'ANSWER', id: myId, answer: optId}); }
             document.getElementById('question-title').innerText = "Aguardando outros jogadores...";
         } else {
             document.getElementById('question-title').innerText = "Processando...";
@@ -688,109 +534,85 @@
     }
 
     function doRevealSolo(myOpt) {
-        stopAudio();
-        document.getElementById('record-disk').classList.remove('playing');
+        stopAudio(); document.getElementById('record-disk').classList.remove('playing');
         showScreen('screen-reveal');
         
         const roundData = rounds[currentRound];
-        const barsContainer = document.getElementById('reveal-bars');
-        barsContainer.innerHTML = '';
+        const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
         
         let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
         if(myOpt !== -1) votes[myOpt] += 1.0; 
         const sum = votes.reduce((a,b)=>a+b, 0);
         const percentages = votes.map(v => Math.round((v/sum)*100));
-        
-        let pSum = percentages.reduce((a,b)=>a+b,0);
-        percentages[0] += (100 - pSum);
+        let pSum = percentages.reduce((a,b)=>a+b,0); percentages[0] += (100 - pSum);
 
         document.getElementById('reveal-subtitle').innerText = "O que a comunidade escolheu:";
 
         roundData.opts.forEach((opt, i) => {
             const isMe = (i === myOpt);
-            const html = `
+            barsContainer.innerHTML += `
                 <div class="result-bar-container">
-                    <div class="result-label">
-                        <span>${opt.l} ${isMe ? '(Você)' : ''}</span>
-                        <span>${percentages[i]}%</span>
-                    </div>
-                    <div class="result-bar-bg">
-                        <div class="result-bar-fill" style="width: 0%" data-target="${percentages[i]}"></div>
-                    </div>
-                </div>
-            `;
-            barsContainer.innerHTML += html;
+                    <div class="result-label"><span>${opt.l} ${isMe ? '(Você)' : ''}</span><span>${percentages[i]}%</span></div>
+                    <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%" data-target="${percentages[i]}"></div></div>
+                </div>`;
         });
 
         if(myOpt === -1) {
             barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:20px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
         } else {
-            totalScore += percentages[myOpt];
+            playerScores[myId] = (playerScores[myId] || 0) + percentages[myOpt];
+            // Lança confetes se concordou com a maioria (>50% de concordância ou apenas para celebrar que pontuou bem)
+            if(percentages[myOpt] > 40) shootConfetti();
         }
 
-        setTimeout(() => {
-            document.querySelectorAll('.result-bar-fill').forEach(el => {
-                el.style.width = el.getAttribute('data-target') + '%';
-            });
-        }, 100);
+        setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
+
         document.getElementById('btn-next-round').style.display = 'block';
         document.getElementById('waiting-next-msg').style.display = 'none';
     }
 
     function doRevealMultiplayer() {
-        stopAudio();
-        document.getElementById('record-disk').classList.remove('playing');
+        stopAudio(); document.getElementById('record-disk').classList.remove('playing');
         showScreen('screen-reveal');
         
         const roundData = rounds[currentRound];
-        const barsContainer = document.getElementById('reveal-bars');
-        barsContainer.innerHTML = '';
+        const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
         document.getElementById('reveal-subtitle').innerText = "Votos da Galera:";
 
-        let counts = {};
-        let voters = {};
-        roundData.opts.forEach(opt => {
-            counts[opt.id] = 0;
-            voters[opt.id] = [];
-        });
+        let counts = {}; let voters = {};
+        roundData.opts.forEach(opt => { counts[opt.id] = 0; voters[opt.id] = []; });
 
         players.forEach(p => {
             let ans = roundAnswers[p.id];
-            if(ans !== undefined && ans !== -1) {
-                counts[ans]++;
-                voters[ans].push(p.name);
-            }
+            if(ans !== undefined && ans !== -1) { counts[ans]++; voters[ans].push(p.name); }
         });
 
         let validPlayers = players.filter(p => roundAnswers[p.id] !== -1);
         let totalVotes = validPlayers.length;
         if(totalVotes === 0) totalVotes = 1;
 
+        // Atualiza pontuações locais para o pódio
+        players.forEach(p => {
+            let ans = roundAnswers[p.id];
+            if(ans !== -1 && ans !== undefined) {
+                let pct = Math.round((counts[ans] / totalVotes) * 100);
+                playerScores[p.id] = (playerScores[p.id] || 0) + pct;
+            }
+        });
+
         let myAns = roundAnswers[myId];
-        if(myAns !== -1) {
-            let myPct = Math.round((counts[myAns] / totalVotes) * 100);
-            totalScore += myPct;
-        }
+        let myPct = myAns !== -1 ? Math.round((counts[myAns] / totalVotes) * 100) : 0;
 
         roundData.opts.forEach(opt => {
             if(counts[opt.id] > 0) {
                 const pct = Math.round((counts[opt.id] / totalVotes) * 100);
                 const isMe = (myAns === opt.id);
-                const html = `
+                barsContainer.innerHTML += `
                     <div class="result-bar-container">
-                        <div class="result-label">
-                            <span style="font-weight:600;">${opt.l} ${isMe ? '👈' : ''}</span>
-                            <span>${pct}%</span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">
-                            ${voters[opt.id].join(', ')}
-                        </div>
-                        <div class="result-bar-bg">
-                            <div class="result-bar-fill" style="width: 0%" data-target="${pct}"></div>
-                        </div>
-                    </div>
-                `;
-                barsContainer.innerHTML += html;
+                        <div class="result-label"><span style="font-weight:600;">${opt.l} ${isMe ? '👈' : ''}</span><span>${pct}%</span></div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">${voters[opt.id].join(', ')}</div>
+                        <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%" data-target="${pct}"></div></div>
+                    </div>`;
             }
         });
 
@@ -800,44 +622,71 @@
         }
         if(myAns === -1) {
             barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:10px; font-weight:bold;">Você não pontuou nessa rodada.</div>`;
+        } else if (myPct >= 50) {
+            shootConfetti(); // Bateu com a maioria!
         }
 
-        setTimeout(() => {
-            document.querySelectorAll('.result-bar-fill').forEach(el => {
-                el.style.width = el.getAttribute('data-target') + '%';
-            });
-        }, 100);
+        setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
 
-        if(isHost) {
-            document.getElementById('btn-next-round').style.display = 'block';
-            document.getElementById('waiting-next-msg').style.display = 'none';
-        } else {
-            document.getElementById('btn-next-round').style.display = 'none';
-            document.getElementById('waiting-next-msg').style.display = 'block';
-        }
+        if(isHost) { document.getElementById('btn-next-round').style.display = 'block'; document.getElementById('waiting-next-msg').style.display = 'none'; } 
+        else { document.getElementById('btn-next-round').style.display = 'none'; document.getElementById('waiting-next-msg').style.display = 'block'; }
     }
 
     function nextRound() {
         if(isHost && isMultiplayer) broadcast({type: 'NEXT_ROUND'});
-        if(currentRound < 4) {
-            playRound(currentRound + 1);
-        } else {
-            showResults();
+        if(currentRound < 4) playRound(currentRound + 1);
+        else showResults();
+    }
+
+    function shootConfetti() {
+        if(typeof confetti !== 'undefined') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffffff'] });
         }
     }
 
     function showResults() {
         showScreen('screen-results');
-        document.getElementById('final-score').innerText = totalScore;
         
-        let pct = Math.min(100, Math.round((totalScore / 500) * 100));
-        
-        document.getElementById('final-match-pct').innerText = pct + "%";
+        let myTotal = playerScores[myId] || 0;
+        document.getElementById('final-score').innerText = myTotal;
+        document.getElementById('final-match-pct').innerText = Math.min(100, Math.round((myTotal / 500) * 100)) + "%";
 
         if(isMultiplayer) {
-            document.getElementById('multiplayer-result-msg').innerText = "Essa foi a sua sincronia com a sala!";
+            // Montar Podium
+            document.getElementById('personal-score-card').style.display = 'none';
+            document.getElementById('podium-container').style.display = 'flex';
+            document.getElementById('podium-container').innerHTML = '';
+
+            let sorted = players.map(p => ({name: p.name, score: playerScores[p.id]||0})).sort((a,b)=>b.score - a.score);
+            
+            // Reordena para ficar visualmente: 2º, 1º, 3º
+            let displayOrder = [];
+            if(sorted.length >= 2) displayOrder.push({p: sorted[1], rank: 2});
+            if(sorted.length >= 1) displayOrder.push({p: sorted[0], rank: 1});
+            if(sorted.length >= 3) displayOrder.push({p: sorted[2], rank: 3});
+
+            displayOrder.forEach(item => {
+                let pClass = `podium-${item.rank}`;
+                let isMeStyle = item.p.name.includes('Você') ? 'color:var(--accent); font-weight:800;' : '';
+                document.getElementById('podium-container').innerHTML += `
+                    <div class="podium-bar ${pClass}">
+                        <div class="podium-name" style="${isMeStyle}">${item.p.name.replace(' 👑','').replace(' (Você)','')}</div>
+                        <div style="font-size:1.5rem;">${item.rank}º</div>
+                        <div class="podium-score">${item.p.score} pts</div>
+                    </div>
+                `;
+            });
+
+            setTimeout(() => {
+                confetti({ particleCount: 250, spread: 120, origin: { y: 0.3 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffd700'] });
+            }, 500);
+
         } else {
-            document.getElementById('multiplayer-result-msg').innerText = "Sua sincronia com a comunidade!";
+            document.getElementById('personal-score-card').style.display = 'block';
+            document.getElementById('podium-container').style.display = 'none';
+            setTimeout(() => {
+                if(myTotal >= 250) confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+            }, 300);
         }
     }
 </script>
