@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -25,824 +26,1780 @@
             --text-muted: #a0a0b0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; user-select: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
 
         body {
-            background-color: var(--bg-color); color: var(--text-main);
-            height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-image: radial-gradient(circle at 50% 50%, #240046 0%, var(--bg-color) 80%);
         }
 
         #app {
-            width: 100%; max-width: 450px; height: 100%; max-height: 850px;
-            position: relative; background: rgba(0, 0, 0, 0.2);
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            max-height: 850px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .glass {
-            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
         }
 
         .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; padding: 30px 20px;
-            opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s ease; transform: scale(0.95);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: scale(0.95);
         }
 
-        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
 
         h1 {
-            font-size: 3rem; font-weight: 800; text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        h2 { font-size: 1.8rem; text-align: center; margin-bottom: 20px; }
-        p { font-size: 1rem; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+        h2 {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
         .btn {
-            background: linear-gradient(45deg, var(--primary), #7209b7); color: white; border: none;
-            padding: 18px 24px; border-radius: 15px; font-size: 1.2rem; font-weight: 600; cursor: pointer;
-            width: 100%; margin-bottom: 15px; transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(45deg, var(--primary), #7209b7);
+            color: white;
+            border: none;
+            padding: 18px 24px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
         }
 
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(157, 78, 221, 0.5); }
-        .btn:active { transform: translateY(2px); }
-        .btn-secondary { background: transparent; border: 2px solid var(--primary); box-shadow: none; }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(157, 78, 221, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
 
         input {
-            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.1); color: white; font-size: 1.2rem; text-align: center;
-            margin-bottom: 15px; outline: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
         }
-        input:focus { border-color: var(--primary); }
 
-        .visualizer-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
-        .record {
-            width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #222, #000);
-            border: 5px solid var(--primary); box-shadow: 0 0 30px var(--primary);
-            display: flex; justify-content: center; align-items: center; animation: spin 4s linear infinite; animation-play-state: paused;
+        input:focus {
+            border-color: var(--primary);
         }
-        .record.playing { animation-play-state: running; }
-        .record-inner { width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); border: 10px solid #111; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .visualizer-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .record {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #222, #000);
+            border: 5px solid var(--primary);
+            box-shadow: 0 0 30px var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: spin 4s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .record.playing {
+            animation-play-state: running;
+        }
+
+        .record-inner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 10px solid #111;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         .pulse-ring {
-            position: absolute; width: 200px; height: 200px; border-radius: 50%;
-            border: 2px solid var(--primary); animation: pulse 1.5s ease-out infinite; animation-play-state: paused;
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            animation: pulse 1.5s ease-out infinite;
+            animation-play-state: paused;
         }
-        .record.playing ~ .pulse-ring { animation-play-state: running; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .record.playing~.pulse-ring {
+            animation-play-state: running;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
         .option-btn {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px;
-            padding: 20px; font-size: 1.1rem; color: white; cursor: pointer; transition: all 0.2s;
-            display: flex; flex-direction: column; align-items: center; gap: 10px; text-align:center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
         }
-        .option-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); }
-        .option-btn.selected { background: var(--primary); border-color: var(--accent); }
 
-        .result-bar-container { margin-bottom: 15px; }
-        .result-label { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 1.1rem; }
-        .result-bar-bg { height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        .result-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
 
-        .spacer { flex-grow: 1; }
-        .center-content { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-        
-        #timer { font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 10px; color: var(--accent); }
-        #toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
-        .player-badge { background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px; display: inline-block; margin: 5px; font-size: 0.9rem; }
-        
+        .option-btn.selected {
+            background: var(--primary);
+            border-color: var(--accent);
+        }
+
+        .result-bar-container {
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            font-size: 1.1rem;
+        }
+
+        .result-bar-bg {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .result-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .spacer {
+            flex-grow: 1;
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #timer {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        #toast {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .player-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
         /* Podium Styles */
-        #podium-container { display: none; flex-direction: row; justify-content: center; align-items: flex-end; gap: 10px; margin: 20px 0; height: 180px; }
-        .podium-bar { width: 80px; background: linear-gradient(to top, var(--primary), var(--secondary)); border-radius: 10px 10px 0 0; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 10px; color: white; font-weight: bold; position: relative; }
-        .podium-1 { height: 100%; background: linear-gradient(to top, #ffd700, #ff8c00); }
-        .podium-2 { height: 75%; background: linear-gradient(to top, #c0c0c0, #808080); }
-        .podium-3 { height: 50%; background: linear-gradient(to top, #cd7f32, #8b4513); }
-        .podium-name { position: absolute; bottom: 100%; font-size: 0.9rem; text-align: center; width: 100%; text-shadow: 0 2px 4px rgba(0,0,0,0.5); padding-bottom: 5px; }
-        .podium-score { font-size: 0.8rem; margin-top: 5px; }
+        #podium-container {
+            display: none;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 10px;
+            margin: 20px 0;
+            height: 180px;
+        }
+
+        .podium-bar {
+            width: 80px;
+            background: linear-gradient(to top, var(--primary), var(--secondary));
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 10px;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .podium-1 {
+            height: 100%;
+            background: linear-gradient(to top, #ffd700, #ff8c00);
+        }
+
+        .podium-2 {
+            height: 75%;
+            background: linear-gradient(to top, #c0c0c0, #808080);
+        }
+
+        .podium-3 {
+            height: 50%;
+            background: linear-gradient(to top, #cd7f32, #8b4513);
+        }
+
+        .podium-name {
+            position: absolute;
+            bottom: 100%;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            padding-bottom: 5px;
+        }
+
+        .podium-score {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
+
 <body>
 
-<div id="app">
-    <div id="toast">Notificação</div>
+    <div id="app">
+        <div id="toast">Notificação</div>
 
-    <!-- TELA 1: HOME -->
-    <div id="screen-home" class="screen active">
-        <div class="center-content">
-            <h1>VIBE MATCH</h1>
-            <p>Sinta a música. Combine com o mundo.</p>
+        <!-- TELA 1: HOME -->
+        <div id="screen-home" class="screen active">
+            <div class="center-content">
+                <h1>VIBE MATCH</h1>
+                <p>Sinta a música. Combine com o mundo.</p>
+                <div class="spacer"></div>
+                <p style="margin-bottom: 5px; color: var(--text-muted); text-align:center;">Modo de Jogo:</p>
+                <div class="mode-cards-grid"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                    <div id="mode-vibe" class="mode-card selected"
+                        onclick="playSoundEffect('pop'); selectGameMode('vibe')"
+                        style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted);">
+                        <div style="font-size:1.5rem; margin-bottom:2px;">🔮</div>
+                        <div style="font-size:0.8rem; font-weight:bold;">Sinestesia</div>
+                    </div>
+                    <div id="mode-quiz" class="mode-card" onclick="playSoundEffect('pop'); selectGameMode('quiz')"
+                        style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted);">
+                        <div style="font-size:1.5rem; margin-bottom:2px;">🧠</div>
+                        <div style="font-size:0.8rem; font-weight:bold;">Quiz Geral</div>
+                    </div>
+                    <div id="mode-quiz_artist" class="mode-card"
+                        onclick="playSoundEffect('pop'); selectGameMode('quiz_artist')"
+                        style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted);">
+                        <div style="font-size:1.5rem; margin-bottom:2px;">🎸</div>
+                        <div style="font-size:0.8rem; font-weight:bold;">Quiz Artista</div>
+                    </div>
+                    <div id="mode-quiz_album" class="mode-card"
+                        onclick="playSoundEffect('pop'); selectGameMode('quiz_album')"
+                        style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted);">
+                        <div style="font-size:1.5rem; margin-bottom:2px;">💿</div>
+                        <div style="font-size:0.8rem; font-weight:bold;">Quiz Álbum</div>
+                    </div>
+                    <div id="mode-guess" class="mode-card" onclick="playSoundEffect('pop'); selectGameMode('guess')"
+                        style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted); grid-column: span 2;">
+                        <div style="font-size:1.5rem; margin-bottom:2px;">🎵</div>
+                        <div style="font-size:0.8rem; font-weight:bold;">Adivinhe a Música</div>
+                    </div>
+                </div>
+                <div id="sub-selection" style="display: none; margin-bottom: 20px;">
+                    <p id="sub-selection-title"
+                        style="margin-bottom: 5px; color: var(--text-muted); text-align:center;">Selecione:</p>
+                    <select id="sub-selection-dropdown"
+                        style="padding: 10px; border-radius: 12px; background: var(--glass-bg); color: white; border: 2px solid var(--primary); outline: none; width: 100%; font-size:1rem; text-align: center; cursor: pointer;">
+                    </select>
+                </div>
+                <script>
+                    // Add simple hover/selected styles directly to body using JS to bypass missing CSS class issues
+                    const styleSheet = document.createElement("style");
+                    styleSheet.innerText = ".mode-card:hover { background: rgba(255,255,255,0.15) !important; } .mode-card.selected { border-color: var(--primary) !important; background: rgba(157, 78, 221, 0.2) !important; color: white !important; }";
+                    document.head.appendChild(styleSheet);
+                </script>
+                <button class="btn" onclick="playSoundEffect('pop'); startSolo()">🎧 Jogar Solo</button>
+                <button class="btn btn-secondary" onclick="playSoundEffect('pop'); showLobby()">👥 Vibe Party
+                    (Multijogador)</button>
+                <button class="btn btn-secondary"
+                    style="background: var(--glass-bg); border-color: var(--primary); margin-top: 5px;"
+                    onclick="playSoundEffect('pop'); showProfile()">👤 Meu Perfil</button>
+                <div style="text-align:center; margin-top:15px;">
+                    <button onclick="playSoundEffect('pop'); openTutorial()"
+                        style="background:none; border:none; color:var(--text-muted); text-decoration:underline; cursor:pointer; font-size:0.9rem;">❓
+                        Como Jogar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 2: LOBBY -->
+        <div id="screen-lobby" class="screen">
+            <h2>Vibe Party</h2>
+            <input type="text" id="player-name" placeholder="Seu Apelido (ex: João)" />
+
+            <div id="lobby-options">
+                <div class="glass" style="padding: 20px; margin-bottom: 20px;">
+                    <h3>Hostear Sala</h3>
+                    <p>Crie uma sala para seus amigos entrarem.</p>
+                    <button class="btn" id="btn-create-room" onclick="playSoundEffect('pop'); initHost()">Criar
+                        Sala</button>
+                </div>
+
+                <div class="glass" style="padding: 20px;">
+                    <h3>Entrar na Sala</h3>
+                    <input type="text" id="join-id" placeholder="Código numérico" />
+                    <button class="btn btn-secondary" onclick="playSoundEffect('pop'); joinRoom()">Conectar</button>
+                </div>
+            </div>
+
+            <div id="lobby-waiting" style="display:none; text-align:center;">
+                <h3>Sala: <span id="my-peer-id"
+                        style="color:var(--accent); font-size:2.5rem; display:block; margin: 5px 0;">...</span></h3>
+
+                <!-- QR CODE -->
+                <div id="qrcode-container"
+                    style="display:none; align-items:center; flex-direction:column; margin-bottom:15px;">
+                    <div id="qrcode" style="background:white; padding:10px; border-radius:10px; display:inline-block;">
+                    </div>
+                    <p style="font-size:0.8rem; margin-top:5px;">Leia para entrar!</p>
+                </div>
+
+                <p>Jogadores Conectados:</p>
+                <div id="player-list" class="glass"
+                    style="padding:15px; margin-bottom:20px; text-align:center; min-height: 80px; overflow-y:auto; max-height:150px;">
+                </div>
+                <button class="btn" id="btn-start-multiplayer" style="display:none;"
+                    onclick="playSoundEffect('pop'); startGameHost()">Começar Jogo</button>
+                <p id="waiting-host-msg" style="display:none; color:var(--accent);">Aguardando o host iniciar...</p>
+            </div>
+
             <div class="spacer"></div>
-            <button class="btn" onclick="startSolo()">🎧 Jogar Solo</button>
-            <button class="btn btn-secondary" onclick="showLobby()">👥 Vibe Party (Multijogador)</button>
-        </div>
-    </div>
-
-    <!-- TELA 2: LOBBY -->
-    <div id="screen-lobby" class="screen">
-        <h2>Vibe Party</h2>
-        <input type="text" id="player-name" placeholder="Seu Apelido (ex: João)" />
-        
-        <div id="lobby-options">
-            <div class="glass" style="padding: 20px; margin-bottom: 20px;">
-                <h3>Hostear Sala</h3>
-                <p>Crie uma sala para seus amigos entrarem.</p>
-                <button class="btn" id="btn-create-room" onclick="initHost()">Criar Sala</button>
-            </div>
-
-            <div class="glass" style="padding: 20px;">
-                <h3>Entrar na Sala</h3>
-                <input type="text" id="join-id" placeholder="Código numérico" />
-                <button class="btn btn-secondary" onclick="joinRoom()">Conectar</button>
-            </div>
+            <button class="btn btn-secondary" style="border:none;" onclick="location.reload()">← Voltar</button>
         </div>
 
-        <div id="lobby-waiting" style="display:none; text-align:center;">
-            <h3>Sala: <span id="my-peer-id" style="color:var(--accent); font-size:2.5rem; display:block; margin: 5px 0;">...</span></h3>
-            
-            <!-- QR CODE -->
-            <div id="qrcode-container" style="display:none; align-items:center; flex-direction:column; margin-bottom:15px;">
-                <div id="qrcode" style="background:white; padding:10px; border-radius:10px; display:inline-block;"></div>
-                <p style="font-size:0.8rem; margin-top:5px;">Leia para entrar!</p>
+        <!-- TELA 3: GAMEPLAY -->
+        <div id="screen-gameplay" class="screen">
+            <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
+                <span id="round-counter">Rodada 1/5</span>
+                <span id="score-counter">0 pts</span>
             </div>
 
-            <p>Jogadores Conectados:</p>
-            <div id="player-list" class="glass" style="padding:15px; margin-bottom:20px; text-align:center; min-height: 80px; overflow-y:auto; max-height:150px;">
+            <div id="timer">30</div>
+
+            <div class="visualizer-container">
+                <div class="record" id="record-disk">
+                    <div class="record-inner"></div>
+                </div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring" style="animation-delay: 0.75s;"></div>
             </div>
-            <button class="btn" id="btn-start-multiplayer" style="display:none;" onclick="startGameHost()">Começar Jogo</button>
-            <p id="waiting-host-msg" style="display:none; color:var(--accent);">Aguardando o host iniciar...</p>
-        </div>
-        
-        <div class="spacer"></div>
-        <button class="btn btn-secondary" style="border:none;" onclick="location.reload()">← Voltar</button>
-    </div>
+            <p id="song-name"
+                style="text-align:center; color:var(--accent); font-size:1rem; font-weight:600; margin-bottom:10px;">
+            </p>
 
-    <!-- TELA 3: GAMEPLAY -->
-    <div id="screen-gameplay" class="screen">
-        <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
-            <span id="round-counter">Rodada 1/5</span>
-            <span id="score-counter">0 pts</span>
-        </div>
-        
-        <div id="timer">30</div>
+            <h2 id="question-title">Qual é a vibe dessa música?</h2>
 
-        <div class="visualizer-container">
-            <div class="record" id="record-disk">
-                <div class="record-inner"></div>
+            <div class="options-grid" id="options-container"></div>
+        </div>
+
+        <!-- TELA 4: REVEAL -->
+        <div id="screen-reveal" class="screen">
+            <h2>Resultado da Vibe</h2>
+            <p id="reveal-subtitle">Veja como a galera sentiu:</p>
+
+            <div class="glass"
+                style="padding: 20px; flex-grow: 1; display:flex; flex-direction:column; justify-content:center; overflow-y: auto;"
+                id="reveal-bars">
             </div>
-            <div class="pulse-ring"></div>
-            <div class="pulse-ring" style="animation-delay: 0.75s;"></div>
-        </div>
-        <p id="song-name" style="text-align:center; color:var(--accent); font-size:1rem; font-weight:600; margin-bottom:10px;"></p>
 
-        <h2 id="question-title">Qual é a vibe dessa música?</h2>
-        
-        <div class="options-grid" id="options-container"></div>
-    </div>
-
-    <!-- TELA 4: REVEAL -->
-    <div id="screen-reveal" class="screen">
-        <h2>Resultado da Vibe</h2>
-        <p id="reveal-subtitle">Veja como a galera sentiu:</p>
-        
-        <div class="glass" style="padding: 20px; flex-grow: 1; display:flex; flex-direction:column; justify-content:center; overflow-y: auto;" id="reveal-bars">
-        </div>
-
-        <div class="spacer"></div>
-        <button class="btn" id="btn-next-round" style="display:none;" onclick="nextRound()">Próxima Rodada</button>
-        <p id="waiting-next-msg" style="display:none; color:var(--accent); text-align:center;">Aguardando o host...</p>
-    </div>
-
-    <!-- TELA 5: RESULTADOS -->
-    <div id="screen-results" class="screen">
-        <div class="center-content">
-            <h2>✨ FIM DA SESSÃO ✨</h2>
-            
-            <!-- PODIUM -->
-            <div id="podium-container"></div>
-            <div id="other-ranks-container" style="display:none; flex-direction:column; gap:5px; margin: 15px 0; max-height:100px; overflow-y:auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius:10px; font-size:0.9rem; text-align:left;"></div>
-
-            <div class="glass vibe-card" id="personal-score-card" style="padding: 20px; margin: 20px 0; text-align: center; background: linear-gradient(135deg, rgba(157,78,221,0.2), rgba(255,0,110,0.2)); border: 2px solid var(--primary);">
-                <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">Meu Vibe Card</div>
-                <h3 id="card-player-name" style="margin-bottom: 15px; font-size: 1.5rem;">Você</h3>
-                <p>Pontuação Total</p>
-                <h1 id="final-score" style="font-size: 3.5rem; margin: 10px 0;">0</h1>
-                <p style="margin-top:10px;">Sintonia Musical</p>
-                <h2 id="final-match-pct" style="color:var(--accent); font-size:2rem; margin-top:5px;">0%</h2>
-            </div>
-            
             <div class="spacer"></div>
-            <button id="btn-share" class="btn btn-secondary" onclick="shareResult()" style="margin-bottom: 15px;">📤 Compartilhar Vibe</button>
-            <button id="btn-reload" class="btn" onclick="location.reload()">Jogar Novamente</button>
+            <button class="btn" id="btn-next-round" style="display:none;" onclick="nextRound()">Próxima Rodada</button>
+            <p id="waiting-next-msg" style="display:none; color:var(--accent); text-align:center;">Aguardando o host...
+            </p>
+        </div>
+
+        <!-- TELA 5: RESULTADOS -->
+        <div id="screen-results" class="screen">
+            <div class="center-content">
+                <h2>✨ FIM DA SESSÃO ✨</h2>
+
+                <!-- PODIUM -->
+                <div id="podium-container"></div>
+                <div id="other-ranks-container"
+                    style="display:none; flex-direction:column; gap:5px; margin: 15px 0; max-height:100px; overflow-y:auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius:10px; font-size:0.9rem; text-align:left;">
+                </div>
+
+                <div class="glass vibe-card" id="personal-score-card"
+                    style="padding: 20px; margin: 20px 0; text-align: center; background: linear-gradient(135deg, rgba(157,78,221,0.2), rgba(255,0,110,0.2)); border: 2px solid var(--primary);">
+                    <div
+                        style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
+                        Meu Vibe Card</div>
+                    <h3 id="card-player-name" style="margin-bottom: 15px; font-size: 1.5rem;">Você</h3>
+                    <p>Pontuação Total</p>
+                    <h1 id="final-score" style="font-size: 3.5rem; margin: 10px 0;">0</h1>
+                    <p style="margin-top:10px;">Sintonia Musical</p>
+                    <h2 id="final-match-pct" style="color:var(--accent); font-size:2rem; margin-top:5px;">0%</h2>
+                </div>
+
+                <div class="spacer"></div>
+                <button id="btn-share" class="btn btn-secondary" onclick="shareResult()" style="margin-bottom: 15px;">📤
+                    Compartilhar Vibe</button>
+                <button id="btn-reload" class="btn" onclick="location.reload()">Jogar Novamente</button>
+            </div>
+        </div>
+
+        <!-- TELA 6: PERFIL -->
+        <div id="screen-profile" class="screen">
+            <div class="center-content">
+                <h2>👤 Meu Perfil</h2>
+
+                <div class="glass" style="padding: 20px; text-align: center; margin-bottom: 20px;">
+                    <p style="color:var(--text-muted); margin-bottom: 5px; font-size: 0.9rem;">Apelido</p>
+                    <input type="text" id="profile-name" placeholder="Seu Apelido"
+                        style="text-align:center; font-size: 1.2rem; margin-bottom: 15px;"
+                        onchange="updateProfileName(this.value)" />
+
+                    <h3 id="profile-level" style="color:var(--accent);">Level 1 - Ouvinte Curioso</h3>
+                    <div
+                        style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 15px; width: 100%; margin: 10px 0; overflow: hidden; position: relative;">
+                        <div id="profile-xp-bar"
+                            style="background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; height: 100%; transition: width 0.5s;">
+                        </div>
+                    </div>
+                    <p id="profile-xp-text" style="font-size: 0.8rem; color: var(--text-muted);">0 / 500 XP</p>
+                </div>
+
+                <div class="glass" style="padding: 15px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; font-size: 1.1rem; text-align: center;">🏅 Minhas Insígnias</h3>
+                    <div id="badges-container"
+                        style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <div class="glass" style="padding: 15px; margin-bottom: 20px; max-height: 150px; overflow-y: auto;">
+                    <h3 style="margin-bottom: 10px; font-size: 1.1rem; text-align: center;">📜 Histórico</h3>
+                    <div id="history-container"
+                        style="display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem;">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <div class="spacer"></div>
+                <button class="btn btn-secondary" style="border:none;"
+                    onclick="playSoundEffect('pop'); showScreen('screen-home')">← Voltar</button>
+            </div>
+        </div>
+
+        <!-- TUTORIAL POPUP -->
+        <div id="tutorial-popup"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index: 1000; background: rgba(0,0,0,0.85); justify-content: center; align-items: center;">
+            <div class="glass"
+                style="width: 90%; max-width: 400px; padding: 20px; text-align: center; position: relative; border: 2px solid var(--primary);">
+                <button onclick="closeTutorial()"
+                    style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <h2 style="margin-bottom: 15px;">Como Jogar?</h2>
+
+                <div id="tut-slide-1" class="tut-slide">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🔮</div>
+                    <h3>Modo Sinestesia</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Escute a música e responda
+                        perguntas subjetivas (ex: "Qual cor essa música te lembra?").<br><br>Seja o mais parecido com os
+                        outros jogadores para ganhar pontos de Sintonia!</p>
+                </div>
+
+                <div id="tut-slide-2" class="tut-slide" style="display: none;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🧠</div>
+                    <h3>Modo Quiz Musical</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Teste seus conhecimentos
+                        com perguntas diretas sobre artistas e álbuns.<br><br>Responda rápido! Você ganha bônus de
+                        velocidade por cada segundo restante!</p>
+                </div>
+
+                <div id="tut-slide-3" class="tut-slide" style="display: none;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">👥</div>
+                    <h3>Vibe Party</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Crie uma sala e convide
+                        seus amigos para jogar! O mais sintonizado ou o mais rápido no quiz dominará o pódio no final.
+                    </p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; gap: 10px;">
+                    <button class="btn btn-secondary" id="tut-btn-prev" onclick="playSoundEffect('pop'); prevTutSlide()"
+                        style="padding: 10px; flex: 1; opacity: 0.5;" disabled>← Voltar</button>
+                    <button class="btn" id="tut-btn-next" onclick="playSoundEffect('pop'); nextTutSlide()"
+                        style="padding: 10px; flex: 1;">Próximo →</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // --- ESTADO DO JOGO ---
-    let isMultiplayer = false;
-    let isHost = false;
-    let myId = 'solo';
-    let myName = '';
-    let currentRound = 0;
-    
-    let myAnswer = null;
-    let roundTimer = null;
-    let timeRemaining = 30;
-    
-    // Arrays para P2P
-    let players = []; 
-    let conns = [];
-    let roundAnswers = {}; 
-    let playerScores = {}; // Mapeia id -> pontuação total
-    let matchSequence = []; // Define a ordem das 5 rodadas (qual música e qual pergunta)
-    
-    // --- PEERJS (WEB RTC) ---
-    let peer = null;
+    <script>
+        // --- ESTADO DO JOGO ---
+        let isMultiplayer = false;
+        let isHost = false;
+        let isQuizMode = false;
+        let selectedMode = 'vibe';
+        let totalRounds = 5;
+        let myId = 'solo';
+        let myName = '';
+        let currentRound = 0;
 
-    // Verificar se acessou via link QR Code
-    window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const room = urlParams.get('room');
-        if(room) {
-            document.getElementById('join-id').value = room;
-            showLobby();
+        function selectGameMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
+            document.getElementById('mode-' + mode).classList.add('selected');
+
+            const subSel = document.getElementById('sub-selection');
+            const title = document.getElementById('sub-selection-title');
+            const dropdown = document.getElementById('sub-selection-dropdown');
+
+            if (mode === 'quiz_artist') {
+                subSel.style.display = 'block';
+                title.innerText = 'Qual Artista?';
+                dropdown.innerHTML = '<option value="beethoven" style="background: #1e1136; color: white;">Beethoven</option><option value="tom_jobim" style="background: #1e1136; color: white;">Tom Jobim (Em Breve)</option>';
+            } else if (mode === 'quiz_album') {
+                subSel.style.display = 'block';
+                title.innerText = 'Qual Álbum?';
+                dropdown.innerHTML = '<option value="thriller" style="background: #1e1136; color: white;">Thriller - Michael Jackson</option><option value="dark_side" style="background: #1e1136; color: white;">Dark Side (Em Breve)</option>';
+            } else {
+                subSel.style.display = 'none';
+            }
         }
-    };
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.opacity = 1;
-        setTimeout(() => t.style.opacity = 0, 3000);
-    }
+        let myAnswer = null;
+        let roundTimer = null;
+        let timeRemaining = 30;
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+        // Arrays para P2P
+        let players = [];
+        let conns = [];
+        let roundAnswers = {};
+        let playerScores = {}; // Mapeia id -> pontuação total
+        let playerStreaks = {}; // Mapeia id -> streak atual (Quiz)
+        let matchSequence = []; // Define a ordem das 5 rodadas (qual música e qual pergunta)
 
-    function getPlayerName() {
-        return document.getElementById('player-name').value.trim();
-    }
+        // --- PEERJS (WEB RTC) ---
+        let peer = null;
 
-    function startSolo() {
-        isMultiplayer = false;
-        myId = 'solo';
-        myName = 'Você';
-        players = [{id: myId, name: myName}];
-        playerScores = { 'solo': 0 };
-        generateMatchSequence();
-        currentRound = 0;
-        playRound(0);
-    }
+        // --- TUTORIAL LOGIC ---
+        let currentTutSlide = 1;
+        const totalTutSlides = 3;
 
-    function showLobby() { showScreen('screen-lobby'); }
+        function updateTutUI() {
+            document.querySelectorAll('.tut-slide').forEach(el => el.style.display = 'none');
+            document.getElementById('tut-slide-' + currentTutSlide).style.display = 'block';
 
-    function updatePlayerListUI() {
-        const list = document.getElementById('player-list');
-        list.innerHTML = '';
-        players.forEach(p => {
-            let badge = document.createElement('span');
-            badge.className = 'player-badge';
-            badge.innerText = p.name + (p.id === myId ? ' (Você)' : '');
-            list.appendChild(badge);
-        });
-    }
+            document.getElementById('tut-btn-prev').disabled = currentTutSlide === 1;
+            document.getElementById('tut-btn-prev').style.opacity = currentTutSlide === 1 ? '0.5' : '1';
 
-    function initHost() {
-        myName = getPlayerName();
-        if(!myName) return showToast("Digite seu apelido primeiro!");
-        
-        const id = Math.floor(1000 + Math.random() * 9000).toString();
-        peer = new Peer('vibematch-' + id);
-        
-        peer.on('open', (peerId) => {
-            myId = peerId;
-            isHost = true;
-            isMultiplayer = true;
-            players = [{id: myId, name: myName + ' 👑'}];
-            
-            document.getElementById('my-peer-id').innerText = id;
-            document.getElementById('lobby-options').style.display = 'none';
-            document.getElementById('lobby-waiting').style.display = 'block';
-            document.getElementById('btn-start-multiplayer').style.display = 'block';
-            
-            // Gerar QR Code apontando para a sala
-            let joinUrl = window.location.href.split('?')[0] + '?room=' + id;
-            document.getElementById('qrcode-container').style.display = 'flex';
-            document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById("qrcode"), {
-                text: joinUrl,
-                width: 120,
-                height: 120,
-                colorDark : "#000000",
-                colorLight : "#ffffff"
+            if (currentTutSlide === totalTutSlides) {
+                document.getElementById('tut-btn-next').innerText = "Começar!";
+            } else {
+                document.getElementById('tut-btn-next').innerText = "Próximo →";
+            }
+        }
+
+        function nextTutSlide() {
+            if (currentTutSlide < totalTutSlides) {
+                currentTutSlide++;
+                updateTutUI();
+            } else {
+                closeTutorial();
+            }
+        }
+
+        function prevTutSlide() {
+            if (currentTutSlide > 1) {
+                currentTutSlide--;
+                updateTutUI();
+            }
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorial-popup').style.display = 'none';
+            localStorage.setItem('vibeMatchTutorialSeen', 'true');
+        }
+
+        function openTutorial() {
+            currentTutSlide = 1;
+            updateTutUI();
+            document.getElementById('tutorial-popup').style.display = 'flex';
+        }
+
+        // Verificar se acessou via link QR Code
+        window.onload = () => {
+            loadProfile();
+            const urlParams = new URLSearchParams(window.location.search);
+            const room = urlParams.get('room');
+            if (room) {
+                document.getElementById('join-id').value = room;
+                showLobby();
+            } else if (!localStorage.getItem('vibeMatchTutorialSeen')) {
+                openTutorial(); // Mostra apenas na primeira vez se não tiver link de sala
+            }
+        };
+
+        // --- PROFILE SYSTEM ---
+        let userProfile = { name: "", xp: 0, history: [], badges: [] };
+
+        const LEVEL_THRESHOLDS = [0, 500, 1500, 3500, 7000, 15000];
+        const LEVEL_TITLES = ["Ouvinte Curioso", "Sentidor de Beats", "Sinesteta Digital", "Ouvido de Ouro", "Maestro das Vibes", "Lenda Sonora"];
+
+        const BADGES = [
+            { id: "first_vibe", icon: "🎵", name: "First Vibe", desc: "Completou a primeira sessão" },
+            { id: "streak_3", icon: "🔥", name: "Combo x3", desc: "Acertou 3 seguidas no Quiz" },
+            { id: "perfect_vibe", icon: "⭐", name: "Perfect Match", desc: "Fez 100% de match em uma rodada" }
+        ];
+
+        function loadProfile() {
+            const saved = localStorage.getItem('vibeMatchProfile');
+            if (saved) {
+                try {
+                    userProfile = JSON.parse(saved);
+                    if (userProfile.name) {
+                        myName = userProfile.name;
+                        document.getElementById('player-name').value = myName;
+                        document.getElementById('profile-name').value = myName;
+                    }
+                } catch (e) { }
+            }
+            updateProfileUI();
+        }
+
+        function saveProfile() {
+            localStorage.setItem('vibeMatchProfile', JSON.stringify(userProfile));
+            updateProfileUI();
+        }
+
+        function updateProfileName(newName) {
+            userProfile.name = newName;
+            myName = newName;
+            document.getElementById('player-name').value = newName;
+            saveProfile();
+        }
+
+        function showProfile() {
+            updateProfileUI();
+            showScreen('screen-profile');
+        }
+
+        function getLevelInfo(xp) {
+            let level = 1;
+            let title = LEVEL_TITLES[0];
+            let nextXP = LEVEL_THRESHOLDS[1];
+            let currentLevelBase = 0;
+
+            for (let i = 0; i < LEVEL_THRESHOLDS.length; i++) {
+                if (xp >= LEVEL_THRESHOLDS[i]) {
+                    level = i + 1;
+                    title = LEVEL_TITLES[i];
+                    currentLevelBase = LEVEL_THRESHOLDS[i];
+                    nextXP = (i + 1 < LEVEL_THRESHOLDS.length) ? LEVEL_THRESHOLDS[i + 1] : xp; // max
+                }
+            }
+            return { level, title, currentLevelBase, nextXP };
+        }
+
+        function updateProfileUI() {
+            const info = getLevelInfo(userProfile.xp);
+
+            document.getElementById('profile-level').innerText = `Level ${info.level} - ${info.title}`;
+
+            let progress = 100;
+            if (info.nextXP > info.currentLevelBase) {
+                progress = ((userProfile.xp - info.currentLevelBase) / (info.nextXP - info.currentLevelBase)) * 100;
+            }
+            document.getElementById('profile-xp-bar').style.width = progress + '%';
+
+            if (info.nextXP === userProfile.xp && info.level === LEVEL_THRESHOLDS.length) {
+                document.getElementById('profile-xp-text').innerText = `${userProfile.xp} XP (Nível Máximo!)`;
+            } else {
+                document.getElementById('profile-xp-text').innerText = `${userProfile.xp} / ${info.nextXP} XP`;
+            }
+
+            // Atualizar Insígnias
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = BADGES.map(b => {
+                const hasBadge = userProfile.badges && userProfile.badges.includes(b.id);
+                return `
+                <div style="background: rgba(255,255,255,${hasBadge ? 0.2 : 0.05}); border: 1px solid ${hasBadge ? 'var(--primary)' : 'rgba(255,255,255,0.1)'}; border-radius: 10px; padding: 10px; width: 100px; text-align: center; opacity: ${hasBadge ? 1 : 0.5}; position: relative;" title="${b.desc}">
+                    <div style="font-size: 2rem;">${b.icon}</div>
+                    <div style="font-size: 0.7rem; font-weight: bold; margin-top: 5px;">${b.name}</div>
+                    ${hasBadge ? '' : '<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; font-size:1.5rem;">🔒</div>'}
+                </div>
+            `;
+            }).join('');
+
+            // Atualizar Histórico
+            const historyContainer = document.getElementById('history-container');
+            if (!userProfile.history || userProfile.history.length === 0) {
+                historyContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted);">Nenhuma partida jogada ainda.</div>';
+            } else {
+                historyContainer.innerHTML = userProfile.history.slice().reverse().map(h => {
+                    let modeLabel = "🔮 Sinestesia";
+                    if (h.mode === 'quiz') modeLabel = "🧠 Quiz Geral";
+                    if (h.mode === 'quiz_artist') modeLabel = "🎸 Quiz Artista";
+                    if (h.mode === 'quiz_album') modeLabel = "💿 Quiz Álbum";
+                    if (h.mode === 'guess') modeLabel = "🎵 Adivinhe a Música";
+
+                    return `
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: bold; color: var(--accent);">${modeLabel}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">${h.date}</div>
+                        </div>
+                        <div style="font-weight: bold; font-size: 1.1rem;">
+                            ${h.score} pts
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
+        }
+
+        function awardBadge(badgeId) {
+            if (!userProfile.badges) userProfile.badges = [];
+            if (!userProfile.badges.includes(badgeId)) {
+                userProfile.badges.push(badgeId);
+                showToast("Nova Insígnia Desbloqueada: " + BADGES.find(b => b.id === badgeId).icon + " " + BADGES.find(b => b.id === badgeId).name);
+                saveProfile();
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 3000);
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function getPlayerName() {
+            return document.getElementById('player-name').value.trim();
+        }
+
+        function startSolo() {
+            isMultiplayer = false;
+            isQuizMode = selectedMode.startsWith('quiz') || selectedMode === 'guess'; // Treat guess as quiz for scoring
+            myId = 'solo';
+            myName = 'Você';
+            players = [{ id: myId, name: myName }];
+            playerScores = { 'solo': 0 };
+            generateMatchSequence();
+            currentRound = 0;
+            playRound(0);
+        }
+
+        function showLobby() { showScreen('screen-lobby'); }
+
+        function updatePlayerListUI() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '';
+            players.forEach(p => {
+                let badge = document.createElement('span');
+                badge.className = 'player-badge';
+                badge.innerText = p.name + (p.id === myId ? ' (Você)' : '');
+                list.appendChild(badge);
             });
+        }
 
-            updatePlayerListUI();
-        });
+        function initHost() {
+            myName = getPlayerName();
+            if (!myName) return showToast("Digite seu apelido primeiro!");
 
-        peer.on('connection', (connection) => {
-            conns.push(connection);
-            setupConnection(connection);
-        });
-    }
+            isQuizMode = selectedMode.startsWith('quiz') || selectedMode === 'guess';
 
-    function joinRoom() {
-        myName = getPlayerName();
-        if(!myName) return showToast("Digite seu apelido primeiro!");
-        
-        const roomCode = document.getElementById('join-id').value;
-        if(roomCode.length < 4) return showToast("Código inválido");
-        
-        peer = new Peer();
-        peer.on('open', (id) => {
-            myId = id;
-            isHost = false;
-            isMultiplayer = true;
-            const connection = peer.connect('vibematch-' + roomCode);
-            conns.push(connection);
-            
-            connection.on('open', () => {
-                setupConnection(connection);
+            const id = Math.floor(1000 + Math.random() * 9000).toString();
+            peer = new Peer('vibematch-' + id);
+
+            peer.on('open', (peerId) => {
+                myId = peerId;
+                isHost = true;
+                isMultiplayer = true;
+                players = [{ id: myId, name: myName + ' 👑' }];
+
+                document.getElementById('my-peer-id').innerText = id;
                 document.getElementById('lobby-options').style.display = 'none';
                 document.getElementById('lobby-waiting').style.display = 'block';
-                document.getElementById('my-peer-id').innerText = roomCode;
-                document.getElementById('waiting-host-msg').style.display = 'block';
-                
-                connection.send({type: 'JOIN', id: myId, name: myName});
-                showToast("Conectado! Aguardando Host...");
-            });
-        });
-    }
+                document.getElementById('btn-start-multiplayer').style.display = 'block';
 
-    function setupConnection(conn) {
-        conn.on('data', (data) => {
-            if(data.type === 'JOIN') {
-                if(isHost) {
-                    players.push({id: data.id, name: data.name});
-                    updatePlayerListUI();
-                    broadcast({type: 'PLAYER_LIST', players: players});
-                    showToast(data.name + " entrou!");
-                }
-            }
-            if(data.type === 'PLAYER_LIST') { players = data.players; updatePlayerListUI(); }
-            if(data.type === 'START_GAME') { matchSequence = data.sequence; currentRound = 0; playerScores = {}; }
-            if(data.type === 'START_ROUND') { playRound(data.roundIndex); }
-            if(data.type === 'ANSWER') {
-                if(isHost) { roundAnswers[data.id] = data.answer; checkReveal(); }
-            }
-            if(data.type === 'REVEAL') {
-                roundAnswers = data.answers;
-                doRevealMultiplayer();
-            }
-            if(data.type === 'NEXT_ROUND') {
-                if(currentRound < 4) playRound(currentRound + 1);
-                else showResults();
-            }
-        });
-    }
+                // Gerar QR Code apontando para a sala
+                let joinUrl = window.location.href.split('?')[0] + '?room=' + id;
+                document.getElementById('qrcode-container').style.display = 'flex';
+                document.getElementById('qrcode').innerHTML = '';
+                new QRCode(document.getElementById("qrcode"), {
+                    text: joinUrl,
+                    width: 120,
+                    height: 120,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff"
+                });
 
-    function broadcast(data) {
-        conns.forEach(c => { if(c.open) c.send(data); });
-    }
-
-    // --- ÁUDIO PROCEDURAL ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx;
-    let currentOscillators = [];
-
-    // 1. Ode to Joy — Beethoven (120 BPM)
-    const song1 = { name: "🎻 Ode à Alegria — Beethoven", tempo: 120, notes: [{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:330,d:1.5},{f:294,d:0.5},{f:294,d:2},{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:294,d:1.5},{f:262,d:0.5},{f:262,d:2},{f:294,d:1},{f:294,d:1},{f:330,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:294,d:1},{f:196,d:2},{f:330,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:1},{f:294,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:330,d:1},{f:294,d:1.5},{f:262,d:0.5},{f:262,d:2}]};
-    // 2. Garota de Ipanema — Tom Jobim (100 BPM)
-    const song2 = { name: "🏖️ Garota de Ipanema — Tom Jobim", tempo: 100, notes: [{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:349,d:0.5},{f:294,d:0.5},{f:294,d:2},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:349,d:0.5},{f:0,d:0.5},{f:294,d:2},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:415,d:0.5},{f:349,d:0.5},{f:349,d:1},{f:392,d:0.5},{f:330,d:0.5},{f:330,d:2},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:370,d:0.5},{f:311,d:0.5},{f:311,d:1},{f:349,d:0.5},{f:294,d:0.5},{f:294,d:2}]};
-    // 3. Tetris / Korobeiniki (140 BPM)
-    const song3 = { name: "🧱 Tema do Tetris", tempo: 140, notes: [{f:659,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2},{f:0,d:0.5},{f:587,d:1},{f:698,d:0.5},{f:880,d:1},{f:784,d:0.5},{f:698,d:0.5},{f:659,d:1.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2},{f:659,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:523,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:523,d:0.5},{f:587,d:1},{f:659,d:1},{f:523,d:1},{f:440,d:1},{f:440,d:2}]};
-    // 4. Super Mario Bros (150 BPM)
-    const song4 = { name: "🍄 Super Mario Bros", tempo: 150, notes: [{f:659,d:0.5},{f:659,d:1},{f:659,d:1},{f:523,d:0.5},{f:659,d:1},{f:784,d:2},{f:392,d:2},{f:523,d:1.5},{f:392,d:1.5},{f:330,d:1.5},{f:440,d:1},{f:494,d:1},{f:466,d:0.5},{f:440,d:1},{f:392,d:0.67},{f:659,d:0.67},{f:784,d:0.67},{f:880,d:1},{f:698,d:0.5},{f:784,d:0.5},{f:0,d:0.5},{f:659,d:1},{f:523,d:0.5},{f:587,d:0.5},{f:494,d:1.5},{f:523,d:1.5},{f:392,d:1.5},{f:330,d:1.5},{f:440,d:1},{f:494,d:1},{f:466,d:0.5},{f:440,d:1},{f:392,d:0.67},{f:659,d:0.67},{f:784,d:0.67},{f:880,d:1},{f:698,d:0.5},{f:784,d:0.5},{f:0,d:0.5},{f:659,d:1},{f:523,d:0.5},{f:587,d:0.5},{f:494,d:1.5}]};
-    // 5. Marcha Imperial — Star Wars (100 BPM)
-    const song5 = { name: "⚔️ Marcha Imperial — Star Wars", tempo: 100, notes: [{f:392,d:1},{f:392,d:1},{f:392,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:2},{f:587,d:1},{f:587,d:1},{f:587,d:1},{f:622,d:0.75},{f:466,d:0.25},{f:370,d:1},{f:311,d:0.75},{f:466,d:0.25},{f:392,d:2},{f:784,d:1},{f:392,d:0.75},{f:392,d:0.25},{f:784,d:1},{f:740,d:0.75},{f:698,d:0.25},{f:659,d:0.25},{f:622,d:0.25},{f:659,d:0.5},{f:0,d:0.5},{f:415,d:0.5},{f:554,d:1},{f:523,d:0.75},{f:494,d:0.25},{f:466,d:0.25},{f:440,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:311,d:0.5},{f:370,d:1},{f:311,d:0.75},{f:370,d:0.25},{f:466,d:1},{f:392,d:0.75},{f:466,d:0.25},{f:587,d:2}]};
-    // 6. Pantera Cor-de-Rosa (120 BPM)
-    const song6 = { name: "🕵️ Pantera Cor-de-Rosa", tempo: 120, notes: [{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:330,d:0.5},{f:392,d:0.5},{f:494,d:0.5},{f:466,d:2},{f:0,d:1},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:466,d:2},{f:0,d:1},{f:330,d:1},{f:349,d:1},{f:330,d:1},{f:262,d:1},{f:330,d:2},{f:0,d:1},{f:330,d:1},{f:349,d:1},{f:392,d:1},{f:440,d:1},{f:262,d:2},{f:0,d:1},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:311,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:392,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:330,d:0.5},{f:392,d:0.5},{f:494,d:0.5},{f:466,d:2}]};
-    // 7. Missão Impossível (160 BPM)
-    const song7 = { name: "💥 Missão Impossível", tempo: 160, notes: [{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:523,d:0.5},{f:0,d:0.5},{f:466,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:523,d:0.5},{f:0,d:0.5},{f:466,d:0.5},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:0,d:0.5},{f:698,d:1},{f:784,d:2},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:466,d:0.5},{f:0,d:0.5},{f:523,d:0.5},{f:0,d:0.5},{f:392,d:0.75},{f:0,d:0.25},{f:392,d:0.75},{f:0,d:0.25},{f:349,d:0.5},{f:0,d:0.5},{f:370,d:0.5},{f:0,d:0.5},{f:784,d:2}]};
-    // 8. Seven Nation Army — White Stripes (120 BPM)
-    const song8 = { name: "🎸 Seven Nation Army — White Stripes", tempo: 120, notes: [{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:1.5},{f:294,d:1},{f:262,d:1.5},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:1.5},{f:294,d:1},{f:262,d:1.5},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:392,d:1},{f:349,d:1},{f:330,d:2},{f:294,d:2},{f:330,d:1.5},{f:330,d:0.5},{f:392,d:0.5},{f:330,d:0.5},{f:0,d:0.5},{f:294,d:0.5},{f:262,d:2},{f:247,d:2}]};
-    // 9. Parabéns pra Você (120 BPM)
-    const song9 = { name: "🎂 Parabéns pra Você", tempo: 120, notes: [{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:587,d:1},{f:523,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:784,d:1},{f:659,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:698,d:0.5},{f:698,d:0.5},{f:659,d:1},{f:523,d:1},{f:587,d:1},{f:523,d:2},{f:0,d:1},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:440,d:1},{f:392,d:1},{f:587,d:1},{f:523,d:2},{f:392,d:0.5},{f:392,d:0.5},{f:784,d:1},{f:659,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:698,d:0.5},{f:698,d:0.5},{f:659,d:1},{f:523,d:1},{f:587,d:1},{f:523,d:2}]};
-    // 10. Asa Branca — Luiz Gonzaga (110 BPM)
-    const song10 = { name: "🌵 Asa Branca — Luiz Gonzaga", tempo: 110, notes: [{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:494,d:1},{f:523,d:1},{f:523,d:1},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:494,d:1},{f:523,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:0,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:1},{f:392,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2}]};
-    // 11. Hedwig's Theme — Harry Potter (120 BPM)
-    const song11 = { name: "✨ Tema do Harry Potter", tempo: 120, notes: [{f:494,d:1},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:659,d:2},{f:988,d:1},{f:880,d:2.5},{f:740,d:2.5},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:622,d:2},{f:698,d:1},{f:494,d:3},{f:494,d:1},{f:659,d:1.5},{f:784,d:0.5},{f:740,d:1},{f:659,d:2},{f:988,d:1},{f:1175,d:1},{f:1109,d:1},{f:1047,d:1},{f:831,d:1},{f:1047,d:1.5},{f:988,d:0.5},{f:932,d:1},{f:740,d:2},{f:784,d:1},{f:659,d:3}]};
-    // 12. Fur Elise — Beethoven (130 BPM)
-    const song12 = { name: "🎹 Fur Elise — Beethoven", tempo: 130, notes: [{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:1.5},{f:0,d:0.5},{f:262,d:0.5},{f:330,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:415,d:0.5},{f:494,d:0.5},{f:523,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:1.5},{f:0,d:0.5},{f:262,d:0.5},{f:330,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:2},{f:0,d:0.5},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:0.5},{f:659,d:1.5},{f:392,d:0.5},{f:698,d:0.5},{f:659,d:0.5},{f:587,d:1.5},{f:349,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1.5},{f:330,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:330,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:622,d:0.5},{f:659,d:0.5},{f:494,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:440,d:2}]};
-    // 13. Take On Me — A-ha (168 BPM)
-    const song13 = { name: "🎙️ Take On Me — A-ha", tempo: 168, notes: [{f:740,d:0.5},{f:740,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:740,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:740,d:0.5},{f:740,d:0.5},{f:587,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:0,d:0.5},{f:659,d:0.5},{f:740,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:0,d:0.5},{f:440,d:0.5},{f:659,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:0,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:0,d:0.5},{f:494,d:1},{f:587,d:1},{f:587,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:2},{f:587,d:1},{f:659,d:1},{f:740,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2}]};
-    // 14. Tema de Zelda (110 BPM)
-    const song14 = { name: "🗡️ Tema de Zelda", tempo: 110, notes: [{f:494,d:2},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:2},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:659,d:1},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:1},{f:587,d:1},{f:659,d:2},{f:784,d:1},{f:880,d:2},{f:784,d:1},{f:659,d:1},{f:587,d:1},{f:523,d:1},{f:494,d:2},{f:440,d:1},{f:392,d:1},{f:440,d:1},{f:494,d:2},{f:0,d:1},{f:494,d:2}]};
-    // 15. Smoke on the Water — Deep Purple (112 BPM)
-    const song15 = { name: "💨 Smoke on the Water — Deep Purple", tempo: 112, notes: [{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2},{f:0,d:1},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2},{f:0,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:262,d:1},{f:233,d:1},{f:262,d:2},{f:0,d:1},{f:262,d:1},{f:262,d:1},{f:294,d:1},{f:262,d:1},{f:233,d:0.5},{f:196,d:0.5},{f:233,d:2},{f:0,d:1},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:277,d:0.5},{f:262,d:1.5},{f:196,d:1},{f:233,d:1},{f:262,d:1.5},{f:233,d:1},{f:196,d:2}]};
-    // 16. Brilha Brilha Estrelinha (100 BPM)
-    const song16 = { name: "⭐ Brilha Brilha Estrelinha", tempo: 100, notes: [{f:262,d:1},{f:262,d:1},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:440,d:1},{f:392,d:2},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:1},{f:294,d:1},{f:262,d:2},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:2},{f:392,d:1},{f:392,d:1},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:2},{f:262,d:1},{f:262,d:1},{f:392,d:1},{f:392,d:1},{f:440,d:1},{f:440,d:1},{f:392,d:2},{f:349,d:1},{f:349,d:1},{f:330,d:1},{f:330,d:1},{f:294,d:1},{f:294,d:1},{f:262,d:2}]};
-    // 17. Cantina Band — Star Wars (200 BPM)
-    const song17 = { name: "🌟 Cantina Band — Star Wars", tempo: 200, notes: [{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:2},{f:0,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:0,d:0.5},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:587,d:0.5},{f:440,d:0.5},{f:523,d:0.5},{f:440,d:1},{f:0,d:0.5},{f:415,d:0.5},{f:440,d:1},{f:587,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:0.5},{f:466,d:0.5},{f:440,d:1},{f:392,d:1},{f:440,d:2}]};
-    // 18. Tema do Shire — Senhor dos Anéis (100 BPM)
-    const song18 = { name: "🧙 Tema do Shire — Senhor dos Anéis", tempo: 100, notes: [{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:440,d:0.5},{f:392,d:2},{f:440,d:1},{f:494,d:0.5},{f:523,d:0.5},{f:587,d:1},{f:523,d:0.5},{f:494,d:0.5},{f:440,d:1},{f:392,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:1},{f:294,d:2},{f:0,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:392,d:0.5},{f:349,d:0.5},{f:330,d:1},{f:294,d:1},{f:349,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:440,d:0.5},{f:392,d:2},{f:587,d:1},{f:523,d:1},{f:494,d:1},{f:440,d:1},{f:392,d:1},{f:349,d:1},{f:294,d:2}]};
-    // 19. Piratas do Caribe (140 BPM)
-    const song19 = { name: "🏴‍☠️ Piratas do Caribe", tempo: 140, notes: [{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:330,d:2},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:294,d:2},{f:440,d:1},{f:523,d:1},{f:587,d:1.5},{f:587,d:0.5},{f:587,d:0.5},{f:659,d:0.5},{f:698,d:1.5},{f:698,d:0.5},{f:698,d:0.5},{f:784,d:0.5},{f:659,d:1},{f:587,d:0.5},{f:523,d:0.5},{f:523,d:0.5},{f:587,d:0.5},{f:440,d:2},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:294,d:0.5},{f:294,d:1},{f:294,d:0.5},{f:330,d:0.5},{f:349,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:330,d:0.5},{f:294,d:0.5},{f:330,d:2}]};
-    // 20. Careless Whisper — George Michael (100 BPM)
-    const song20 = { name: "🎷 Careless Whisper — George Michael", tempo: 100, notes: [{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:2},{f:0,d:1},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:349,d:1.5},{f:0,d:0.5},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:2},{f:0,d:1},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:494,d:1.5},{f:0,d:0.5},{f:587,d:1},{f:659,d:0.5},{f:587,d:0.5},{f:523,d:1},{f:494,d:2},{f:0,d:1},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:349,d:0.5},{f:330,d:0.5},{f:349,d:1.5},{f:0,d:0.5},{f:440,d:1},{f:494,d:0.5},{f:440,d:0.5},{f:392,d:1},{f:294,d:2}]};
-
-    const playlist = [song1, song2, song3, song4, song5, song6, song7, song8, song9, song10, song11, song12, song13, song14, song15, song16, song17, song18, song19, song20];
-
-    function stopAudio() { currentOscillators.forEach(osc => { try { osc.stop(); } catch(e){} }); currentOscillators = []; }
-
-    function playAudioSequence(song) {
-        stopAudio();
-        if(!audioCtx) audioCtx = new AudioContext();
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const beatLen = 60 / song.tempo;
-        let time = audioCtx.currentTime + 0.1;
-        
-        for(let loop=0; loop<10; loop++){
-            song.notes.forEach(note => {
-                if(note.f > 0) {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'square'; osc.frequency.value = note.f;
-                    
-                    const filter = audioCtx.createBiquadFilter();
-                    filter.type = 'lowpass'; filter.frequency.value = 1000;
-
-                    osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-                    
-                    osc.start(time);
-                    gain.gain.setValueAtTime(0.05, time);
-                    gain.gain.exponentialRampToValueAtTime(0.001, time + note.d * beatLen - 0.05);
-                    osc.stop(time + note.d * beatLen);
-                    currentOscillators.push(osc);
-                }
-                time += note.d * beatLen;
-            });
-            if(time > audioCtx.currentTime + 30) break; 
-        }
-    }
-
-    const roundsPool = [
-        { q: "Que cor é essa música?", opts: [{id:0, l:"🔴 Vermelho"}, {id:1, l:"🔵 Azul"}, {id:2, l:"🟡 Amarelo"}, {id:3, l:"🟢 Verde"}] },
-        { q: "Qual a energia?", opts: [{id:0, l:"⚡ Eletrizante"}, {id:1, l:"🛌 Calma"}, {id:2, l:"💃 Dançante"}, {id:3, l:"🌑 Sombria"}] },
-        { q: "Onde tocaria?", opts: [{id:0, l:"🏖️ Praia"}, {id:1, l:"🏙️ Cidade"}, {id:2, l:"🌲 Floresta"}, {id:3, l:"🏰 Castelo"}] },
-        { q: "Emoji da vibe?", opts: [{id:0, l:"🔥"}, {id:1, l:"🧊"}, {id:2, l:"👽"}, {id:3, l:"🤠"}] },
-        { q: "Momento do dia?", opts: [{id:0, l:"🌅 Manhã"}, {id:1, l:"☀️ Tarde"}, {id:2, l:"🌆 Entardecer"}, {id:3, l:"🌌 Madrugada"}] },
-        { q: "Se fosse um tecido?", opts: [{id:0, l:"🧣 Veludo"}, {id:1, l:"👖 Jeans"}, {id:2, l:"👘 Seda"}, {id:3, l:"🧻 Lixa"}] },
-        { q: "Qual a temperatura?", opts: [{id:0, l:"❄️ Congelante"}, {id:1, l:"🥶 Frio"}, {id:2, l:"🥵 Quente"}, {id:3, l:"🌋 Fervendo"}] },
-        { q: "Qual clima combina?", opts: [{id:0, l:"☀️ Ensolarado"}, {id:1, l:"🌧️ Chuvoso"}, {id:2, l:"⛈️ Tempestade"}, {id:3, l:"🌫️ Nevoeiro"}] },
-        { q: "Que animal seria?", opts: [{id:0, l:"🦅 Águia"}, {id:1, l:"🐈 Gato"}, {id:2, l:"🐻 Urso"}, {id:3, l:"🐬 Golfinho"}] },
-        { q: "Qual elemento natural?", opts: [{id:0, l:"🔥 Fogo"}, {id:1, l:"💧 Água"}, {id:2, l:"🌍 Terra"}, {id:3, l:"💨 Ar"}] }
-    ];
-
-    function generateMatchSequence() {
-        matchSequence = [];
-        let availableSongs = Array.from({length: playlist.length}, (_, i) => i);
-        let availableQuestions = Array.from({length: roundsPool.length}, (_, i) => i);
-        
-        const shuffle = arr => arr.sort(() => 0.5 - Math.random());
-        shuffle(availableSongs);
-        shuffle(availableQuestions);
-        
-        for(let i=0; i<5; i++) {
-            matchSequence.push({ songIdx: availableSongs[i], qIdx: availableQuestions[i] });
-        }
-    }
-
-    function startGameHost() {
-        if(players.length < 2) return showToast("Aguarde pelo menos 1 convidado!");
-        playerScores = {};
-        players.forEach(p => playerScores[p.id] = 0);
-        generateMatchSequence();
-        broadcast({type: 'START_GAME', sequence: matchSequence});
-        currentRound = 0;
-        playRound(0);
-    }
-
-    function playRound(index) {
-        if(isMultiplayer && isHost) broadcast({type: 'START_ROUND', roundIndex: index});
-        currentRound = index; myAnswer = null; roundAnswers = {}; timeRemaining = 30;
-        
-        document.getElementById('round-counter').innerText = `Rodada ${currentRound + 1}/5`;
-        document.getElementById('score-counter').innerText = `${playerScores[myId] || 0} pts`;
-        document.getElementById('timer').innerText = timeRemaining;
-        
-        const roundData = roundsPool[matchSequence[currentRound].qIdx];
-        const songData = playlist[matchSequence[currentRound].songIdx];
-        
-        document.getElementById('question-title').innerText = roundData.q;
-        document.getElementById('song-name').innerText = '🎵 ' + songData.name;
-        document.getElementById('options-container').innerHTML = roundData.opts.map(opt => 
-            `<div class="option-btn" id="opt-${opt.id}" onclick="selectOption(${opt.id}, this)">${opt.l}</div>`
-        ).join('');
-
-        showScreen('screen-gameplay');
-        document.getElementById('record-disk').classList.add('playing');
-        playAudioSequence(songData);
-
-        clearInterval(roundTimer);
-        roundTimer = setInterval(() => {
-            timeRemaining--;
-            document.getElementById('timer').innerText = timeRemaining;
-            if(timeRemaining <= 0) {
-                clearInterval(roundTimer);
-                if(myAnswer === null) selectOption(-1, null);
-                if(isMultiplayer && isHost) {
-                    setTimeout(() => {
-                        players.forEach(p => { if(roundAnswers[p.id] === undefined) roundAnswers[p.id] = -1; });
-                        checkReveal();
-                    }, 500);
-                }
-            }
-        }, 1000);
-    }
-
-    function selectOption(optId, btnElement) {
-        if(myAnswer !== null) return;
-        myAnswer = optId;
-        if(btnElement) btnElement.classList.add('selected');
-        
-        if(isMultiplayer) {
-            if(isHost) { roundAnswers[myId] = optId; checkReveal(); }
-            else { conns[0].send({type: 'ANSWER', id: myId, answer: optId}); }
-            document.getElementById('question-title').innerText = "Aguardando outros jogadores...";
-        } else {
-            document.getElementById('question-title').innerText = "Processando...";
-            setTimeout(() => doRevealSolo(optId), 1000);
-        }
-    }
-
-    function checkReveal() {
-        if(isMultiplayer && isHost) {
-            if(Object.keys(roundAnswers).length === players.length) {
-                clearInterval(roundTimer);
-                broadcast({type: 'REVEAL', answers: roundAnswers});
-                setTimeout(doRevealMultiplayer, 500);
-            }
-        }
-    }
-
-    function doRevealSolo(myOpt) {
-        stopAudio(); document.getElementById('record-disk').classList.remove('playing');
-        showScreen('screen-reveal');
-        
-        const roundData = roundsPool[matchSequence[currentRound].qIdx];
-        const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
-        
-        let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
-        if(myOpt !== -1) votes[myOpt] += 1.0; 
-        const sum = votes.reduce((a,b)=>a+b, 0);
-        const percentages = votes.map(v => Math.round((v/sum)*100));
-        let pSum = percentages.reduce((a,b)=>a+b,0); percentages[0] += (100 - pSum);
-
-        document.getElementById('reveal-subtitle').innerText = "O que a comunidade escolheu:";
-
-        roundData.opts.forEach((opt, i) => {
-            const isMe = (i === myOpt);
-            barsContainer.innerHTML += `
-                <div class="result-bar-container">
-                    <div class="result-label"><span>${opt.l} ${isMe ? '(Você)' : ''}</span><span>${percentages[i]}%</span></div>
-                    <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%" data-target="${percentages[i]}"></div></div>
-                </div>`;
-        });
-
-        if(myOpt === -1) {
-            barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:20px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
-        } else {
-            playerScores[myId] = (playerScores[myId] || 0) + percentages[myOpt];
-            // Lança confetes se concordou com a maioria (>50% de concordância ou apenas para celebrar que pontuou bem)
-            if(percentages[myOpt] > 40) shootConfetti();
-        }
-
-        setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
-
-        document.getElementById('btn-next-round').style.display = 'block';
-        document.getElementById('waiting-next-msg').style.display = 'none';
-    }
-
-    function doRevealMultiplayer() {
-        stopAudio(); document.getElementById('record-disk').classList.remove('playing');
-        showScreen('screen-reveal');
-        
-        const roundData = roundsPool[matchSequence[currentRound].qIdx];
-        const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
-        document.getElementById('reveal-subtitle').innerText = "Votos da Galera:";
-
-        let counts = {}; let voters = {};
-        roundData.opts.forEach(opt => { counts[opt.id] = 0; voters[opt.id] = []; });
-
-        players.forEach(p => {
-            let ans = roundAnswers[p.id];
-            if(ans !== undefined && ans !== -1) { counts[ans]++; voters[ans].push(p.name); }
-        });
-
-        let validPlayers = players.filter(p => roundAnswers[p.id] !== -1);
-        let totalVotes = validPlayers.length;
-        if(totalVotes === 0) totalVotes = 1;
-
-        // Atualiza pontuações locais para o pódio
-        players.forEach(p => {
-            let ans = roundAnswers[p.id];
-            if(ans !== -1 && ans !== undefined) {
-                let pct = Math.round((counts[ans] / totalVotes) * 100);
-                playerScores[p.id] = (playerScores[p.id] || 0) + pct;
-            }
-        });
-
-        let myAns = roundAnswers[myId];
-        let myPct = myAns !== -1 ? Math.round((counts[myAns] / totalVotes) * 100) : 0;
-
-        roundData.opts.forEach(opt => {
-            if(counts[opt.id] > 0) {
-                const pct = Math.round((counts[opt.id] / totalVotes) * 100);
-                const isMe = (myAns === opt.id);
-                barsContainer.innerHTML += `
-                    <div class="result-bar-container">
-                        <div class="result-label"><span style="font-weight:600;">${opt.l} ${isMe ? '👈' : ''}</span><span>${pct}%</span></div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">${voters[opt.id].join(', ')}</div>
-                        <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%" data-target="${pct}"></div></div>
-                    </div>`;
-            }
-        });
-
-        let missedPlayers = players.filter(p => roundAnswers[p.id] === -1).map(p => p.name);
-        if(missedPlayers.length > 0) {
-            barsContainer.innerHTML += `<div style="text-align:center; color:var(--text-muted); margin-top:20px; font-size:0.9rem;">Não responderam a tempo: ${missedPlayers.join(', ')}</div>`;
-        }
-        if(myAns === -1) {
-            barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:10px; font-weight:bold;">Você não pontuou nessa rodada.</div>`;
-        } else if (myPct >= 50) {
-            shootConfetti(); // Bateu com a maioria!
-        }
-
-        setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
-
-        if(isHost) { document.getElementById('btn-next-round').style.display = 'block'; document.getElementById('waiting-next-msg').style.display = 'none'; } 
-        else { document.getElementById('btn-next-round').style.display = 'none'; document.getElementById('waiting-next-msg').style.display = 'block'; }
-    }
-
-    function nextRound() {
-        if(isHost && isMultiplayer) broadcast({type: 'NEXT_ROUND'});
-        if(currentRound < 4) playRound(currentRound + 1);
-        else showResults();
-    }
-
-    function shootConfetti() {
-        if(typeof confetti !== 'undefined') {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffffff'] });
-        }
-    }
-
-    async function shareResult() {
-        const btnShare = document.getElementById('btn-share');
-        const btnReload = document.getElementById('btn-reload');
-        
-        // Oculta botões temporariamente para não saírem na print
-        btnShare.style.display = 'none';
-        btnReload.style.display = 'none';
-        showToast("Gerando Vibe Card...");
-
-        const targetElement = document.querySelector('#screen-results .center-content');
-
-        try {
-            const canvas = await html2canvas(targetElement, {
-                backgroundColor: '#0b0914', // cor de fundo do app
-                scale: 2 // alta resolução
+                updatePlayerListUI();
             });
 
-            // Restaura botões
-            btnShare.style.display = 'block';
-            btnReload.style.display = 'block';
-            
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], 'vibe_card.png', { type: 'image/png' });
-                
-                let myTotal = playerScores[myId] || 0;
-                let pct = Math.min(100, Math.round((myTotal / 500) * 100));
-                let isLocal = window.location.protocol === 'file:';
-                let text = `🎧 Joguei Vibe Match e tive ${pct}% de sintonia!`;
+            peer.on('connection', (connection) => {
+                conns.push(connection);
+                setupConnection(connection);
+            });
+        }
 
-                // Tenta usar o compartilhamento nativo de arquivos (como no celular)
-                if (navigator.canShare && navigator.canShare({ files: [file] }) && !isLocal) {
-                    await navigator.share({
-                        title: 'Vibe Match',
-                        text: text,
-                        files: [file]
+        function joinRoom() {
+            myName = getPlayerName();
+            if (!myName) return showToast("Digite seu apelido primeiro!");
+
+            const roomCode = document.getElementById('join-id').value;
+            if (roomCode.length < 4) return showToast("Código inválido");
+
+            peer = new Peer();
+            peer.on('open', (id) => {
+                myId = id;
+                isHost = false;
+                isMultiplayer = true;
+                const connection = peer.connect('vibematch-' + roomCode);
+                conns.push(connection);
+
+                connection.on('open', () => {
+                    setupConnection(connection);
+                    document.getElementById('lobby-options').style.display = 'none';
+                    document.getElementById('lobby-waiting').style.display = 'block';
+                    document.getElementById('my-peer-id').innerText = roomCode;
+                    document.getElementById('waiting-host-msg').style.display = 'block';
+
+                    connection.send({ type: 'JOIN', id: myId, name: myName });
+                    showToast("Conectado! Aguardando Host...");
+                });
+            });
+        }
+
+        function setupConnection(conn) {
+            conn.on('data', (data) => {
+                if (data.type === 'JOIN') {
+                    if (isHost) {
+                        players.push({ id: data.id, name: data.name });
+                        updatePlayerListUI();
+                        broadcast({ type: 'PLAYER_LIST', players: players });
+                        showToast(data.name + " entrou!");
+                    }
+                }
+                if (data.type === 'PLAYER_LIST') { players = data.players; updatePlayerListUI(); }
+                if (data.type === 'START_GAME') { matchSequence = data.sequence; isQuizMode = data.isQuizMode; selectedMode = data.selectedMode || 'vibe'; totalRounds = data.totalRounds || 5; currentRound = 0; playerScores = {}; playerStreaks = {}; }
+                if (data.type === 'START_ROUND') { playRound(data.roundIndex); }
+                if (data.type === 'ANSWER') {
+                    if (isHost) { handleAnswer(data.id, data.answer, data.time || 0); }
+                }
+                if (data.type === 'PLAYER_WRONG') {
+                    showToast("❌ " + data.name + " errou!");
+                }
+                if (data.type === 'PLAYER_CORRECT') {
+                    showToast("🎉 " + data.name + " acertou primeiro!");
+                }
+                if (data.type === 'REVEAL') {
+                    roundAnswers = data.answers;
+                    doRevealMultiplayer();
+                }
+                if (data.type === 'NEXT_ROUND') {
+                    if (currentRound < totalRounds - 1) playRound(currentRound + 1);
+                    else showResults();
+                }
+            });
+        }
+
+        function broadcast(data) {
+            conns.forEach(c => { if (c.open) c.send(data); });
+        }
+
+        // --- ÁUDIO PROCEDURAL ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let currentOscillators = [];
+
+        function playSoundEffect(type) {
+            if (!audioCtx) { audioCtx = new AudioContext(); }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'pop') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'ding') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'buzzer') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // 1. Ode to Joy — Beethoven (120 BPM)
+        const song1 = { name: "🎻 Ode à Alegria — Beethoven", tempo: 120, notes: [{ f: 330, d: 1 }, { f: 330, d: 1 }, { f: 349, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 1 }, { f: 330, d: 1.5 }, { f: 294, d: 0.5 }, { f: 294, d: 2 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 349, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1.5 }, { f: 262, d: 0.5 }, { f: 262, d: 2 }, { f: 294, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 0.5 }, { f: 349, d: 0.5 }, { f: 330, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 0.5 }, { f: 349, d: 0.5 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 196, d: 2 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 349, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1.5 }, { f: 262, d: 0.5 }, { f: 262, d: 2 }] };
+        // 2. Garota de Ipanema — Tom Jobim (100 BPM)
+        const song2 = { name: "🏖️ Garota de Ipanema — Tom Jobim", tempo: 100, notes: [{ f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 1 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 1 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 1 }, { f: 349, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 2 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 1 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 1 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 2 }, { f: 415, d: 0.5 }, { f: 349, d: 0.5 }, { f: 349, d: 1 }, { f: 415, d: 0.5 }, { f: 349, d: 0.5 }, { f: 349, d: 1 }, { f: 415, d: 0.5 }, { f: 349, d: 0.5 }, { f: 349, d: 1 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 2 }, { f: 370, d: 0.5 }, { f: 311, d: 0.5 }, { f: 311, d: 1 }, { f: 370, d: 0.5 }, { f: 311, d: 0.5 }, { f: 311, d: 1 }, { f: 370, d: 0.5 }, { f: 311, d: 0.5 }, { f: 311, d: 1 }, { f: 349, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 2 }] };
+        // 3. Tetris / Korobeiniki (140 BPM)
+        const song3 = { name: "🧱 Tema do Tetris", tempo: 140, notes: [{ f: 659, d: 1 }, { f: 494, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 1 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 440, d: 1 }, { f: 440, d: 2 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 698, d: 0.5 }, { f: 880, d: 1 }, { f: 784, d: 0.5 }, { f: 698, d: 0.5 }, { f: 659, d: 1.5 }, { f: 523, d: 0.5 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1 }, { f: 494, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 440, d: 1 }, { f: 440, d: 2 }, { f: 659, d: 1 }, { f: 494, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 1 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 440, d: 1 }, { f: 440, d: 2 }] };
+        // 4. Super Mario Bros (150 BPM)
+        const song4 = { name: "🍄 Super Mario Bros", tempo: 150, notes: [{ f: 659, d: 0.5 }, { f: 659, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 0.5 }, { f: 659, d: 1 }, { f: 784, d: 2 }, { f: 392, d: 2 }, { f: 523, d: 1.5 }, { f: 392, d: 1.5 }, { f: 330, d: 1.5 }, { f: 440, d: 1 }, { f: 494, d: 1 }, { f: 466, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 0.67 }, { f: 659, d: 0.67 }, { f: 784, d: 0.67 }, { f: 880, d: 1 }, { f: 698, d: 0.5 }, { f: 784, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 1 }, { f: 523, d: 0.5 }, { f: 587, d: 0.5 }, { f: 494, d: 1.5 }, { f: 523, d: 1.5 }, { f: 392, d: 1.5 }, { f: 330, d: 1.5 }, { f: 440, d: 1 }, { f: 494, d: 1 }, { f: 466, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 0.67 }, { f: 659, d: 0.67 }, { f: 784, d: 0.67 }, { f: 880, d: 1 }, { f: 698, d: 0.5 }, { f: 784, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 1 }, { f: 523, d: 0.5 }, { f: 587, d: 0.5 }, { f: 494, d: 1.5 }] };
+        // 5. Marcha Imperial — Star Wars (100 BPM)
+        const song5 = { name: "⚔️ Marcha Imperial — Star Wars", tempo: 100, notes: [{ f: 392, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 311, d: 0.75 }, { f: 466, d: 0.25 }, { f: 392, d: 1 }, { f: 311, d: 0.75 }, { f: 466, d: 0.25 }, { f: 392, d: 2 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 622, d: 0.75 }, { f: 466, d: 0.25 }, { f: 370, d: 1 }, { f: 311, d: 0.75 }, { f: 466, d: 0.25 }, { f: 392, d: 2 }, { f: 784, d: 1 }, { f: 392, d: 0.75 }, { f: 392, d: 0.25 }, { f: 784, d: 1 }, { f: 740, d: 0.75 }, { f: 698, d: 0.25 }, { f: 659, d: 0.25 }, { f: 622, d: 0.25 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 415, d: 0.5 }, { f: 554, d: 1 }, { f: 523, d: 0.75 }, { f: 494, d: 0.25 }, { f: 466, d: 0.25 }, { f: 440, d: 0.25 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 311, d: 0.5 }, { f: 370, d: 1 }, { f: 311, d: 0.75 }, { f: 370, d: 0.25 }, { f: 466, d: 1 }, { f: 392, d: 0.75 }, { f: 466, d: 0.25 }, { f: 587, d: 2 }] };
+        // 6. Pantera Cor-de-Rosa (120 BPM)
+        const song6 = { name: "🕵️ Pantera Cor-de-Rosa", tempo: 120, notes: [{ f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 1 }, { f: 0, d: 0.5 }, { f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 494, d: 0.5 }, { f: 466, d: 2 }, { f: 0, d: 1 }, { f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 1 }, { f: 0, d: 0.5 }, { f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 494, d: 0.5 }, { f: 466, d: 2 }, { f: 0, d: 1 }, { f: 330, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 262, d: 1 }, { f: 330, d: 2 }, { f: 0, d: 1 }, { f: 330, d: 1 }, { f: 349, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 262, d: 2 }, { f: 0, d: 1 }, { f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 1 }, { f: 0, d: 0.5 }, { f: 311, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 392, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 494, d: 0.5 }, { f: 466, d: 2 }] };
+        // 7. Missão Impossível (160 BPM)
+        const song7 = { name: "💥 Missão Impossível", tempo: 160, notes: [{ f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 523, d: 0.5 }, { f: 0, d: 0.5 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 349, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 0, d: 0.5 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 523, d: 0.5 }, { f: 0, d: 0.5 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 349, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 0.5 }, { f: 0, d: 0.5 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 0.5 }, { f: 0, d: 0.5 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 698, d: 1 }, { f: 784, d: 2 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 466, d: 0.5 }, { f: 0, d: 0.5 }, { f: 523, d: 0.5 }, { f: 0, d: 0.5 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 392, d: 0.75 }, { f: 0, d: 0.25 }, { f: 349, d: 0.5 }, { f: 0, d: 0.5 }, { f: 370, d: 0.5 }, { f: 0, d: 0.5 }, { f: 784, d: 2 }] };
+        // 8. Seven Nation Army — White Stripes (120 BPM)
+        const song8 = { name: "🎸 Seven Nation Army — White Stripes", tempo: 120, notes: [{ f: 330, d: 1.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 0.5 }, { f: 262, d: 2 }, { f: 247, d: 2 }, { f: 330, d: 1.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 0.5 }, { f: 262, d: 1.5 }, { f: 294, d: 1 }, { f: 262, d: 1.5 }, { f: 330, d: 1.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 0.5 }, { f: 262, d: 2 }, { f: 247, d: 2 }, { f: 330, d: 1.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 0.5 }, { f: 262, d: 1.5 }, { f: 294, d: 1 }, { f: 262, d: 1.5 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 2 }, { f: 294, d: 2 }, { f: 330, d: 1.5 }, { f: 330, d: 0.5 }, { f: 392, d: 0.5 }, { f: 330, d: 0.5 }, { f: 0, d: 0.5 }, { f: 294, d: 0.5 }, { f: 262, d: 2 }, { f: 247, d: 2 }] };
+        // 9. Parabéns pra Você (120 BPM)
+        const song9 = { name: "🎂 Parabéns pra Você", tempo: 120, notes: [{ f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 2 }, { f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 784, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 698, d: 0.5 }, { f: 698, d: 0.5 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 2 }, { f: 0, d: 1 }, { f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 2 }, { f: 392, d: 0.5 }, { f: 392, d: 0.5 }, { f: 784, d: 1 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 698, d: 0.5 }, { f: 698, d: 0.5 }, { f: 659, d: 1 }, { f: 523, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 2 }] };
+        // 10. Asa Branca — Luiz Gonzaga (110 BPM)
+        const song10 = { name: "🌵 Asa Branca — Luiz Gonzaga", tempo: 110, notes: [{ f: 392, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 494, d: 1 }, { f: 523, d: 1 }, { f: 523, d: 1 }, { f: 392, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 392, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 494, d: 1 }, { f: 523, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 2 }, { f: 0, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 1 }, { f: 392, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }] };
+        // 11. Hedwig's Theme — Harry Potter (120 BPM)
+        const song11 = { name: "✨ Tema do Harry Potter", tempo: 120, notes: [{ f: 494, d: 1 }, { f: 659, d: 1.5 }, { f: 784, d: 0.5 }, { f: 740, d: 1 }, { f: 659, d: 2 }, { f: 988, d: 1 }, { f: 880, d: 2.5 }, { f: 740, d: 2.5 }, { f: 659, d: 1.5 }, { f: 784, d: 0.5 }, { f: 740, d: 1 }, { f: 622, d: 2 }, { f: 698, d: 1 }, { f: 494, d: 3 }, { f: 494, d: 1 }, { f: 659, d: 1.5 }, { f: 784, d: 0.5 }, { f: 740, d: 1 }, { f: 659, d: 2 }, { f: 988, d: 1 }, { f: 1175, d: 1 }, { f: 1109, d: 1 }, { f: 1047, d: 1 }, { f: 831, d: 1 }, { f: 1047, d: 1.5 }, { f: 988, d: 0.5 }, { f: 932, d: 1 }, { f: 740, d: 2 }, { f: 784, d: 1 }, { f: 659, d: 3 }] };
+        // 12. Fur Elise — Beethoven (130 BPM)
+        const song12 = { name: "🎹 Fur Elise — Beethoven", tempo: 130, notes: [{ f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 494, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 1.5 }, { f: 0, d: 0.5 }, { f: 262, d: 0.5 }, { f: 330, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 0, d: 0.5 }, { f: 330, d: 0.5 }, { f: 415, d: 0.5 }, { f: 494, d: 0.5 }, { f: 523, d: 1.5 }, { f: 0, d: 0.5 }, { f: 330, d: 0.5 }, { f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 494, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 1.5 }, { f: 0, d: 0.5 }, { f: 262, d: 0.5 }, { f: 330, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 0, d: 0.5 }, { f: 330, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 2 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 0.5 }, { f: 659, d: 1.5 }, { f: 392, d: 0.5 }, { f: 698, d: 0.5 }, { f: 659, d: 0.5 }, { f: 587, d: 1.5 }, { f: 349, d: 0.5 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 1.5 }, { f: 330, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1.5 }, { f: 0, d: 0.5 }, { f: 330, d: 0.5 }, { f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 622, d: 0.5 }, { f: 659, d: 0.5 }, { f: 494, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 2 }] };
+        // 13. Take On Me — A-ha (168 BPM)
+        const song13 = { name: "🎙️ Take On Me — A-ha", tempo: 168, notes: [{ f: 740, d: 0.5 }, { f: 740, d: 0.5 }, { f: 587, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 0.5 }, { f: 740, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 740, d: 0.5 }, { f: 740, d: 0.5 }, { f: 587, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 0.5 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 0.5 }, { f: 0, d: 0.5 }, { f: 659, d: 0.5 }, { f: 740, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 0, d: 0.5 }, { f: 440, d: 0.5 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 0.5 }, { f: 0, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 0, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 2 }, { f: 587, d: 1 }, { f: 659, d: 1 }, { f: 740, d: 1 }, { f: 659, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }] };
+        // 14. Tema de Zelda (110 BPM)
+        const song14 = { name: "🗡️ Tema de Zelda", tempo: 110, notes: [{ f: 494, d: 2 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 2 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 2 }, { f: 659, d: 1 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 2 }, { f: 784, d: 1 }, { f: 880, d: 2 }, { f: 784, d: 1 }, { f: 659, d: 1 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 2 }, { f: 0, d: 1 }, { f: 494, d: 2 }] };
+        // 15. Smoke on the Water — Deep Purple (112 BPM)
+        const song15 = { name: "💨 Smoke on the Water — Deep Purple", tempo: 112, notes: [{ f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 277, d: 0.5 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 233, d: 1 }, { f: 196, d: 2 }, { f: 0, d: 1 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 277, d: 0.5 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 233, d: 1 }, { f: 196, d: 2 }, { f: 0, d: 1 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 2 }, { f: 0, d: 1 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 1 }, { f: 233, d: 0.5 }, { f: 196, d: 0.5 }, { f: 233, d: 2 }, { f: 0, d: 1 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 277, d: 0.5 }, { f: 262, d: 1.5 }, { f: 196, d: 1 }, { f: 233, d: 1 }, { f: 262, d: 1.5 }, { f: 233, d: 1 }, { f: 196, d: 2 }] };
+        // 16. Brilha Brilha Estrelinha (100 BPM)
+        const song16 = { name: "⭐ Brilha Brilha Estrelinha", tempo: 100, notes: [{ f: 262, d: 1 }, { f: 262, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 2 }, { f: 349, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 2 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 2 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 2 }, { f: 262, d: 1 }, { f: 262, d: 1 }, { f: 392, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 2 }, { f: 349, d: 1 }, { f: 349, d: 1 }, { f: 330, d: 1 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 294, d: 1 }, { f: 262, d: 2 }] };
+        // 17. Cantina Band — Star Wars (200 BPM)
+        const song17 = { name: "🌟 Cantina Band — Star Wars", tempo: 200, notes: [{ f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 1 }, { f: 0, d: 0.5 }, { f: 415, d: 0.5 }, { f: 440, d: 1 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 2 }, { f: 0, d: 1 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 1 }, { f: 0, d: 0.5 }, { f: 415, d: 0.5 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 466, d: 0.5 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 466, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 1 }, { f: 0, d: 0.5 }, { f: 415, d: 0.5 }, { f: 440, d: 1 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 0.5 }, { f: 523, d: 0.5 }, { f: 440, d: 1 }, { f: 0, d: 0.5 }, { f: 415, d: 0.5 }, { f: 440, d: 1 }, { f: 587, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 466, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 440, d: 2 }] };
+        // 18. Tema do Shire — Senhor dos Anéis (100 BPM)
+        const song18 = { name: "🧙 Tema do Shire — Senhor dos Anéis", tempo: 100, notes: [{ f: 294, d: 1 }, { f: 349, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 0.5 }, { f: 349, d: 0.5 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 349, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 440, d: 0.5 }, { f: 392, d: 2 }, { f: 440, d: 1 }, { f: 494, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 1 }, { f: 523, d: 0.5 }, { f: 494, d: 0.5 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 294, d: 2 }, { f: 0, d: 1 }, { f: 294, d: 1 }, { f: 349, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 0.5 }, { f: 349, d: 0.5 }, { f: 330, d: 1 }, { f: 294, d: 1 }, { f: 349, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 440, d: 0.5 }, { f: 392, d: 2 }, { f: 587, d: 1 }, { f: 523, d: 1 }, { f: 494, d: 1 }, { f: 440, d: 1 }, { f: 392, d: 1 }, { f: 349, d: 1 }, { f: 294, d: 2 }] };
+        // 19. Piratas do Caribe (140 BPM)
+        const song19 = { name: "🏴‍☠️ Piratas do Caribe", tempo: 140, notes: [{ f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 1 }, { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 0.5 }, { f: 294, d: 0.5 }, { f: 330, d: 2 }, { f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 1 }, { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 2 }, { f: 440, d: 1 }, { f: 523, d: 1 }, { f: 587, d: 1.5 }, { f: 587, d: 0.5 }, { f: 587, d: 0.5 }, { f: 659, d: 0.5 }, { f: 698, d: 1.5 }, { f: 698, d: 0.5 }, { f: 698, d: 0.5 }, { f: 784, d: 0.5 }, { f: 659, d: 1 }, { f: 587, d: 0.5 }, { f: 523, d: 0.5 }, { f: 523, d: 0.5 }, { f: 587, d: 0.5 }, { f: 440, d: 2 }, { f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 294, d: 0.5 }, { f: 294, d: 1 }, { f: 294, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 1 }, { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 330, d: 0.5 }, { f: 294, d: 0.5 }, { f: 330, d: 2 }] };
+        // 20. Careless Whisper — George Michael (100 BPM)
+        const song20 = { name: "🎷 Careless Whisper — George Michael", tempo: 100, notes: [{ f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 0, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 1.5 }, { f: 0, d: 0.5 }, { f: 440, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 349, d: 2 }, { f: 0, d: 1 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 494, d: 1.5 }, { f: 0, d: 0.5 }, { f: 587, d: 1 }, { f: 659, d: 0.5 }, { f: 587, d: 0.5 }, { f: 523, d: 1 }, { f: 494, d: 2 }, { f: 0, d: 1 }, { f: 440, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 349, d: 0.5 }, { f: 330, d: 0.5 }, { f: 349, d: 1.5 }, { f: 0, d: 0.5 }, { f: 440, d: 1 }, { f: 494, d: 0.5 }, { f: 440, d: 0.5 }, { f: 392, d: 1 }, { f: 294, d: 2 }] };
+
+        const playlist = [song1, song2, song3, song4, song5, song6, song7, song8, song9, song10, song11, song12, song13, song14, song15, song16, song17, song18, song19, song20];
+
+        function stopAudio() { currentOscillators.forEach(osc => { try { osc.stop(); } catch (e) { } }); currentOscillators = []; }
+
+        // --- QUIZ BGM (Ambient Lo-Fi Loop) ---
+        let quizBGMNodes = [];
+        let quizBGMPlaying = false;
+
+        function playQuizBGM() {
+            if (quizBGMPlaying) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            quizBGMPlaying = true;
+
+            // Chord progression: Am -> F -> C -> G (lo-fi chill)
+            const chords = [
+                [220, 262, 330],   // Am
+                [175, 220, 262],   // F
+                [262, 330, 392],   // C
+                [196, 247, 294]    // G
+            ];
+            const chordDuration = 4; // seconds per chord
+            const totalDuration = chords.length * chordDuration * 20; // loop 20x (~320s)
+            let t = audioCtx.currentTime + 0.1;
+
+            for (let loop = 0; loop < 20; loop++) {
+                chords.forEach(chord => {
+                    chord.forEach(freq => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const filter = audioCtx.createBiquadFilter();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, t);
+
+                        filter.type = 'lowpass';
+                        filter.frequency.setValueAtTime(600, t);
+
+                        gain.gain.setValueAtTime(0, t);
+                        gain.gain.linearRampToValueAtTime(0.03, t + 0.8);
+                        gain.gain.setValueAtTime(0.03, t + chordDuration - 0.8);
+                        gain.gain.linearRampToValueAtTime(0, t + chordDuration);
+
+                        osc.connect(filter);
+                        filter.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(t);
+                        osc.stop(t + chordDuration);
+                        quizBGMNodes.push(osc);
                     });
-                } else {
-                    // Fallback para PC ou arquivo local: faz o download automático da imagem
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'vibe_card.png';
-                    a.click();
-                    showToast("Imagem salva! Agora é só compartilhar.");
-                }
-            });
-        } catch(err) {
-            console.error(err);
-            btnShare.style.display = 'block';
-            btnReload.style.display = 'block';
-            showToast("Erro ao gerar imagem.");
+
+                    // Sub-bass pad
+                    const sub = audioCtx.createOscillator();
+                    const subGain = audioCtx.createGain();
+                    sub.type = 'sine';
+                    sub.frequency.setValueAtTime(chord[0] / 2, t);
+                    subGain.gain.setValueAtTime(0, t);
+                    subGain.gain.linearRampToValueAtTime(0.02, t + 1);
+                    subGain.gain.setValueAtTime(0.02, t + chordDuration - 1);
+                    subGain.gain.linearRampToValueAtTime(0, t + chordDuration);
+                    sub.connect(subGain);
+                    subGain.connect(audioCtx.destination);
+                    sub.start(t);
+                    sub.stop(t + chordDuration);
+                    quizBGMNodes.push(sub);
+
+                    t += chordDuration;
+                });
+            }
         }
-    }
 
-    function showResults() {
-        showScreen('screen-results');
-        
-        let myTotal = playerScores[myId] || 0;
-        document.getElementById('final-score').innerText = myTotal;
-        document.getElementById('final-match-pct').innerText = Math.min(100, Math.round((myTotal / 500) * 100)) + "%";
-        document.getElementById('card-player-name').innerText = myName.replace(' 👑','');
+        function stopQuizBGM() {
+            quizBGMNodes.forEach(n => { try { n.stop(); } catch (e) { } });
+            quizBGMNodes = [];
+            quizBGMPlaying = false;
+        }
 
-        if(isMultiplayer) {
-            // Montar Podium
-            document.getElementById('personal-score-card').style.display = 'none';
-            document.getElementById('podium-container').style.display = 'flex';
-            document.getElementById('podium-container').innerHTML = '';
+        function playAudioSequence(song) {
+            stopAudio();
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            let sorted = players.map(p => ({name: p.name, score: playerScores[p.id]||0})).sort((a,b)=>b.score - a.score);
-            
-            let denseRank = 1;
-            sorted[0].rank = denseRank;
-            for(let i=1; i<sorted.length; i++) {
-                if(sorted[i].score < sorted[i-1].score) denseRank++;
-                sorted[i].rank = denseRank;
+            const beatLen = 60 / song.tempo;
+            let time = audioCtx.currentTime + 0.1;
+
+            for (let loop = 0; loop < 10; loop++) {
+                song.notes.forEach(note => {
+                    if (note.f > 0) {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'square'; osc.frequency.value = note.f;
+
+                        const filter = audioCtx.createBiquadFilter();
+                        filter.type = 'lowpass'; filter.frequency.value = 1000;
+
+                        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+
+                        osc.start(time);
+                        gain.gain.setValueAtTime(0.05, time);
+                        gain.gain.exponentialRampToValueAtTime(0.001, time + note.d * beatLen - 0.05);
+                        osc.stop(time + note.d * beatLen);
+                        currentOscillators.push(osc);
+                    }
+                    time += note.d * beatLen;
+                });
+                if (time > audioCtx.currentTime + 30) break;
+            }
+        }
+
+        const roundsPool = [
+            { q: "Que cor é essa música?", opts: [{ id: 0, l: "🔴 Vermelho" }, { id: 1, l: "🔵 Azul" }, { id: 2, l: "🟡 Amarelo" }, { id: 3, l: "🟢 Verde" }] },
+            { q: "Qual a energia?", opts: [{ id: 0, l: "⚡ Eletrizante" }, { id: 1, l: "🛌 Calma" }, { id: 2, l: "💃 Dançante" }, { id: 3, l: "🌑 Sombria" }] },
+            { q: "Onde tocaria?", opts: [{ id: 0, l: "🏖️ Praia" }, { id: 1, l: "🏙️ Cidade" }, { id: 2, l: "🌲 Floresta" }, { id: 3, l: "🏰 Castelo" }] },
+            { q: "Emoji da vibe?", opts: [{ id: 0, l: "🔥" }, { id: 1, l: "🧊" }, { id: 2, l: "👽" }, { id: 3, l: "🤠" }] },
+            { q: "Momento do dia?", opts: [{ id: 0, l: "🌅 Manhã" }, { id: 1, l: "☀️ Tarde" }, { id: 2, l: "🌆 Entardecer" }, { id: 3, l: "🌌 Madrugada" }] },
+            { q: "Se fosse um tecido?", opts: [{ id: 0, l: "🧣 Veludo" }, { id: 1, l: "👖 Jeans" }, { id: 2, l: "👘 Seda" }, { id: 3, l: "🧻 Lixa" }] },
+            { q: "Qual a temperatura?", opts: [{ id: 0, l: "❄️ Congelante" }, { id: 1, l: "🥶 Frio" }, { id: 2, l: "🥵 Quente" }, { id: 3, l: "🌋 Fervendo" }] },
+            { q: "Qual clima combina?", opts: [{ id: 0, l: "☀️ Ensolarado" }, { id: 1, l: "🌧️ Chuvoso" }, { id: 2, l: "⛈️ Tempestade" }, { id: 3, l: "🌫️ Nevoeiro" }] },
+            { q: "Que animal seria?", opts: [{ id: 0, l: "🦅 Águia" }, { id: 1, l: "🐈 Gato" }, { id: 2, l: "🐻 Urso" }, { id: 3, l: "🐬 Golfinho" }] },
+            { q: "Qual elemento natural?", opts: [{ id: 0, l: "🔥 Fogo" }, { id: 1, l: "💧 Água" }, { id: 2, l: "🌍 Terra" }, { id: 3, l: "💨 Ar" }] }
+        ];
+
+        const quizPool = [
+            { q: "Qual álbum contém a música tema de Beethoven?", opts: [{ id: 0, l: "5ª Sinfonia" }, { id: 1, l: "9ª Sinfonia", c: true }, { id: 2, l: "Sonata ao Luar" }, { id: 3, l: "Para Elisa" }] },
+            { q: "Qual destes estilos musicais nasceu no Brasil?", opts: [{ id: 0, l: "Bossa Nova", c: true }, { id: 1, l: "Salsa" }, { id: 2, l: "Tango" }, { id: 3, l: "Reggae" }] },
+            { q: "O riff de 'Smoke on the Water' é tocado em qual instrumento?", opts: [{ id: 0, l: "Guitarra", c: true }, { id: 1, l: "Baixo" }, { id: 2, l: "Sintetizador" }, { id: 3, l: "Violino" }] },
+            { q: "Quem compôs a famosa Marcha Imperial de Star Wars?", opts: [{ id: 0, l: "John Williams", c: true }, { id: 1, l: "Hans Zimmer" }, { id: 2, l: "Alan Silvestri" }, { id: 3, l: "Ennio Morricone" }] },
+            { q: "A música 'Take on Me' é um clássico hit de qual década?", opts: [{ id: 0, l: "Anos 70" }, { id: 1, l: "Anos 80", c: true }, { id: 2, l: "Anos 90" }, { id: 3, l: "Anos 2000" }] },
+            { q: "Qual a cor da pantera tema do clássico do cinema?", opts: [{ id: 0, l: "Cor-de-Rosa", c: true }, { id: 1, l: "Preta" }, { id: 2, l: "Azul" }, { id: 3, l: "Branca" }] },
+            { q: "Qual instrumento o Mario toca quando pega a Estrela?", opts: [{ id: 0, l: "Nenhum (som chiptune)", c: true }, { id: 1, l: "Trompete" }, { id: 2, l: "Flauta" }, { id: 3, l: "Bongo" }] },
+            { q: "Qual instrumento principal na música de Zelda?", opts: [{ id: 0, l: "Ocarina", c: true }, { id: 1, l: "Violão" }, { id: 2, l: "Harpa" }, { id: 3, l: "Teclado" }] },
+            { q: "Deep Purple, banda de 'Smoke on the Water', é de qual país?", opts: [{ id: 0, l: "Reino Unido", c: true }, { id: 1, l: "EUA" }, { id: 2, l: "Austrália" }, { id: 3, l: "Canadá" }] },
+            { q: "Quantas teclas tem um piano clássico completo?", opts: [{ id: 0, l: "88", c: true }, { id: 1, l: "64" }, { id: 2, l: "72" }, { id: 3, l: "102" }] }
+        ];
+
+        const quizArtistPool = [
+            { q: "Em que ano Beethoven nasceu?", opts: [{ id: 0, l: "1770", c: true }, { id: 1, l: "1750" }, { id: 2, l: "1800" }, { id: 3, l: "1790" }] },
+            { q: "Qual a nacionalidade de Beethoven?", opts: [{ id: 0, l: "Alemão", c: true }, { id: 1, l: "Austríaco" }, { id: 2, l: "Italiano" }, { id: 3, l: "Francês" }] },
+            { q: "Qual problema de saúde marcou a vida do compositor?", opts: [{ id: 0, l: "Surdez", c: true }, { id: 1, l: "Cegueira" }, { id: 2, l: "Mudez" }, { id: 3, l: "Paralisia" }] },
+            { q: "Sua obra mais famosa para piano é a Sonata ao...", opts: [{ id: 0, l: "Luar", c: true }, { id: 1, l: "Sol" }, { id: 2, l: "Mar" }, { id: 3, l: "Vento" }] },
+            { q: "Quantas sinfonias ele compôs?", opts: [{ id: 0, l: "9", c: true }, { id: 1, l: "5" }, { id: 2, l: "40" }, { id: 3, l: "15" }] },
+            { q: "Quem era seu grande ídolo inicial (e depois decepção)?", opts: [{ id: 0, l: "Napoleão", c: true }, { id: 1, l: "Rei George" }, { id: 2, l: "Mozart" }, { id: 3, l: "Papa Pio" }] },
+            { q: "Ode à Alegria faz parte de qual Sinfonia?", opts: [{ id: 0, l: "9ª Sinfonia", c: true }, { id: 1, l: "5ª Sinfonia" }, { id: 2, l: "3ª Sinfonia" }, { id: 3, l: "6ª Sinfonia" }] },
+            { q: "Qual o seu primeiro nome?", opts: [{ id: 0, l: "Ludwig", c: true }, { id: 1, l: "Wolfgang" }, { id: 2, l: "Johann" }, { id: 3, l: "Franz" }] },
+            { q: "A 6ª Sinfonia dele é conhecida como:", opts: [{ id: 0, l: "Pastoral", c: true }, { id: 1, l: "Eroica" }, { id: 2, l: "Coral" }, { id: 3, l: "Destino" }] },
+            { q: "Para quem foi escrita a peça 'Para Elisa'?", opts: [{ id: 0, l: "Identidade incerta", c: true }, { id: 1, l: "Sua esposa" }, { id: 2, l: "Sua irmã" }, { id: 3, l: "Uma rainha" }] }
+        ];
+
+        const quizAlbumPool = [
+            { q: "Em que ano foi lançado o álbum 'Thriller'?", opts: [{ id: 0, l: "1982", c: true }, { id: 1, l: "1980" }, { id: 2, l: "1985" }, { id: 3, l: "1989" }] },
+            { q: "Qual o famoso produtor de Thriller?", opts: [{ id: 0, l: "Quincy Jones", c: true }, { id: 1, l: "George Martin" }, { id: 2, l: "Rick Rubin" }, { id: 3, l: "Dr. Dre" }] },
+            { q: "Qual destas faixas NÃO é de Thriller?", opts: [{ id: 0, l: "Bad", c: true }, { id: 1, l: "Beat It" }, { id: 2, l: "Billie Jean" }, { id: 3, l: "Human Nature" }] },
+            { q: "Quem faz a narração na música Thriller?", opts: [{ id: 0, l: "Vincent Price", c: true }, { id: 1, l: "Morgan Freeman" }, { id: 2, l: "Christopher Lee" }, { id: 3, l: "Bela Lugosi" }] },
+            { q: "Quem toca o solo de guitarra em 'Beat It'?", opts: [{ id: 0, l: "Eddie Van Halen", c: true }, { id: 1, l: "Slash" }, { id: 2, l: "Brian May" }, { id: 3, l: "Jimmy Page" }] },
+            { q: "Quantos Grammys Thriller ganhou em 1984?", opts: [{ id: 0, l: "8", c: true }, { id: 1, l: "5" }, { id: 2, l: "3" }, { id: 3, l: "10" }] },
+            { q: "Qual a primeira faixa do álbum?", opts: [{ id: 0, l: "Wanna Be Startin' Somethin'", c: true }, { id: 1, l: "Thriller" }, { id: 2, l: "Billie Jean" }, { id: 3, l: "Beat It" }] },
+            { q: "Com quem Michael faz dueto em 'The Girl Is Mine'?", opts: [{ id: 0, l: "Paul McCartney", c: true }, { id: 1, l: "Stevie Wonder" }, { id: 2, l: "Lionel Richie" }, { id: 3, l: "Elton John" }] },
+            { q: "Quantas cópias estimadas foram vendidas?", opts: [{ id: 0, l: "+60 milhões", c: true }, { id: 1, l: "30 milhões" }, { id: 2, l: "100 milhões" }, { id: 3, l: "15 milhões" }] },
+            { q: "Qual o icônico figurino do clipe Thriller?", opts: [{ id: 0, l: "Jaqueta Vermelha", c: true }, { id: 1, l: "Terno Branco" }, { id: 2, l: "Roupa de Zumbi" }, { id: 3, l: "Capa Preta" }] }
+        ];
+
+        function getActivePool() {
+            if (selectedMode === 'quiz') return quizPool;
+            if (selectedMode === 'quiz_artist') return quizArtistPool;
+            if (selectedMode === 'quiz_album') return quizAlbumPool;
+            // Se for guess, as perguntas são geradas na match sequence, retornamos array vazio temporariamente
+            if (selectedMode === 'guess') return [];
+            return roundsPool;
+        }
+
+        let guessDynamicPool = [];
+
+        function generateMatchSequence() {
+            matchSequence = [];
+            let pool = getActivePool();
+            totalRounds = isQuizMode ? 10 : 5;
+
+            let availableSongs = Array.from({ length: playlist.length }, (_, i) => i);
+            const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+            shuffle(availableSongs);
+
+            if (selectedMode === 'guess') {
+                guessDynamicPool = [];
+                for (let i = 0; i < totalRounds; i++) {
+                    let sIdx = availableSongs[i % availableSongs.length];
+                    let correctName = playlist[sIdx].name.replace(/^[^\s]+\s/, ''); // Remove emoji
+
+                    // Escolher 3 músicas erradas aleatórias
+                    let wrongSongs = playlist.filter((_, idx) => idx !== sIdx);
+                    shuffle(wrongSongs);
+                    let opts = [
+                        { id: 0, l: correctName, c: true },
+                        { id: 1, l: wrongSongs[0].name.replace(/^[^\s]+\s/, ''), c: false },
+                        { id: 2, l: wrongSongs[1].name.replace(/^[^\s]+\s/, ''), c: false },
+                        { id: 3, l: wrongSongs[2].name.replace(/^[^\s]+\s/, ''), c: false }
+                    ];
+                    shuffle(opts);
+
+                    guessDynamicPool.push({ q: "Qual é a música?", opts: opts });
+                    matchSequence.push({ songIdx: sIdx, qIdx: i }); // qIdx mapeia direto pra nova pool dinâmica
+                }
+            } else {
+                let availableQuestions = Array.from({ length: pool.length }, (_, i) => i);
+                shuffle(availableQuestions);
+
+                for (let i = 0; i < totalRounds; i++) {
+                    matchSequence.push({ songIdx: availableSongs[i % availableSongs.length], qIdx: availableQuestions[i % availableQuestions.length] });
+                }
+            }
+        }
+
+        function startGameHost() {
+            if (players.length < 2) return showToast("Aguarde pelo menos 1 convidado!");
+            playerScores = {};
+            players.forEach(p => playerScores[p.id] = 0);
+            generateMatchSequence();
+            broadcast({ type: 'START_GAME', sequence: matchSequence, isQuizMode: isQuizMode, selectedMode: selectedMode, totalRounds: totalRounds });
+            currentRound = 0;
+            playRound(0);
+        }
+
+        function playRound(index) {
+            if (isMultiplayer && isHost) broadcast({ type: 'START_ROUND', roundIndex: index });
+            currentRound = index; myAnswer = null; roundAnswers = {}; timeRemaining = 30;
+
+            document.getElementById('round-counter').innerText = `Rodada ${currentRound + 1}/${totalRounds}`;
+            document.getElementById('score-counter').innerText = `${playerScores[myId] || 0} pts`;
+            document.getElementById('timer').innerText = timeRemaining;
+
+            const roundData = selectedMode === 'guess' ? guessDynamicPool[matchSequence[currentRound].qIdx] : getActivePool()[matchSequence[currentRound].qIdx];
+            const songData = playlist[matchSequence[currentRound].songIdx];
+
+            document.getElementById('question-title').innerText = roundData.q;
+            document.getElementById('song-name').innerText = '🎵 ' + songData.name;
+            document.getElementById('options-container').innerHTML = roundData.opts.map(opt =>
+                `<div class="option-btn" id="opt-${opt.id}" onclick="selectOption(${opt.id}, this)">${opt.l}</div>`
+            ).join('');
+
+            showScreen('screen-gameplay');
+
+            if (isQuizMode && selectedMode !== 'guess') {
+                document.querySelector('.visualizer-container').style.display = 'none';
+                document.getElementById('song-name').style.display = 'none';
+                if (currentRound === 0) playQuizBGM(); // Inicia BGM apenas na 1ª rodada
+            } else {
+                // Se for guess ou vibe normal, toca a música
+                document.querySelector('.visualizer-container').style.display = 'flex';
+                document.getElementById('song-name').style.display = 'block';
+                document.getElementById('record-disk').classList.add('playing');
+                if (selectedMode === 'guess') {
+                    // Esconde o nome da música se for guess!
+                    document.getElementById('song-name').style.display = 'none';
+                }
+                playAudioSequence(songData);
             }
 
-            let ranks = { 1: [], 2: [], 3: [] };
-            sorted.forEach(item => {
-                if(item.rank <= 3) ranks[item.rank].push(item);
+            clearInterval(roundTimer);
+            roundTimer = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timer').innerText = timeRemaining;
+                if (timeRemaining <= 0) {
+                    clearInterval(roundTimer);
+                    if (myAnswer === null) selectOption(-1, null);
+                    if (isMultiplayer && isHost) {
+                        setTimeout(() => {
+                            players.forEach(p => { if (roundAnswers[p.id] === undefined) roundAnswers[p.id] = { ans: -1, time: 0 }; });
+                            checkReveal();
+                        }, 500);
+                    }
+                }
+            }, 1000);
+        }
+
+        function selectOption(optId, btnElement) {
+            if (myAnswer !== null) return;
+            playSoundEffect('pop');
+            myAnswer = optId;
+            if (btnElement) btnElement.classList.add('selected');
+
+            if (isMultiplayer) {
+                if (isHost) { handleAnswer(myId, optId, timeRemaining); }
+                else { conns[0].send({ type: 'ANSWER', id: myId, answer: optId, time: timeRemaining }); }
+                document.getElementById('question-title').innerText = "Aguardando outros jogadores...";
+            } else {
+                document.getElementById('question-title').innerText = "Processando...";
+                setTimeout(() => doRevealSolo(optId), 1000);
+            }
+        }
+
+        function handleAnswer(playerId, optId, timeLeft) {
+            if (roundAnswers[playerId] !== undefined) return; // Already answered
+
+            const roundData = selectedMode === 'guess' ? guessDynamicPool[matchSequence[currentRound].qIdx] : getActivePool()[matchSequence[currentRound].qIdx];
+            const correctOptId = isQuizMode ? roundData.opts.find(o => o.c).id : -1;
+            const playerName = players.find(p => p.id === playerId)?.name.replace(' 👑', '') || 'Alguém';
+
+            if (isQuizMode) {
+                if (optId === correctOptId) {
+                    // Check if someone else already got it
+                    const alreadyWon = Object.values(roundAnswers).some(a => a.firstCorrect);
+                    if (!alreadyWon) {
+                        roundAnswers[playerId] = { ans: optId, time: timeLeft, firstCorrect: true };
+                        broadcast({ type: 'PLAYER_CORRECT', name: playerName });
+                        if (playerId === myId) showToast("🎉 Você acertou primeiro!");
+
+                        // Force round to end
+                        clearInterval(roundTimer);
+                        players.forEach(p => { if (roundAnswers[p.id] === undefined) roundAnswers[p.id] = { ans: -1, time: 0 }; });
+                        broadcast({ type: 'REVEAL', answers: roundAnswers });
+                        setTimeout(doRevealMultiplayer, 500);
+                        return;
+                    } else {
+                        roundAnswers[playerId] = { ans: optId, time: timeLeft };
+                    }
+                } else if (optId !== -1) {
+                    roundAnswers[playerId] = { ans: optId, time: timeLeft };
+                    broadcast({ type: 'PLAYER_WRONG', name: playerName });
+                    if (playerId === myId) showToast("❌ Você errou!");
+                } else {
+                    roundAnswers[playerId] = { ans: optId, time: timeLeft };
+                }
+            } else {
+                roundAnswers[playerId] = { ans: optId, time: timeLeft };
+            }
+
+            checkReveal();
+        }
+
+        function checkReveal() {
+            if (isMultiplayer && isHost) {
+                if (Object.keys(roundAnswers).length === players.length) {
+                    clearInterval(roundTimer);
+                    broadcast({ type: 'REVEAL', answers: roundAnswers });
+                    setTimeout(doRevealMultiplayer, 500);
+                }
+            }
+        }
+
+        function doRevealSolo(myOpt) {
+            if (!isQuizMode || selectedMode === 'guess') { stopAudio(); } // No guess, para o áudio revelando
+            document.getElementById('record-disk').classList.remove('playing');
+            showScreen('screen-reveal');
+
+            const roundData = selectedMode === 'guess' ? guessDynamicPool[matchSequence[currentRound].qIdx] : getActivePool()[matchSequence[currentRound].qIdx];
+            const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
+            let correctOptId = isQuizMode ? roundData.opts.find(o => o.c).id : -1;
+
+            let votes = [Math.random(), Math.random(), Math.random(), Math.random()];
+            if (myOpt !== -1) votes[myOpt] += 1.0;
+            const sum = votes.reduce((a, b) => a + b, 0);
+            const percentages = votes.map(v => Math.round((v / sum) * 100));
+            let pSum = percentages.reduce((a, b) => a + b, 0); percentages[0] += (100 - pSum);
+
+            document.getElementById('reveal-subtitle').innerText = isQuizMode ? "O que a comunidade acha que é:" : "O que a comunidade escolheu:";
+
+            roundData.opts.forEach((opt, i) => {
+                const isMe = (i === myOpt);
+                const isCorrect = (isQuizMode && opt.c);
+                const colorStyle = isCorrect ? 'background: var(--success);' : (isQuizMode ? 'background: rgba(255,255,255,0.2);' : '');
+                barsContainer.innerHTML += `
+                <div class="result-bar-container">
+                    <div class="result-label"><span style="${isCorrect ? 'color:var(--success); font-weight:bold;' : ''}">${opt.l} ${isMe ? '(Você)' : ''} ${isCorrect ? '✅' : ''}</span><span>${percentages[i]}%</span></div>
+                    <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%; ${colorStyle}" data-target="${percentages[i]}"></div></div>
+                </div>`;
             });
 
-            // Reordena para ficar visualmente: 2º, 1º, 3º
-            let displayOrder = [];
-            if(ranks[2].length > 0) displayOrder.push({rankNum: 2, group: ranks[2]});
-            if(ranks[1].length > 0) displayOrder.push({rankNum: 1, group: ranks[1]});
-            if(ranks[3].length > 0) displayOrder.push({rankNum: 3, group: ranks[3]});
+            if (myOpt === -1) {
+                playSoundEffect('buzzer');
+                barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:20px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
+                playerStreaks[myId] = 0;
+            } else {
+                if (isQuizMode) {
+                    if (myOpt === correctOptId) {
+                        playSoundEffect('ding');
+                        playerStreaks[myId] = (playerStreaks[myId] || 0) + 1;
+                        let streakBonus = playerStreaks[myId] >= 2 ? playerStreaks[myId] * 10 : 0;
+                        playerScores[myId] = (playerScores[myId] || 0) + 100 + streakBonus;
+                        shootConfetti();
+                        let streakMsg = playerStreaks[myId] >= 2 ? `<br><span style="color:#ffb703;">🔥 Combo x${playerStreaks[myId]}! (+${streakBonus} pts)</span>` : "";
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--success); margin-top:10px; font-weight:bold;">Você acertou! +100 pts 🎉${streakMsg}</div>`;
+                    } else {
+                        playSoundEffect('buzzer');
+                        playerStreaks[myId] = 0;
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Você errou! ❌</div>`;
+                    }
+                } else {
+                    if (percentages[myOpt] > 40) { playSoundEffect('ding'); shootConfetti(); } else { playSoundEffect('buzzer'); }
+                    playerScores[myId] = (playerScores[myId] || 0) + percentages[myOpt];
+                }
+            }
 
-            displayOrder.forEach(item => {
-                let pClass = `podium-${item.rankNum}`;
-                
-                let namesHtml = item.group.map(p => {
-                    let cleanName = p.name.replace(' 👑','').replace(' (Você)','');
-                    let isMeStyle = p.name.includes('Você') ? 'color:var(--accent); font-weight:800;' : '';
-                    return `<div style="${isMeStyle}">${cleanName}</div>`;
-                }).join('');
+            setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
 
-                let scoreStr = item.group[0].score + " pts";
+            document.getElementById('btn-next-round').style.display = 'block';
+            document.getElementById('waiting-next-msg').style.display = 'none';
+        }
 
-                document.getElementById('podium-container').innerHTML += `
+        function doRevealMultiplayer() {
+            if (!isQuizMode || selectedMode === 'guess') { stopAudio(); }
+            document.getElementById('record-disk').classList.remove('playing');
+            showScreen('screen-reveal');
+
+            const roundData = selectedMode === 'guess' ? guessDynamicPool[matchSequence[currentRound].qIdx] : getActivePool()[matchSequence[currentRound].qIdx];
+            const barsContainer = document.getElementById('reveal-bars'); barsContainer.innerHTML = '';
+            document.getElementById('reveal-subtitle').innerText = isQuizMode ? "Respostas da Galera:" : "Votos da Galera:";
+
+            let correctOptId = isQuizMode ? roundData.opts.find(o => o.c).id : -1;
+            let counts = {}; let voters = {};
+            roundData.opts.forEach(opt => { counts[opt.id] = 0; voters[opt.id] = []; });
+
+            players.forEach(p => {
+                let ansData = roundAnswers[p.id] || { ans: -1, time: 0 };
+                let ans = ansData.ans !== undefined ? ansData.ans : ansData;
+                if (ans !== undefined && ans !== -1) { counts[ans]++; voters[ans].push(p.name); }
+            });
+
+            let validPlayers = players.filter(p => {
+                let ansData = roundAnswers[p.id] || { ans: -1, time: 0 };
+                return (ansData.ans !== undefined ? ansData.ans : ansData) !== -1;
+            });
+            let totalVotes = validPlayers.length;
+            if (totalVotes === 0) totalVotes = 1;
+
+            // Atualiza pontuações e streaks para o pódio
+            // Atualiza pontuações e streaks para o pódio
+            players.forEach(p => {
+                let ansData = roundAnswers[p.id] || { ans: -1, time: 0 };
+                let ans = ansData.ans !== undefined ? ansData.ans : ansData;
+                let timeBonus = ansData.time || 0;
+                if (ans !== -1 && ans !== undefined) {
+                    if (isQuizMode) {
+                        if (ans === correctOptId && ansData.firstCorrect) {
+                            playerStreaks[p.id] = (playerStreaks[p.id] || 0) + 1;
+                            let streakBonus = playerStreaks[p.id] >= 2 ? playerStreaks[p.id] * 10 : 0;
+                            playerScores[p.id] = (playerScores[p.id] || 0) + 100 + (timeBonus * 2) + streakBonus;
+                        } else if (ans === correctOptId) {
+                            // Respondeu certo, mas não foi o primeiro
+                            playerStreaks[p.id] = 0;
+                        } else {
+                            playerStreaks[p.id] = 0;
+                        }
+                    } else {
+                        let pct = Math.round((counts[ans] / totalVotes) * 100);
+                        playerScores[p.id] = (playerScores[p.id] || 0) + pct;
+                    }
+                } else {
+                    if (isQuizMode) playerStreaks[p.id] = 0;
+                }
+            });
+
+            let myAnsData = roundAnswers[myId] || { ans: -1, time: 0 };
+            let myAns = myAnsData.ans !== undefined ? myAnsData.ans : myAnsData;
+            let myTimeBonus = myAnsData.time || 0;
+            let myStreak = playerStreaks[myId] || 0;
+            let myPct = myAns !== -1 ? Math.round((counts[myAns] / totalVotes) * 100) : 0;
+
+            roundData.opts.forEach(opt => {
+                if (counts[opt.id] > 0 || (isQuizMode && opt.c)) {
+                    const pct = Math.round((counts[opt.id] / totalVotes) * 100) || 0;
+                    const isMe = (myAns === opt.id);
+                    const isCorrect = (isQuizMode && opt.c);
+                    const colorStyle = isCorrect ? 'background: var(--success);' : (isQuizMode ? 'background: rgba(255,255,255,0.2);' : '');
+
+                    barsContainer.innerHTML += `
+                    <div class="result-bar-container">
+                        <div class="result-label"><span style="font-weight:600; ${isCorrect ? 'color:var(--success);' : ''}">${opt.l} ${isMe ? '👈' : ''} ${isCorrect ? '✅' : ''}</span><span>${pct}%</span></div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">${voters[opt.id].join(', ')}</div>
+                        <div class="result-bar-bg"><div class="result-bar-fill" style="width: 0%; ${colorStyle}" data-target="${pct}"></div></div>
+                    </div>`;
+                }
+            });
+
+            let missedPlayers = players.filter(p => {
+                let ansData = roundAnswers[p.id] || { ans: -1, time: 0 };
+                return (ansData.ans !== undefined ? ansData.ans : ansData) === -1;
+            }).map(p => p.name);
+            if (missedPlayers.length > 0) {
+                barsContainer.innerHTML += `<div style="text-align:center; color:var(--text-muted); margin-top:20px; font-size:0.9rem;">Não responderam a tempo: ${missedPlayers.join(', ')}</div>`;
+            }
+            if (myAns === -1) {
+                playSoundEffect('buzzer');
+                barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:10px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
+            } else if (isQuizMode) {
+                if (myAns === correctOptId && myAnsData.firstCorrect) {
+                    playSoundEffect('ding');
+                    shootConfetti();
+                    let pts = 100 + (myTimeBonus * 2);
+                    let streakBonus = myStreak >= 2 ? myStreak * 10 : 0;
+                    pts += streakBonus;
+                    let streakMsg = myStreak >= 2 ? `<br><span style="color:#ffb703;">🔥 Combo x${myStreak}! (+${streakBonus} pts)</span>` : "";
+                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--success); margin-top:10px; font-weight:bold;">Você acertou primeiro! +${pts} pts 🎉${streakMsg}</div>`;
+                } else if (myAns === correctOptId) {
+                    playSoundEffect('buzzer');
+                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Certo, mas alguém foi mais rápido! (0 pts)</div>`;
+                } else {
+                    playSoundEffect('buzzer');
+                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Você errou! ❌</div>`;
+                }
+            } else if (!isQuizMode && myPct >= 50) {
+                playSoundEffect('ding');
+                shootConfetti();
+            } else if (!isQuizMode) {
+                playSoundEffect('buzzer');
+            }
+
+            setTimeout(() => { document.querySelectorAll('.result-bar-fill').forEach(el => { el.style.width = el.getAttribute('data-target') + '%'; }); }, 100);
+
+            if (isHost) { document.getElementById('btn-next-round').style.display = 'block'; document.getElementById('waiting-next-msg').style.display = 'none'; }
+            else { document.getElementById('btn-next-round').style.display = 'none'; document.getElementById('waiting-next-msg').style.display = 'block'; }
+        }
+
+        function nextRound() {
+            if (isHost && isMultiplayer) broadcast({ type: 'NEXT_ROUND' });
+            if (currentRound < totalRounds - 1) playRound(currentRound + 1);
+            else showResults();
+        }
+
+        function shootConfetti() {
+            if (typeof confetti !== 'undefined') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffffff'] });
+            }
+        }
+
+        async function shareResult() {
+            const btnShare = document.getElementById('btn-share');
+            const btnReload = document.getElementById('btn-reload');
+
+            // Oculta botões temporariamente para não saírem na print
+            btnShare.style.display = 'none';
+            btnReload.style.display = 'none';
+            showToast("Gerando Vibe Card...");
+
+            const targetElement = document.querySelector('#screen-results .center-content');
+
+            try {
+                const canvas = await html2canvas(targetElement, {
+                    backgroundColor: '#0b0914', // cor de fundo do app
+                    scale: 2 // alta resolução
+                });
+
+                // Restaura botões
+                btnShare.style.display = 'block';
+                btnReload.style.display = 'block';
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'vibe_card.png', { type: 'image/png' });
+
+                    let myTotal = playerScores[myId] || 0;
+                    let maxPossible = isQuizMode ? (totalRounds * 160) : (totalRounds * 100);
+                    let pct = Math.min(100, Math.round((myTotal / maxPossible) * 100));
+                    let isLocal = window.location.protocol === 'file:';
+                    let text = `🎧 Joguei Vibe Match e tive ${pct}% de sintonia!`;
+
+                    // Tenta usar o compartilhamento nativo de arquivos (como no celular)
+                    if (navigator.canShare && navigator.canShare({ files: [file] }) && !isLocal) {
+                        await navigator.share({
+                            title: 'Vibe Match',
+                            text: text,
+                            files: [file]
+                        });
+                    } else {
+                        // Fallback para PC ou arquivo local: faz o download automático da imagem
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'vibe_card.png';
+                        a.click();
+                        showToast("Imagem salva! Agora é só compartilhar.");
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                btnShare.style.display = 'block';
+                btnReload.style.display = 'block';
+                showToast("Erro ao gerar imagem.");
+            }
+        }
+
+        function showResults() {
+            stopAudio();
+            stopQuizBGM();
+            showScreen('screen-results');
+
+            let myTotal = playerScores[myId] || 0;
+            let maxPossible = isQuizMode ? (totalRounds * 160) : (totalRounds * 100);
+            document.getElementById('final-score').innerText = myTotal;
+            document.getElementById('final-match-pct').innerText = Math.min(100, Math.round((myTotal / maxPossible) * 100)) + "%";
+            document.getElementById('card-player-name').innerText = myName.replace(' 👑', '');
+
+            if (isMultiplayer) {
+                // Montar Podium
+                document.getElementById('personal-score-card').style.display = 'none';
+                document.getElementById('podium-container').style.display = 'flex';
+                document.getElementById('podium-container').innerHTML = '';
+
+                let sorted = players.map(p => ({ name: p.name, score: playerScores[p.id] || 0 })).sort((a, b) => b.score - a.score);
+
+                let denseRank = 1;
+                sorted[0].rank = denseRank;
+                for (let i = 1; i < sorted.length; i++) {
+                    if (sorted[i].score < sorted[i - 1].score) denseRank++;
+                    sorted[i].rank = denseRank;
+                }
+
+                let ranks = { 1: [], 2: [], 3: [] };
+                sorted.forEach(item => {
+                    if (item.rank <= 3) ranks[item.rank].push(item);
+                });
+
+                // Reordena para ficar visualmente: 2º, 1º, 3º
+                let displayOrder = [];
+                if (ranks[2].length > 0) displayOrder.push({ rankNum: 2, group: ranks[2] });
+                if (ranks[1].length > 0) displayOrder.push({ rankNum: 1, group: ranks[1] });
+                if (ranks[3].length > 0) displayOrder.push({ rankNum: 3, group: ranks[3] });
+
+                displayOrder.forEach(item => {
+                    let pClass = `podium-${item.rankNum}`;
+
+                    let namesHtml = item.group.map(p => {
+                        let cleanName = p.name.replace(' 👑', '').replace(' (Você)', '');
+                        let isMeStyle = p.name.includes('Você') ? 'color:var(--accent); font-weight:800;' : '';
+                        return `<div style="${isMeStyle}">${cleanName}</div>`;
+                    }).join('');
+
+                    let scoreStr = item.group[0].score + " pts";
+
+                    document.getElementById('podium-container').innerHTML += `
                     <div class="podium-bar ${pClass}">
                         <div class="podium-name">${namesHtml}</div>
                         <div style="font-size:1.5rem;">${item.rankNum}º</div>
                         <div class="podium-score">${scoreStr}</div>
                     </div>
                 `;
-            });
+                });
 
-            let others = sorted.filter(item => item.rank > 3);
-            let othersContainer = document.getElementById('other-ranks-container');
-            if(others.length > 0) {
-                othersContainer.style.display = 'flex';
-                othersContainer.innerHTML = others.map(item => {
-                    let isMeStyle = item.name.includes('Você') ? 'color:var(--accent); font-weight:bold;' : 'color:var(--text-muted);';
-                    let cleanName = item.name.replace(' 👑','').replace(' (Você)','');
-                    return `<div style="display:flex; justify-content:space-between; ${isMeStyle}"><span>${item.rank}º - ${cleanName}</span><span>${item.score} pts</span></div>`;
-                }).join('');
+                let others = sorted.filter(item => item.rank > 3);
+                let othersContainer = document.getElementById('other-ranks-container');
+                if (others.length > 0) {
+                    othersContainer.style.display = 'flex';
+                    othersContainer.innerHTML = others.map(item => {
+                        let isMeStyle = item.name.includes('Você') ? 'color:var(--accent); font-weight:bold;' : 'color:var(--text-muted);';
+                        let cleanName = item.name.replace(' 👑', '').replace(' (Você)', '');
+                        return `<div style="display:flex; justify-content:space-between; ${isMeStyle}"><span>${item.rank}º - ${cleanName}</span><span>${item.score} pts</span></div>`;
+                    }).join('');
+                } else {
+                    othersContainer.style.display = 'none';
+                }
+
+                setTimeout(() => {
+                    confetti({ particleCount: 250, spread: 120, origin: { y: 0.3 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffd700'] });
+                }, 500);
+
             } else {
-                othersContainer.style.display = 'none';
+                document.getElementById('personal-score-card').style.display = 'block';
+                document.getElementById('podium-container').style.display = 'none';
+                let othersCont = document.getElementById('other-ranks-container');
+                if (othersCont) othersCont.style.display = 'none';
+
+                setTimeout(() => {
+                    if (myTotal >= 250) confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+                }, 300);
             }
 
-            setTimeout(() => {
-                confetti({ particleCount: 250, spread: 120, origin: { y: 0.3 }, colors: ['#9d4edd', '#ff006e', '#00f5d4', '#ffd700'] });
-            }, 500);
+            // --- PROFILE UPDATE ---
+            userProfile.xp += myTotal;
+            userProfile.history.push({
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                score: myTotal,
+                mode: selectedMode
+            });
+            if (userProfile.history.length > 20) userProfile.history.shift(); // Keep last 20
 
-        } else {
-            document.getElementById('personal-score-card').style.display = 'block';
-            document.getElementById('podium-container').style.display = 'none';
-            let othersCont = document.getElementById('other-ranks-container');
-            if(othersCont) othersCont.style.display = 'none';
-            
-            setTimeout(() => {
-                if(myTotal >= 250) confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-            }, 300);
+            // Check Badges
+            awardBadge('first_vibe');
+            if (myTotal === maxPossible && maxPossible > 0) awardBadge('perfect_vibe');
+            if (playerStreaks[myId] >= 3) awardBadge('streak_3');
+
+            saveProfile();
         }
-    }
-</script>
+    </script>
 
 </body>
+
 </html>
