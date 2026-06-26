@@ -1010,7 +1010,16 @@
                     }
                 }
                 if (data.type === 'PLAYER_LIST') { players = data.players; updatePlayerListUI(); }
-                if (data.type === 'START_GAME') { matchSequence = data.sequence; isQuizMode = data.isQuizMode; selectedMode = data.selectedMode || 'vibe'; totalRounds = data.totalRounds || 5; currentRound = 0; playerScores = {}; playerStreaks = {}; }
+                if (data.type === 'START_GAME') { 
+                    matchSequence = data.sequence; 
+                    isQuizMode = data.isQuizMode; 
+                    selectedMode = data.selectedMode || 'vibe'; 
+                    totalRounds = data.totalRounds || 5; 
+                    if (data.guessDynamicPool) guessDynamicPool = data.guessDynamicPool;
+                    currentRound = 0; 
+                    playerScores = {}; 
+                    playerStreaks = {}; 
+                }
                 if (data.type === 'START_ROUND') { playRound(data.roundIndex); }
                 if (data.type === 'ANSWER') {
                     if (isHost) { handleAnswer(data.id, data.answer, data.time || 0); }
@@ -1336,7 +1345,7 @@
             playerScores = {};
             players.forEach(p => playerScores[p.id] = 0);
             generateMatchSequence();
-            broadcast({ type: 'START_GAME', sequence: matchSequence, isQuizMode: isQuizMode, selectedMode: selectedMode, totalRounds: totalRounds });
+            broadcast({ type: 'START_GAME', sequence: matchSequence, isQuizMode: isQuizMode, selectedMode: selectedMode, totalRounds: totalRounds, guessDynamicPool: guessDynamicPool });
             currentRound = 0;
             playRound(0);
         }
