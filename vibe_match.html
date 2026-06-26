@@ -639,6 +639,12 @@
                 </div>
 
                 <div id="tut-slide-3" class="tut-slide" style="display: none;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🎵</div>
+                    <h3>Adivinhe a Música</h3>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Ouça o trecho da música e descubra qual é o nome dela antes do tempo acabar!<br><br>Seja o primeiro a apertar a opção correta para garantir os pontos da rodada.</p>
+                </div>
+
+                <div id="tut-slide-4" class="tut-slide" style="display: none;">
                     <div style="font-size: 3rem; margin-bottom: 10px;">👥</div>
                     <h3>Vibe Party</h3>
                     <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Crie uma sala e convide
@@ -706,7 +712,7 @@
 
         // --- TUTORIAL LOGIC ---
         let currentTutSlide = 1;
-        const totalTutSlides = 3;
+        const totalTutSlides = 4;
 
         function updateTutUI() {
             document.querySelectorAll('.tut-slide').forEach(el => el.style.display = 'none');
@@ -1425,7 +1431,7 @@
             const correctOptId = isQuizMode ? roundData.opts.find(o => o.c).id : -1;
             const playerName = players.find(p => p.id === playerId)?.name.replace(' 👑', '') || 'Alguém';
 
-            if (isQuizMode) {
+            if (isQuizMode && selectedMode === 'guess') {
                 if (optId === correctOptId) {
                     // Check if someone else already got it
                     const alreadyWon = Object.values(roundAnswers).some(a => a.firstCorrect);
@@ -1560,15 +1566,25 @@
                 let timeBonus = ansData.time || 0;
                 if (ans !== -1 && ans !== undefined) {
                     if (isQuizMode) {
-                        if (ans === correctOptId && ansData.firstCorrect) {
-                            playerStreaks[p.id] = (playerStreaks[p.id] || 0) + 1;
-                            let streakBonus = playerStreaks[p.id] >= 2 ? playerStreaks[p.id] * 10 : 0;
-                            playerScores[p.id] = (playerScores[p.id] || 0) + 100 + (timeBonus * 2) + streakBonus;
-                        } else if (ans === correctOptId) {
-                            // Respondeu certo, mas não foi o primeiro
-                            playerStreaks[p.id] = 0;
+                        if (selectedMode === 'guess') {
+                            if (ans === correctOptId && ansData.firstCorrect) {
+                                playerStreaks[p.id] = (playerStreaks[p.id] || 0) + 1;
+                                let streakBonus = playerStreaks[p.id] >= 2 ? playerStreaks[p.id] * 10 : 0;
+                                playerScores[p.id] = (playerScores[p.id] || 0) + 100 + (timeBonus * 2) + streakBonus;
+                            } else if (ans === correctOptId) {
+                                // Respondeu certo, mas não foi o primeiro
+                                playerStreaks[p.id] = 0;
+                            } else {
+                                playerStreaks[p.id] = 0;
+                            }
                         } else {
-                            playerStreaks[p.id] = 0;
+                            if (ans === correctOptId) {
+                                playerStreaks[p.id] = (playerStreaks[p.id] || 0) + 1;
+                                let streakBonus = playerStreaks[p.id] >= 2 ? playerStreaks[p.id] * 10 : 0;
+                                playerScores[p.id] = (playerScores[p.id] || 0) + 100 + (timeBonus * 2) + streakBonus;
+                            } else {
+                                playerStreaks[p.id] = 0;
+                            }
                         }
                     } else {
                         let pct = Math.round((counts[ans] / totalVotes) * 100);
@@ -1612,20 +1628,35 @@
                 playSoundEffect('buzzer');
                 barsContainer.innerHTML += `<div style="text-align:center; color:var(--secondary); margin-top:10px; font-weight:bold;">Você não respondeu a tempo! (0 pts)</div>`;
             } else if (isQuizMode) {
-                if (myAns === correctOptId && myAnsData.firstCorrect) {
-                    playSoundEffect('ding');
-                    shootConfetti();
-                    let pts = 100 + (myTimeBonus * 2);
-                    let streakBonus = myStreak >= 2 ? myStreak * 10 : 0;
-                    pts += streakBonus;
-                    let streakMsg = myStreak >= 2 ? `<br><span style="color:#ffb703;">🔥 Combo x${myStreak}! (+${streakBonus} pts)</span>` : "";
-                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--success); margin-top:10px; font-weight:bold;">Você acertou primeiro! +${pts} pts 🎉${streakMsg}</div>`;
-                } else if (myAns === correctOptId) {
-                    playSoundEffect('buzzer');
-                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Certo, mas alguém foi mais rápido! (0 pts)</div>`;
+                if (selectedMode === 'guess') {
+                    if (myAns === correctOptId && myAnsData.firstCorrect) {
+                        playSoundEffect('ding');
+                        shootConfetti();
+                        let pts = 100 + (myTimeBonus * 2);
+                        let streakBonus = myStreak >= 2 ? myStreak * 10 : 0;
+                        pts += streakBonus;
+                        let streakMsg = myStreak >= 2 ? `<br><span style="color:#ffb703;">🔥 Combo x${myStreak}! (+${streakBonus} pts)</span>` : "";
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--success); margin-top:10px; font-weight:bold;">Você acertou primeiro! +${pts} pts 🎉${streakMsg}</div>`;
+                    } else if (myAns === correctOptId) {
+                        playSoundEffect('buzzer');
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Certo, mas alguém foi mais rápido! (0 pts)</div>`;
+                    } else {
+                        playSoundEffect('buzzer');
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Você errou! ❌</div>`;
+                    }
                 } else {
-                    playSoundEffect('buzzer');
-                    barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Você errou! ❌</div>`;
+                    if (myAns === correctOptId) {
+                        playSoundEffect('ding');
+                        shootConfetti();
+                        let pts = 100 + (myTimeBonus * 2);
+                        let streakBonus = myStreak >= 2 ? myStreak * 10 : 0;
+                        pts += streakBonus;
+                        let streakMsg = myStreak >= 2 ? `<br><span style="color:#ffb703;">🔥 Combo x${myStreak}! (+${streakBonus} pts)</span>` : "";
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--success); margin-top:10px; font-weight:bold;">Você acertou! +${pts} pts 🎉${streakMsg}</div>`;
+                    } else {
+                        playSoundEffect('buzzer');
+                        barsContainer.innerHTML += `<div style="text-align:center; color:var(--danger); margin-top:10px; font-weight:bold;">Você errou! ❌</div>`;
+                    }
                 }
             } else if (!isQuizMode && myPct >= 50) {
                 playSoundEffect('ding');
