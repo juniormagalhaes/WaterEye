@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agência de Fatos - Demo</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --primary: #00a86b;
+            --text-dark: #1c1e21;
+            --card-bg: #ffffff;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --chat-bg: #dcf8c6;
+            --gold: #f1c40f;
+            --desk-bg: #8d6e63;
+            --wpp-green: #075e54;
+            --wpp-light-green: #25d366;
+            --wpp-bg: #efeae2;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #333;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 450px;
+            height: 95vh;
+            background-color: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: background 0.5s;
+        }
+
+        /* Screen Shake */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-2px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(4px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-6px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(6px, 0, 0);
+            }
+        }
+
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 10;
+            transition: background 0.5s;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary);
+            transition: all 0.5s;
+        }
+
+        .ui-clock-text {
+            color: #f1c40f;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .ui-clock-text.urgent {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        button {
+            cursor: pointer;
+            transition: transform 0.1s;
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #ccc;
+            color: #333;
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: #333;
+        }
+
+        /* TOAST NOTIFICATIONS */
+        #toast-container {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+            font-size: 0.95rem;
+            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            text-align: center;
+        }
+
+        .toast.success {
+            background: var(--primary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+            color: #333;
+        }
+
+        .toast.achv {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .toast.fade-out {
+            animation: fadeOutTop 0.3s forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutTop {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        /* HUB SCREEN */
+        #screen-hub {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        /* HUB FOREGROUND UI */
+        .hub-ui {
+            position: relative;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 85%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hub-title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #eee;
+        }
+
+        .hub-day {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-shadow: 2px 2px 0px #000;
+            margin: 10px 0;
+        }
+
+        .hub-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .hub-stat-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            flex: 1;
+        }
+
+        .hub-stat-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* ====== OFFICE CSS ART (BACKGROUND) ====== */
+        .office-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+            background: linear-gradient(to bottom, #cbd5df 0%, #dbe1e5 57%, #a87958 57%, #956849 100%);
+            transition: all 1s;
+        }
+
+        .content.crisis-mode .office-bg {
+            filter: sepia(0.8) hue-rotate(-50deg) saturate(2) brightness(0.5);
+        }
+
+        .wall-shadow {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 62%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .07), transparent 18%, transparent 82%, rgba(0, 0, 0, .07));
+        }
+
+        .ceiling-shadow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 7%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, .15), transparent);
+        }
+
+        .window {
+            position: absolute;
+            top: 9%;
+            left: 8%;
+            width: 84%;
+            height: 27%;
+            background: #91c8df;
+            border: 18px solid #66574e;
+            box-shadow: inset 0 0 0 8px #a9907e, 0 18px 35px rgba(0, 0, 0, .18);
+        }
+
+        .window-sky {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 25%, #fff7ba 0 7%, transparent 8%), linear-gradient(to bottom, #8bc6e7, #c5e2e7 72%, #87a86b 73%, #62864e 100%);
+        }
+
+        .window-cloud {
+            position: absolute;
+            width: 32%;
+            height: 9%;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, .8);
+        }
+
+        .cloud1 {
+            top: 24%;
+            left: 8%;
+        }
+
+        .cloud2 {
+            top: 42%;
+            right: 8%;
+        }
+
+        .window-frame-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 12px;
+            transform: translateX(-50%);
+            background: #66574e;
+        }
+
+        .window-frame-h {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 12px;
+            transform: translateY(-50%);
+            background: #66574e;
+        }
+
+        .picture {
+            position: absolute;
+            width: 20%;
+            height: 12%;
+            background: #eadfc7;
+            border: 9px solid #584a42;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, .16);
+        }
+
+        .picture::after {
+            content: "";
+            position: absolute;
+            inset: 15%;
+            background: linear-gradient(135deg, #6c8c7b 0 30%, #d9bd72 31% 55%, #8d5d4c 56% 100%);
+        }
+
+        .picture-left {
+            top: 40%;
+            left: 8%;
+            transform: rotate(-2deg);
+        }
+
+        .picture-right {
+            top: 40%;
+            right: 8%;
+            transform: rotate(2deg);
+        }
+
+        .wall-clock {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 13%;
+            aspect-ratio: 1;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: #f3eee0;
+            border: 8px solid #51463e;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, .18);
+        }
+
+        .wall-clock::before,
+        .wall-clock::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 50%;
+            width: 5px;
+            height: 38%;
+            transform-origin: bottom;
+            background: #51463e;
+            border-radius: 5px;
+        }
+
+        .wall-clock::before {
+            transform: translateX(-50%) rotate(35deg);
+        }
+
+        .wall-clock::after {
+            height: 29%;
+            transform: translateX(-50%) rotate(140deg);
+        }
+
+        .floor {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 43%;
+            background: repeating-linear-gradient(90deg, rgba(80, 40, 20, .08) 0 3px, transparent 3px 15%), repeating-linear-gradient(0deg, rgba(80, 40, 20, .05) 0 4px, transparent 4px 16%), linear-gradient(to bottom, #a97857, #8e6047);
+            transform: perspective(800px) rotateX(5deg);
+            transform-origin: top;
+        }
+
+        .rug {
+            position: absolute;
+            left: 12%;
+            bottom: 7%;
+            width: 76%;
+            height: 26%;
+            border-radius: 45%;
+            background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0 4px, transparent 4px 12px), #66777b;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, .22);
+        }
+
+        .desk {
+            position: absolute;
+            left: 15%;
+            bottom: 35%;
+            width: 70%;
+            height: 15%;
+        }
+
+        .desk-top {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 27%;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #9a6849, #734932);
+            box-shadow: 0 12px 10px rgba(0, 0, 0, .2);
+        }
+
+        .drawer-left,
+        .drawer-right {
+            position: absolute;
+            top: 22%;
+            width: 22%;
+            height: 70%;
+            background: linear-gradient(to bottom, #805438, #633d2c);
+            box-shadow: 0 12px 10px rgba(0, 0, 0, .15);
+        }
+
+        .drawer-left {
+            left: 5%;
+        }
+
+        .drawer-right {
+            right: 5%;
+        }
+
+        .drawer-left::after,
+        .drawer-right::after {
+            content: "";
+            position: absolute;
+            left: 30%;
+            right: 30%;
+            top: 45%;
+            height: 7px;
+            border-radius: 10px;
+            background: #c19a6d;
+        }
+
+        .desk-leg {
+            position: absolute;
+            bottom: -45%;
+            width: 8%;
+            height: 55%;
+            background: #573728;
+        }
+
+        .desk-leg-left {
+            left: 8%;
+        }
+
+        .desk-leg-right {
+            right: 8%;
+        }
+
+        .monitor {
+            position: absolute;
+            left: 50%;
+            bottom: 48%;
+            width: 44%;
+            height: 19%;
+            transform: translateX(-50%);
+        }
+
+        .monitor-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 82%;
+            border-radius: 10px;
+            border: 12px solid #252933;
+            background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, .25), transparent 30%), linear-gradient(135deg, #4b6e7d, #263d49);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, .2);
+        }
+
+        .monitor-screen::after {
+            content: "";
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            bottom: 18%;
+            height: 12%;
+            background: #7eaa91;
+            border-radius: 5px;
+            box-shadow: 0 -20px 0 -3px #d4b46d, 0 -40px 0 -5px #b66b57;
+        }
+
+        .monitor-stand {
+            position: absolute;
+            bottom: 0;
+            left: 45%;
+            width: 10%;
+            height: 20%;
+            background: #292d35;
+        }
+
+        .monitor-base {
+            position: absolute;
+            bottom: 0;
+            left: 31%;
+            width: 38%;
+            height: 8%;
+            border-radius: 10px;
+            background: #292d35;
+        }
+
+        .keyboard {
+            position: absolute;
+            left: 50%;
+            bottom: 32%;
+            width: 25%;
+            height: 5%;
+            transform: translateX(-50%) skewX(-15deg);
+            border-radius: 5px;
+            background: #d9d7cd;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, .2);
+        }
+
+        .keyboard::after {
+            content: "";
+            position: absolute;
+            inset: 25% 8%;
+            background: repeating-linear-gradient(90deg, #888 0 5px, transparent 5px 9px);
+        }
+
+        .mouse {
+            position: absolute;
+            left: 68%;
+            bottom: 32%;
+            width: 7%;
+            height: 5%;
+            border-radius: 50%;
+            background: #dad8d0;
+        }
+
+        .coffee {
+            position: absolute;
+            left: 24%;
+            bottom: 31%;
+            width: 8%;
+            height: 7%;
+            border-radius: 0 0 30% 30%;
+            background: #f1eee1;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, .15);
+        }
+
+        .coffee::before {
+            content: "";
+            position: absolute;
+            top: -10%;
+            left: 10%;
+            width: 80%;
+            height: 20%;
+            border-radius: 50%;
+            background: #593a29;
+        }
+
+        .coffee::after {
+            content: "";
+            position: absolute;
+            right: -35%;
+            top: 15%;
+            width: 40%;
+            height: 45%;
+            border: 5px solid #f1eee1;
+            border-left: 0;
+            border-radius: 0 50% 50% 0;
+        }
+
+        .lamp {
+            position: absolute;
+            right: 23%;
+            bottom: 49%;
+            width: 5%;
+            height: 20%;
+        }
+
+        .lamp-arm {
+            position: absolute;
+            left: 40%;
+            bottom: 0;
+            width: 15%;
+            height: 80%;
+            background: #393b40;
+            transform: rotate(25deg);
+            transform-origin: bottom;
+        }
+
+        .lamp-head {
+            position: absolute;
+            top: 0;
+            left: -80%;
+            width: 220%;
+            height: 25%;
+            border-radius: 50% 50% 20% 20%;
+            background: #d6a84d;
+            transform: rotate(20deg);
+        }
+
+        .chair {
+            position: absolute;
+            left: 36%;
+            bottom: 13%;
+            width: 28%;
+            height: 30%;
+        }
+
+        .chair-back {
+            position: absolute;
+            left: 18%;
+            top: 0;
+            width: 64%;
+            height: 52%;
+            border-radius: 35px 35px 20px 20px;
+            background: linear-gradient(90deg, #344a55, #4d6672, #344a55);
+            box-shadow: 0 15px 15px rgba(0, 0, 0, .18);
+        }
+
+        .chair-seat {
+            position: absolute;
+            left: 8%;
+            top: 44%;
+            width: 84%;
+            height: 25%;
+            border-radius: 50%;
+            background: #405965;
+            box-shadow: 0 10px 10px rgba(0, 0, 0, .2);
+        }
+
+        .chair-post {
+            position: absolute;
+            left: 47%;
+            top: 67%;
+            width: 7%;
+            height: 25%;
+            background: #252b31;
+        }
+
+        .chair-base {
+            position: absolute;
+            left: 8%;
+            bottom: 0;
+            width: 84%;
+            height: 7%;
+            border-radius: 50%;
+            background: #252b31;
+        }
+
+        .wheel {
+            position: absolute;
+            bottom: -3%;
+            width: 10%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #1e2227;
+        }
+
+        .wheel1 {
+            left: 5%;
+        }
+
+        .wheel2 {
+            left: 30%;
+        }
+
+        .wheel3 {
+            right: 30%;
+        }
+
+        .wheel4 {
+            right: 5%;
+        }
+
+        .bookcase {
+            position: absolute;
+            left: 5%;
+            bottom: 31%;
+            width: 21%;
+            height: 32%;
+            background: #67422f;
+            box-shadow: 10px 12px 15px rgba(0, 0, 0, .18);
+        }
+
+        .shelf {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 4%;
+            background: #3f2b22;
+        }
+
+        .shelf1 {
+            top: 25%;
+        }
+
+        .shelf2 {
+            top: 50%;
+        }
+
+        .shelf3 {
+            top: 75%;
+        }
+
+        .book {
+            position: absolute;
+            bottom: 5%;
+            width: 13%;
+            height: 18%;
+            border-radius: 2px;
+        }
+
+        .book1 {
+            left: 10%;
+            background: #9d6351;
+        }
+
+        .book2 {
+            left: 26%;
+            height: 23%;
+            background: #6e8b78;
+        }
+
+        .book3 {
+            left: 42%;
+            height: 20%;
+            background: #c49b59;
+        }
+
+        .book4 {
+            left: 58%;
+            height: 24%;
+            background: #6d6f88;
+        }
+
+        .book5 {
+            left: 74%;
+            height: 17%;
+            background: #a97861;
+        }
+
+        .plant {
+            position: absolute;
+            right: 6%;
+            bottom: 31%;
+            width: 18%;
+            height: 27%;
+        }
+
+        .pot {
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 34%;
+            background: #b76f4e;
+            clip-path: polygon(8% 0, 92% 0, 78% 100%, 22% 100%);
+            box-shadow: 0 10px 10px rgba(0, 0, 0, .2);
+        }
+
+        .leaf {
+            position: absolute;
+            width: 45%;
+            height: 35%;
+            border-radius: 100% 0 100% 0;
+            background: #567c61;
+        }
+
+        .leaf1 {
+            left: 15%;
+            top: 30%;
+            transform: rotate(-35deg);
+        }
+
+        .leaf2 {
+            right: 12%;
+            top: 18%;
+            transform: rotate(35deg);
+        }
+
+        .leaf3 {
+            left: 30%;
+            top: 2%;
+            transform: rotate(-5deg);
+        }
+
+        .leaf4 {
+            right: 2%;
+            top: 45%;
+            transform: rotate(60deg);
+        }
+
+        .cabinet {
+            position: absolute;
+            right: 6%;
+            bottom: 10%;
+            width: 22%;
+            height: 22%;
+            background: #70503e;
+            box-shadow: 8px 10px 15px rgba(0, 0, 0, .18);
+        }
+
+        .cabinet-drawer {
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            height: 22%;
+            background: #815c46;
+            border-bottom: 3px solid #563c2f;
+        }
+
+        .cabinet-drawer:nth-child(1) {
+            top: 8%;
+        }
+
+        .cabinet-drawer:nth-child(2) {
+            top: 35%;
+        }
+
+        .cabinet-drawer:nth-child(3) {
+            top: 62%;
+        }
+
+        .cabinet-drawer::after {
+            content: "";
+            position: absolute;
+            left: 45%;
+            top: 42%;
+            width: 10%;
+            height: 12%;
+            border-radius: 50%;
+            background: #c49a68;
+        }
+
+        .paper {
+            position: absolute;
+            left: 57%;
+            bottom: 34%;
+            width: 11%;
+            height: 6%;
+            background: #e7dfca;
+            transform: rotate(-8deg);
+            box-shadow: 0 4px 5px rgba(0, 0, 0, .12);
+        }
+
+        .pen {
+            position: absolute;
+            left: 58%;
+            bottom: 36%;
+            width: 14%;
+            height: 1%;
+            background: #394b55;
+            transform: rotate(12deg);
+        }
+
+        .ceiling-light {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            width: 30%;
+            height: 6%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: #eee8d7;
+            box-shadow: 0 0 40px rgba(255, 245, 195, .7);
+        }
+
+        .light-cord {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 3%;
+            background: #333;
+        }
+
+        .socket {
+            position: absolute;
+            left: 4%;
+            bottom: 12%;
+            width: 8%;
+            height: 7%;
+            border-radius: 5px;
+            background: #dedbd1;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, .15);
+        }
+
+        .socket::before,
+        .socket::after {
+            content: "";
+            position: absolute;
+            top: 35%;
+            width: 13%;
+            height: 28%;
+            border-radius: 50%;
+            background: #555;
+        }
+
+        .socket::before {
+            left: 27%;
+        }
+
+        .socket::after {
+            right: 27%;
+        }
+
+        .cable {
+            position: absolute;
+            right: 19%;
+            bottom: 20%;
+            width: 25%;
+            height: 20%;
+            border-right: 4px solid #252525;
+            border-bottom: 4px solid #252525;
+            border-radius: 0 0 80px 0;
+            opacity: .6;
+        }
+
+        .light-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 30%, rgba(255, 245, 200, .14), transparent 48%), linear-gradient(90deg, rgba(0, 0, 0, .10), transparent 20%, transparent 80%, rgba(0, 0, 0, .10));
+        }
+
+        .box {
+            position: absolute;
+            left: 8%;
+            bottom: 10%;
+            width: 13%;
+            height: 10%;
+            background: #c18c5f;
+            box-shadow: 0 7px 10px rgba(0, 0, 0, .15);
+        }
+
+        .box::after {
+            content: "";
+            position: absolute;
+            left: 42%;
+            top: 0;
+            width: 16%;
+            height: 100%;
+            background: #d6a46c;
+        }
+
+        /* DIALOGUE SCREEN */
+        #screen-dialogue {
+            position: absolute;
+            inset: 0;
+            z-index: 30;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .dialogue-avatar {
+            font-size: 5rem;
+            margin-bottom: -15px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .dialogue-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary);
+            padding: 25px 20px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            max-width: 90%;
+            z-index: 1;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialogue-speaker {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        /* DESK / INVESTIGATION SCREEN */
+        #screen-investigation {
+            flex: 1;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            transition: background 0.5s;
+            min-height: 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* WHATSAPP MOCKUP */
+        .phone-mockup {
+            background: #ffffff;
+            border-radius: 15px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .wpp-header {
+            background-color: var(--wpp-green);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .wpp-avatar {
+            width: 36px;
+            height: 36px;
+            background: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .wpp-title {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .wpp-subtitle {
+            font-size: 0.7rem;
+            color: #d1f2eb;
+            margin-top: 2px;
+        }
+
+        .wpp-bg {
+            background-color: var(--wpp-bg);
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .wpp-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #news-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-bubble {
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+            position: relative;
+            color: #111;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            animation: popIn 0.3s ease-out;
+            font-size: 0.95rem;
+            align-self: flex-start;
+            max-width: 90%;
+        }
+
+        .chat-bubble:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .chat-bubble.selected {
+            border-color: var(--wpp-light-green);
+            background-color: #dcf8c6;
+            transform: scale(1.02);
+        }
+
+        .chat-bubble.processed {
+            opacity: 0.5;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
+
+        .clue-tag {
+            font-size: 0.75rem;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .msg-text {
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+
+        /* DESK TOOLS */
+        #desk-tools-wrapper {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .desk-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .desk-tools:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-folder {
+            flex: 1;
+            background: #3498db;
+            color: white;
+            border: 2px solid #2980b9;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-folder-dark {
+            flex: 1;
+            background: #34495e;
+            color: white;
+            border: 2px solid #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* CENTERED ANIMATED MODALS */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #fdfae6;
+            width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+
+        .doc-header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            color: #333;
+        }
+
+        .doc-body {
+            flex: 1;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #222;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .doc-stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            padding: 5px 10px;
+            transform: rotate(15deg);
+            font-weight: bold;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .clue-list,
+        .achv-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .clue-list li {
+            background: #eee;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            border-left: 4px solid #f39c12;
+        }
+
+        .achv-list li {
+            background: #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.5;
+            filter: grayscale(1);
+            transition: all 0.3s;
+        }
+
+        .achv-list li.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+            border-left: 4px solid var(--gold);
+            background: #fffdf0;
+        }
+
+        .achv-icon {
+            font-size: 2rem;
+        }
+
+        .achv-text h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .achv-text p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* TUTORIAL MODAL */
+        #modal-tutorial .modal-content {
+            background: #fdfae6;
+            text-align: center;
+        }
+
+        .tut-img {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .tut-dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+        }
+
+        .tut-dot {
+            width: 10px;
+            height: 10px;
+            background: #ccc;
+            border-radius: 50%;
+        }
+
+        .tut-dot.active {
+            background: var(--primary);
+        }
+        /* MATCH SCREEN */
+        #screen-match {
+            background: #fffdf0; padding: 20px; border-radius: 10px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; z-index: 10;
+        }
+        
+        .option-list { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 20px 0; }
+        .option-btn { background: #eee; border: 2px solid #ccc; padding: 12px; border-radius: 8px; text-align: left; transition: all 0.2s; }
+        .option-btn:hover { background: #e0e0e0; transform: translateX(5px); }
+        .option-btn.selected { background: #dcf8c6; border-color: var(--wpp-light-green); transform: scale(1.02); font-weight: bold; }
+        
+        /* CLUE OVERLAY */
+        .clue-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 40; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px;}
+        .clue-img { font-size: 5rem; margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-container">
+        <header id="ui-header">
+            <span>🕵️ Agência Clima</span>
+            <span class="ui-clock-text" id="ui-clock">09:00</span>
+        </header>
+
+        <div id="toast-container"></div>
+
+        <div class="status-bar hidden" id="status-bar">
+            <span>Cred: <span id="ui-cred">100</span>%</span>
+            <span>Impacto: <span id="ui-impact">0</span></span>
+            <span>Fila: <span id="ui-queue">0</span></span>
+        </div>
+
+        <!-- DISCLAIMER MODAL -->
+        <div id="modal-disclaimer" class="modal-overlay open" style="z-index: 1005;">
+            <div class="modal-content" style="text-align: center;">
+                <div class="tut-img">⚠️</div>
+                <h2 style="color:var(--danger); margin-top:0; margin-bottom:15px;">AVISO IMPORTANTE</h2>
+                <p style="color:#333; line-height: 1.5; font-size: 1rem; margin-bottom: 20px;">
+                    Esta é uma <b>Prova de Conceito</b> desenvolvida para apresentação e não representa a versão ou
+                    qualidade do produto final (que será desenvolvido na engine Unity).<br><br>
+                    Todo o conteúdo das denúncias e as checagens do "Relatório iCS" apresentadas a seguir foram criados
+                    puramente para <b>fins lúdicos e mecânicos desta Prova de Conceito</b>, não refletindo declarações
+                    institucionais ou bases científicas exatas.<br><br>
+                    <b>Nota:</b> Na versão final do jogo, todo o banco de dados será rigorosamente alimentado com fatos
+                    reais, referências científicas validadas e relatórios oficiais.
+                </p>
+                <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="closeDisclaimer()">Estou
+                    ciente e quero jogar</button>
+            </div>
+        </div>
+
+        <!-- TUTORIAL MODAL -->
+        <div id="modal-tutorial" class="modal-overlay" style="z-index: 1000;">
+            <div class="modal-content">
+
+                <div id="tut-slide-0" class="tut-slide">
+                    <div class="tut-img">🌍</div>
+                    <h2 style="color:var(--primary); margin-top:0;">Bem-vindo à Agência!</h2>
+                    <p style="color:#555;">Combata a desinformação climática no Brasil. Limpe sua fila antes que o
+                        <b>Expediente (17h)</b> acabe.</p>
+                </div>
+
+                <div id="tut-slide-1" class="tut-slide hidden">
+                    <div class="tut-img">📱</div>
+                    <h2 style="color:var(--primary); margin-top:0;">O Monitor</h2>
+                    <p style="color:#555;">No seu celular, as denúncias aparecem. <b>Clique na mensagem</b> para
+                        habilitar as ferramentas da mesa.</p>
+                </div>
+
+                <div id="tut-slide-2" class="tut-slide hidden">
+                    <div class="tut-img">📖</div>
+                    <h2 style="color:var(--primary); margin-top:0;">Investigação</h2>
+                    <p style="color:#555;">Sempre clique em <b>"Relatório iCS"</b> para comparar as mensagens com fatos
+                        oficiais antes de clicar em Fato/Fake. Acertos garantem bônus, erros tremem a tela!</p>
+                </div>
+
+                <div id="tut-slide-3" class="tut-slide hidden">
+                    <div class="tut-img">📁</div>
+                    <h2 style="color:var(--primary); margin-top:0;">Dossiê e Chefões</h2>
+                    <p style="color:#555;">Reúna 5 pistas para expor o "Gabinete da Desinformação". Cuidado com os Dias
+                        15 e 30, o ataque de robôs acelera o tempo!</p>
+                </div>
+
+                <div class="tut-dots">
+                    <div class="tut-dot active" id="dot-0"></div>
+                    <div class="tut-dot" id="dot-1"></div>
+                    <div class="tut-dot" id="dot-2"></div>
+                    <div class="tut-dot" id="dot-3"></div>
+                </div>
+
+                <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="nextTutorialSlide()">Próximo
+                    ➔</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- BACKGROUND CSS ART (PERSISTENT) -->
+            <div class="office-bg">
+                <div class="wall-shadow"></div>
+                <div class="ceiling-shadow"></div>
+                <div class="light-cord"></div>
+                <div class="ceiling-light"></div>
+                <div class="window">
+                    <div class="window-sky"></div>
+                    <div class="window-cloud cloud1"></div>
+                    <div class="window-cloud cloud2"></div>
+                    <div class="window-frame-v"></div>
+                    <div class="window-frame-h"></div>
+                </div>
+                <div class="picture picture-left"></div>
+                <div class="picture picture-right"></div>
+                <div class="wall-clock"></div>
+                <div class="floor"></div>
+                <div class="rug"></div>
+                <div class="bookcase">
+                    <div class="shelf shelf1"></div>
+                    <div class="shelf shelf2"></div>
+                    <div class="shelf shelf3"></div>
+                    <div class="book book1"></div>
+                    <div class="book book2"></div>
+                    <div class="book book3"></div>
+                    <div class="book book4"></div>
+                    <div class="book book5"></div>
+                </div>
+                <div class="plant">
+                    <div class="leaf leaf1"></div>
+                    <div class="leaf leaf2"></div>
+                    <div class="leaf leaf3"></div>
+                    <div class="leaf leaf4"></div>
+                    <div class="pot"></div>
+                </div>
+                <div class="cabinet">
+                    <div class="cabinet-drawer"></div>
+                    <div class="cabinet-drawer"></div>
+                    <div class="cabinet-drawer"></div>
+                </div>
+                <div class="desk">
+                    <div class="desk-top"></div>
+                    <div class="drawer-left"></div>
+                    <div class="drawer-right"></div>
+                    <div class="desk-leg desk-leg-left"></div>
+                    <div class="desk-leg desk-leg-right"></div>
+                </div>
+                <div class="monitor">
+                    <div class="monitor-screen"></div>
+                    <div class="monitor-stand"></div>
+                    <div class="monitor-base"></div>
+                </div>
+                <div class="keyboard"></div>
+                <div class="mouse"></div>
+                <div class="coffee"></div>
+                <div class="lamp">
+                    <div class="lamp-arm"></div>
+                    <div class="lamp-head"></div>
+                </div>
+                <div class="paper"></div>
+                <div class="pen"></div>
+                <div class="chair">
+                    <div class="chair-back"></div>
+                    <div class="chair-seat"></div>
+                    <div class="chair-post"></div>
+                    <div class="chair-base"></div>
+                    <div class="wheel wheel1"></div>
+                    <div class="wheel wheel2"></div>
+                    <div class="wheel wheel3"></div>
+                    <div class="wheel wheel4"></div>
+                </div>
+                <div class="socket"></div>
+                <div class="cable"></div>
+                <div class="box"></div>
+                <div class="light-overlay"></div>
+            </div>
+
+            <!-- HUB SCREEN -->
+            <div id="screen-hub">
+                <button onclick="toggleDevModal()"
+                    style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: #fff; padding: 8px 12px; font-size:0.8rem; z-index: 20; border: 1px solid #555;">⚙️
+                    Dev Menu</button>
+
+                <!-- FOREGROUND UI -->
+                <div class="hub-ui">
+                    <div class="hub-title">DIA DE TRABALHO</div>
+                    <div class="hub-day" id="hub-day-text">1</div>
+                    <div class="hub-stats">
+                        <div class="hub-stat-box">
+                            <div style="font-size:0.8rem; color:#aaa;">Credibilidade</div>
+                            <div class="hub-stat-val" id="hub-cred">100%</div>
+                        </div>
+                        <div class="hub-stat-box">
+                            <div style="font-size:0.8rem; color:#aaa;">Impacto Real</div>
+                            <div class="hub-stat-val" id="hub-impact">0</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn-primary" style="flex:2; padding:15px; font-size:1.1rem;"
+                            onclick="startDay()">INICIAR DIA ➔</button>
+                        <button class="btn-gold" style="flex:1; padding:15px; font-size:1.1rem;"
+                            onclick="toggleAchievementsModal()">🏆</button>
+                    </div>
+
+                    <div style="margin-top: 20px; font-size:0.8rem; color:#ccc; width:100%;">
+                        <p style="margin-bottom:5px;">Progresso do Dossiê: <span id="hub-clues">0</span>/5 Pistas</p>
+                        <div style="width:100%; height:8px; background:#222; border-radius:4px; overflow:hidden;">
+                            <div id="clue-bar"
+                                style="height:100%; width:0%; background:#f39c12; transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIALOGUE SCREEN -->
+            <div id="screen-dialogue" class="hidden">
+                <div class="dialogue-avatar">👴</div>
+                <div class="dialogue-box">
+                    <div class="dialogue-speaker" id="dialogue-speaker">CHEFE</div>
+                    <div id="dialogue-text">...</div>
+                    <button class="btn-primary" style="margin-top:20px; width:100%;"
+                        onclick="closeDialogue()">Entendido, Chefe!</button>
+                </div>
+            </div>
+
+            <!-- INVESTIGATION SCREEN (Desk) -->
+            <div id="screen-investigation" class="hidden">
+
+                <!-- WHATSAPP MOCKUP -->
+                <div class="phone-mockup">
+                    <div class="wpp-header">
+                        <div class="wpp-avatar">🌐</div>
+                        <div>
+                            <div class="wpp-title">Redes Sociais</div>
+                            <div class="wpp-subtitle">Monitoramento Ativo</div>
+                        </div>
+                    </div>
+
+                    <div class="wpp-bg">
+                        <!-- The Feed -->
+                        <div id="news-feed"></div>
+                    </div>
+                </div>
+
+                <!-- Desk Tools -->
+                <div id="desk-tools-wrapper" class="hidden">
+                    <div style="text-align:center; font-size:0.8rem; color:#eee; margin-bottom:10px;">Ferramentas da
+                        Mesa</div>
+
+                    <div class="desk-tools">
+                        <button class="btn-folder" onclick="toggleReportModal()">📖 Relatório iCS</button>
+                        <button class="btn-folder-dark" onclick="toggleDossierModal()">📁 Ver Dossiê</button>
+                    </div>
+
+                    <div class="desk-tools">
+                        <button class="btn-primary" onclick="checkFact(true)">✅ FATO</button>
+                        <button class="btn-danger" onclick="checkFact(false)">❌ FAKE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORT MODAL -->
+            <div id="modal-report" class="modal-overlay">
+                <div class="modal-content">
+                    <div class="doc-header">Base de Dados iCS</div>
+                    <div class="doc-body" id="doc-text">...</div>
+                    <div class="doc-stamp">VERIFICADO</div>
+                    <button class="btn-primary" onclick="toggleReportModal()">Fechar Relatório</button>
+                </div>
+            </div>
+
+            <!-- DOSSIER MODAL -->
+            <div id="modal-dossier" class="modal-overlay">
+                <div class="modal-content" style="background: #ecf0f1;">
+                    <div class="doc-header" style="color:#2c3e50; border-color:#2c3e50;">Dossiê de Pistas Coletadas
+                    </div>
+                    <div class="doc-body">
+                        <ul class="clue-list" id="clue-list-ui">
+                            <li style="color:#7f8c8d; border-color:#bdc3c7;">Nenhuma pista coletada ainda...</li>
+                        </ul>
+                    </div>
+                    <button class="btn-primary" style="background:#34495e;" onclick="toggleDossierModal()">Fechar
+                        Dossiê</button>
+                </div>
+            </div>
+
+            <!-- ACHIEVEMENTS MODAL -->
+            <div id="modal-achievements" class="modal-overlay">
+                <div class="modal-content" style="background: #fdfae6;">
+                    <div class="doc-header" style="color:#333; border-color:#333;">🏆 Minhas Conquistas</div>
+                    <div class="doc-body">
+                        <ul class="achv-list" id="achv-list-ui"></ul>
+                    </div>
+                    <button class="btn-primary" onclick="toggleAchievementsModal()">Fechar</button>
+                </div>
+            </div>
+
+            <!-- DEV / CHEAT MODAL -->
+            <div id="modal-dev" class="modal-overlay">
+                <div class="modal-content" style="background: #2c3e50; color: white;">
+                    <div class="doc-header" style="color:#fff; border-color:#fff;">⚙️ Painel de Testes</div>
+                    <div class="doc-body" style="color: #fff;">
+                        <p style="margin-bottom:15px; font-size:0.85rem;">Use estes atalhos para pular para partes
+                            específicas da demo durante a apresentação.</p>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <button class="btn-danger" style="background:#e74c3c;" onclick="cheatBossFight(15)">Pular
+                                para o Dia 15 (Boss Fight)</button>
+                            <button class="btn-danger" style="background:#c0392b;" onclick="cheatBossFight(30)">Pular
+                                para o Dia 30 (Boss Final)</button>
+                            <button class="btn-gold" style="background:#f1c40f; color:#333;"
+                                onclick="cheatClues()">Gerar 5 Pistas (End Game)</button>
+                        </div>
+                    </div>
+                    <button class="btn-outline" style="color:white; border-color:white;"
+                        onclick="toggleDevModal()">Fechar</button>
+                </div>
+            </div>
+
+            <!-- CUSTOM ALERT MODAL -->
+            <div id="modal-custom-alert" class="modal-overlay" style="z-index: 2000;">
+                <div class="modal-content" style="background: #fdfae6; color: #333; text-align: center;">
+                    <div id="custom-alert-emoji" style="font-size: 4rem; margin-bottom: 10px;">⚠️</div>
+                    <h2 id="custom-alert-title" style="margin-bottom: 15px; color: var(--danger);">Aviso</h2>
+                    <p id="custom-alert-text" style="font-size: 1rem; line-height: 1.5; margin-bottom: 25px;"></p>
+                    <button class="btn-primary" style="width: 100%;" onclick="closeCustomAlert()">OK</button>
+                </div>
+            </div>
+
+            <!-- BOSS ALERT MODAL -->
+            <div id="modal-boss" class="modal-overlay" style="z-index: 60;">
+                <div class="modal-content" style="background: #c0392b; color: white; text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 10px;">⚠️</div>
+                    <h2 style="margin-bottom: 15px; text-transform: uppercase;">Ataque de Bots!</h2>
+                    <p style="font-size: 1rem; line-height: 1.5; margin-bottom: 25px;">
+                        O Gabinete da Desinformação ativou uma rede de robôs. As mensagens vão chegar sem parar e o
+                        tempo do expediente foi <b>acelerado</b>!<br><br>Sobreviva até as 17h para fechar o dia!
+                    </p>
+                    <button class="btn-outline"
+                        style="color: white; border-color: white; font-size: 1.1rem; width: 100%;"
+                        onclick="closeBossModal()">ENTENDIDO</button>
+                </div>
+            </div>
+
+            <!-- MATCH SCREEN -->
+            <div id="screen-match" class="hidden">
+                <h3 style="color:var(--primary); margin-top:0;">Mentira Detectada!</h3>
+                <p style="font-size:0.9rem; color:#555;">Construa a manchete e escolha o público para gerar impacto.</p>
+
+                <strong>1. Manchete:</strong>
+                <div class="option-list" id="headline-options"></div>
+
+                <strong>2. Público-Alvo:</strong>
+                <div class="option-list" id="audience-options"></div>
+
+                <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="publishNews()">Publicar
+                    🚀</button>
+            </div>
+
+            <!-- CLUE FOUND OVERLAY -->
+            <div id="screen-clue" class="hidden clue-overlay">
+                <div class="clue-img">🔎</div>
+                <h2>Pista Rasteada!</h2>
+                <p id="clue-text">...</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:20px;">Ela foi adicionada ao seu Dossiê.</p>
+                <button class="btn-primary" style="margin-top:20px;" onclick="closeClue()">Continuar Triagem</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- AUDIO SYSTEM (JUICE) ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'stamp') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'notify') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        function triggerScreenShake() {
+            const container = document.getElementById('game-container');
+            container.classList.remove('shake');
+            void container.offsetWidth; // force reflow
+            container.classList.add('shake');
+        }
+
+        // --- DATABASE ---
+        const newsPool = [
+            { clueSource: "Grupo 'Verdade Sem Filtro'", msg: "Estão plantando árvores na calçada só para superfaturar licitação. Árvore atrai dengue e quebra o asfalto, cortem as mudas da sua rua!", doc: "Arborização Urbana: Árvores em calçadas reduzem a temperatura local em até 5ºC, absorvem água da chuva prevenindo enchentes e, com poda correta, não acumulam água de dengue.", isFake: true, h: [{ id: 0, text: "Sua casa mais fresca: O poder das árvores urbanas", type: "pratico" }, { id: 1, text: "Mitigação das ilhas de calor via botânica estrutural", type: "tecnico" }, { id: 2, text: "Sem árvores, todos morreremos cozidos no asfalto!", type: "alarmista" }], a: [{ id: "pop", text: "Associações de Bairro" }, { id: "gov", text: "Secretaria de Obras" }], matchH: 0, matchA: "pop" },
+            { clueSource: "Canal 'Economia Livre'", msg: "A conta de luz está cara por culpa dos geradores eólicos do Nordeste que roubam nosso dinheiro! Energia fóssil é mais barata!", doc: "Matriz Energética: A taxa extra (bandeira vermelha) ocorre pela seca nas hidrelétricas (mudança climática). O país precisa ativar termelétricas (fósseis), que são extremamente caras e poluentes.", isFake: true, h: [{ id: 0, text: "A conta alta é culpa da falta de chuva, não do vento", type: "pratico" }, { id: 1, text: "A dependência hídrica e os custos marginais de operação", type: "tecnico" }, { id: 2, text: "O apagão final chegou! Faça estoque de velas!", type: "alarmista" }], a: [{ id: "pop", text: "Donas de Casa" }, { id: "gov", text: "Economistas" }], matchH: 0, matchA: "pop" },
+            { clueSource: "Link Externo", msg: "Enchentes sempre existiram, é o ciclo da terra. Ficar culpando o clima é desculpa da prefeitura pra cobrar mais imposto.", doc: "Eventos Extremos: Chuvas sempre existiram, mas a intensidade e frequência atuais são cientificamente ligadas ao aquecimento global. Bairros sem infraestrutura sofrem os piores danos.", isFake: true, h: [{ id: 0, text: "Eventos decenais de precipitação e anomalias atmosféricas", type: "tecnico" }, { id: 1, text: "Porque a chuva do mês inteiro caiu em um dia no seu bairro", type: "pratico" }, { id: 2, text: "Governo mente e água vai engolir a cidade amanhã!", type: "alarmista" }], a: [{ id: "pop", text: "População em Área de Risco" }, { id: "gov", text: "Acadêmicos" }], matchH: 1, matchA: "pop" },
+            { clueSource: "Artigo Compartilhado", msg: "As ondas de calor excessivo deste ano causaram um aumento de 15% nas internações de idosos por desidratação nos hospitais públicos.", doc: "Impacto na Saúde: Confirmado pelo Ministério da Saúde. O aumento da temperatura global eleva as ondas de calor em grandes centros, sobrecarregando o sistema de saúde, afetando mais os idosos.", isFake: false, h: [{ id: 0, text: "Idosos devem redobrar hidratação nesta onda de calor", type: "pratico" }, { id: 1, text: "O colapso da termorregulação senil pelo clima", type: "tecnico" }, { id: 2, text: "O sol vai matar todos os idosos do Brasil amanhã!", type: "alarmista" }], a: [{ id: "pop", text: "Cuidadores e Familiares" }, { id: "gov", text: "Bolsa de Valores" }], matchH: 0, matchA: "pop" },
+            { clueSource: "Notícia Compartilhada", msg: "A substituição dos ônibus movidos a diesel por frotas elétricas no centro reduz não só a emissão de CO2, mas também os casos de asma em crianças da região.", doc: "Mobilidade e Saúde: Confirmado por estudos urbanos. Motores a diesel liberam material particulado pesado (fuligem) no nível da rua, sendo causa direta de asma infantil em centros urbanos densos.", isFake: false, h: [{ id: 0, text: "Asma infantil cai 30% com novos ônibus elétricos", type: "pratico" }, { id: 1, text: "A redução de NO2 e MP2.5 na camada limite urbana", type: "tecnico" }, { id: 2, text: "O diesel é veneno mortal, parem de respirar!", type: "alarmista" }], a: [{ id: "pop", text: "Pais e Mães de Alunos" }, { id: "gov", text: "Engenheiros Mecânicos" }], matchH: 0, matchA: "pop" },
+            { clueSource: "Status do Zap", msg: "A preservação de manguezais no litoral funciona como uma barreira natural contra ressacas do mar, evitando a destruição de ruas litorâneas.", doc: "Ecossistemas Costeiros: Confirmado. Manguezais atuam como 'esponjas' e barreiras físicas que dissipam a energia das marés altas e tempestades, protegendo a infraestrutura da cidade litorânea.", isFake: false, h: [{ id: 0, text: "Manguezal em pé significa rua seca nas ressacas", type: "pratico" }, { id: 1, text: "Dissipação de energia hidrodinâmica em estuários", type: "tecnico" }, { id: 2, text: "Tsunami iminente vai destruir o litoral!", type: "alarmista" }], a: [{ id: "pop", text: "Moradores do Litoral" }, { id: "gov", text: "Turistas de Neve" }], matchH: 0, matchA: "pop" }
+        ];
+
+        const loreDays = {
+            1: { msg: "Bem-vindo à Agência. O painel recebe mensagens interceptadas. Clique para analisar os Relatórios. Cuidado com o horário do expediente (até 17h)!" },
+            5: { msg: "Você tem ido bem. Notou que muitas fakes vêm de 'Grupos Patriotas'? Colete as pistas para o nosso Dossiê." },
+            10: { msg: "Atenção: Nem tudo é Fake! Não censure fatos reais sobre a crise climática." },
+            15: { msg: "ALERTA DE CRISE! O 'Gabinete da Desinformação' ativou bots. As mensagens chegarão sem parar e o tempo está acelerado. Sobreviva!" },
+            20: { msg: "Ufa. Você sobreviveu à crise. O nome deles é 'Gabinete da Desinformação'. Precisamos das provas completas." },
+            25: { msg: "Reta final! Mantenha o impacto alto para não falirmos antes de levarmos o dossiê à polícia." },
+            30: { msg: "ALERTA MÁXIMO! Ataque final dos Bots. Derrube as mentiras da rede deles de uma vez por todas!" }
+        };
+
+        const allAchievements = {
+            "FIRST_BLOOD": { icon: "🏅", title: "Detetive Júnior", desc: "Desmentiu a primeira Fake News." },
+            "TRUTH_SAYER": { icon: "✅", title: "Arauto da Verdade", desc: "Confirmou um Fato Real." },
+            "CLUE_HUNTER": { icon: "🔎", title: "Caçador de Pistas", desc: "Rastreou a primeira pista." },
+            "INFLUENCER": { icon: "🚀", title: "Megafone Climático", desc: "Chegou a 1000 de Impacto." },
+            "SHERLOCK": { icon: "🏆", title: "Dossiê Completo", desc: "Reuniu 5 pistas." }
+        };
+
+        let state = {
+            day: 1, maxDays: 30, credibility: 100, impact: 0,
+            cluesCollected: [], unlockedAchievements: [], queue: [],
+            currentNews: null, currentQueueId: null, currentHeadline: null, currentAudience: null,
+            newsDeck: [], tutSlide: 0,
+            time: 540, // 09:00 = 9 * 60
+            timerInterval: null, timeMultiplier: 1, isBossFight: false,
+            spawnInterval: null, remainingToSpawn: 0, bossWarned: false
+        };
+
+        // DOM Caching
+        const elHub = document.getElementById('screen-hub');
+        const elDialogue = document.getElementById('screen-dialogue');
+        const elInv = document.getElementById('screen-investigation');
+        const elModalReport = document.getElementById('modal-report');
+        const elModalDossier = document.getElementById('modal-dossier');
+        const elModalAchievements = document.getElementById('modal-achievements');
+        const elModalDev = document.getElementById('modal-dev');
+        const elMatch = document.getElementById('screen-match');
+        const elClue = document.getElementById('screen-clue');
+        const elStatusBar = document.getElementById('status-bar');
+        const elDeskTools = document.getElementById('desk-tools-wrapper');
+        const feedContainer = document.getElementById('news-feed');
+        const elClock = document.getElementById('ui-clock');
+
+        function checkUnlockAchievement(id) {
+            if (!state.unlockedAchievements.includes(id)) {
+                state.unlockedAchievements.push(id);
+                let achv = allAchievements[id];
+                playSound('notify');
+                const toast = document.createElement('div');
+                toast.className = `toast achv`;
+                toast.innerHTML = `<span>${achv.icon}</span><div>Conquista: <b>${achv.title}</b></div>`;
+                document.getElementById('toast-container').appendChild(toast);
+                setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 3500);
+                renderAchievementsModal();
+            }
+        }
+
+        function renderAchievementsModal() {
+            const listUI = document.getElementById('achv-list-ui');
+            listUI.innerHTML = '';
+            for (const [id, data] of Object.entries(allAchievements)) {
+                let isUnlocked = state.unlockedAchievements.includes(id);
+                let li = document.createElement('li');
+                if (isUnlocked) li.className = 'unlocked';
+                li.innerHTML = `<div class="achv-icon">${isUnlocked ? data.icon : '🔒'}</div><div class="achv-text"><h4>${data.title}</h4><p>${isUnlocked ? data.desc : '???'}</p></div>`;
+                listUI.appendChild(li);
+            }
+        }
+
+        function toggleAchievementsModal() { renderAchievementsModal(); elModalAchievements.classList.toggle('open'); }
+
+        function toggleDevModal() { elModalDev.classList.toggle('open'); }
+        function cheatBossFight(day) { state.day = day; state.time = 540; updateHub(); toggleDevModal(); showToast(`Pulou para o Dia ${day}!`); }
+        function cheatClues() {
+            state.cluesCollected = ["IP_123", "MAC_A5B", "SERVER_X", "DB_CLIMA", "CHAT_LOGS"];
+            updateHub();
+            toggleDevModal();
+            showToast("Todas as pistas adquiridas!");
+            checkUnlockAchievement('SHERLOCK');
+            triggerBossClueDialogue();
+        }
+
+        function closeDisclaimer() {
+            document.getElementById('modal-disclaimer').classList.remove('open');
+            document.getElementById('modal-tutorial').classList.add('open');
+        }
+
+        function nextTutorialSlide() {
+            initAudio();
+            document.getElementById(`tut-slide-${state.tutSlide}`).classList.add('hidden');
+            document.getElementById(`dot-${state.tutSlide}`).classList.remove('active');
+            state.tutSlide++;
+            if (state.tutSlide > 3) {
+                document.getElementById('modal-tutorial').classList.remove('open');
+                initGame();
+            } else {
+                document.getElementById(`tut-slide-${state.tutSlide}`).classList.remove('hidden');
+                document.getElementById(`dot-${state.tutSlide}`).classList.add('active');
+                if (state.tutSlide === 3) { event.target.innerText = "COMEÇAR O JOGO!"; event.target.style.background = "var(--primary)"; }
+            }
+        }
+
+        function getNextNews() {
+            if (state.newsDeck.length === 0) {
+                state.newsDeck = [...newsPool];
+                state.newsDeck.sort(() => Math.random() - 0.5);
+            }
+            return state.newsDeck.pop();
+        }
+
+        function initGame() {
+            updateHub();
+            elHub.classList.remove('hidden');
+            elDialogue.classList.add('hidden');
+            elInv.classList.add('hidden');
+            elMatch.classList.add('hidden');
+            elStatusBar.classList.add('hidden');
+            document.getElementById('ui-header').style.background = "#1a1a1a";
+        }
+
+        function updateHub() {
+            document.getElementById('hub-day-text').innerText = state.day;
+            document.getElementById('hub-cred').innerText = `${state.credibility}%`;
+            document.getElementById('hub-impact').innerText = state.impact;
+            document.getElementById('hub-clues').innerText = state.cluesCollected.length;
+            document.getElementById('clue-bar').style.width = `${(state.cluesCollected.length / 5) * 100}%`;
+
+            // Visual Progression
+            let elContent = document.querySelector('.content');
+            if (state.credibility < 40) {
+                elContent.classList.add('crisis-mode');
+            } else {
+                elContent.classList.remove('crisis-mode');
+            }
+        }
+
+        function updateStatusBar() {
+            document.getElementById('ui-cred').innerText = state.credibility;
+            document.getElementById('ui-impact').innerText = state.impact;
+            let remaining = state.queue.filter(q => !q.processed).length + state.remainingToSpawn;
+            document.getElementById('ui-queue').innerText = remaining;
+            if (state.impact >= 1000) checkUnlockAchievement('INFLUENCER');
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = msg;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 2500);
+        }
+
+        function formatTime(mins) {
+            let h = Math.floor(mins / 60);
+            let m = Math.floor(mins % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+
+        function tickTimer() {
+            state.time += (1 * state.timeMultiplier);
+            elClock.innerText = formatTime(state.time);
+
+            if (state.time >= 15 * 60 && state.time < 16 * 60) {
+                elClock.classList.add('urgent');
+            }
+
+            if (state.time >= 17 * 60) { // 17:00
+                clearInterval(state.timerInterval);
+                elClock.classList.remove('urgent');
+                forceEndDay();
+            }
+        }
+
+        function forceEndDay() {
+            if (state.spawnInterval) clearInterval(state.spawnInterval);
+            state.remainingToSpawn = 0; // stop spawning
+
+            let remaining = state.queue.filter(q => !q.processed).length;
+            if (remaining > 0) {
+                let penalty = remaining * 15;
+                state.credibility -= penalty;
+                playSound('error');
+                triggerScreenShake();
+                updateUI();
+                showCustomAlert("FIM DO EXPEDIENTE (17h)!", `${remaining} mensagens não foram checadas e viralizaram.\nVocê perdeu ${penalty}% de Credibilidade.`, "⏰", () => {
+                    if (state.credibility <= 0) {
+                        showCustomAlert("GAME OVER", "Credibilidade zerada. A agência faliu.", "💀", () => location.reload());
+                    } else {
+                        endDay();
+                    }
+                });
+                return;
+            } else {
+                playSound('notify');
+            }
+            endDay();
+        }
+
+        function startDay() {
+            initAudio();
+            if (state.credibility <= 0) { showCustomAlert("GAME OVER", "Sua agência faliu.", "💀", () => location.reload()); return; }
+
+            state.isBossFight = (state.day === 15 || state.day === 30);
+            state.timeMultiplier = state.isBossFight ? 2.5 : 1;
+
+            state.queue = [];
+            if (state.isBossFight) {
+                state.remainingToSpawn = 6; // Total in boss fight
+                // Spawn first 2, wait for the rest
+                for (let i = 0; i < 2; i++) state.queue.push({ id: `news-${i}`, data: getNextNews(), processed: false });
+                state.remainingToSpawn -= 2;
+            } else {
+                state.remainingToSpawn = 0;
+                for (let i = 0; i < 3; i++) state.queue.push({ id: `news-${i}`, data: getNextNews(), processed: false });
+            }
+
+            if (loreDays[state.day]) {
+                document.getElementById('dialogue-text').innerText = loreDays[state.day].msg;
+                elDialogue.classList.remove('hidden');
+                dialogueNextAction = () => { elHub.classList.add('hidden'); enterInvestigation(); };
+            } else {
+                elHub.classList.add('hidden');
+                enterInvestigation();
+            }
+        }
+
+        function createBubbleDOM(item, delayIndex = 0) {
+            let bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${item.processed ? 'processed' : ''}`;
+            bubble.id = item.id;
+            bubble.style.animationDelay = `${delayIndex * 0.2}s`;
+            bubble.innerHTML = `<span class="clue-tag" style="color:var(--wpp-green); font-style:normal;">~ ${item.data.clueSource}</span><div class="msg-text">${item.data.msg}</div>`;
+            if (!item.processed) bubble.onclick = () => selectNews(item.id);
+            return bubble;
+        }
+
+        let dialogueNextAction = null;
+        function closeDialogue() {
+            elDialogue.classList.add('hidden');
+            if (dialogueNextAction) {
+                dialogueNextAction();
+                dialogueNextAction = null;
+            }
+        }
+
+        function startBossTimers() {
+            if (!state.timerInterval) state.timerInterval = setInterval(tickTimer, 1000);
+            if (state.remainingToSpawn > 0 && !state.spawnInterval) {
+                state.spawnInterval = setInterval(() => {
+                    if (state.remainingToSpawn > 0) {
+                        let newItem = { id: `news-dyn-${Date.now()}`, data: getNextNews(), processed: false };
+                        state.queue.push(newItem);
+                        state.remainingToSpawn--;
+                        feedContainer.appendChild(createBubbleDOM(newItem, 0));
+                        playSound('notify');
+                        updateStatusBar();
+
+                        let wppBg = document.querySelector('.wpp-bg');
+                        wppBg.scrollTop = wppBg.scrollHeight;
+                    }
+                    if (state.remainingToSpawn <= 0) {
+                        clearInterval(state.spawnInterval);
+                        state.spawnInterval = null;
+                    }
+                }, 6000);
+            }
+        }
+
+        let customAlertCallback = null;
+        function showCustomAlert(title, message, emoji, callback) {
+            document.getElementById('custom-alert-title').innerText = title;
+            document.getElementById('custom-alert-title').style.color = (title === 'GAME OVER' || title.includes('FIM')) ? 'var(--danger)' : 'var(--primary)';
+            document.getElementById('custom-alert-text').innerText = message;
+            document.getElementById('custom-alert-emoji').innerText = emoji || '⚠️';
+            customAlertCallback = callback || null;
+            document.getElementById('modal-custom-alert').classList.add('open');
+        }
+        function closeCustomAlert() {
+            document.getElementById('modal-custom-alert').classList.remove('open');
+            if (customAlertCallback) customAlertCallback();
+        }
+
+        function closeBossModal() {
+            document.getElementById('modal-boss').classList.remove('open');
+            startBossTimers();
+        }
+
+        function enterInvestigation() {
+            elHub.classList.add('hidden');
+            elDialogue.classList.add('hidden');
+            elStatusBar.classList.remove('hidden');
+            updateStatusBar();
+
+            let isFirstEnter = (state.time === 540 || !state.timerInterval);
+
+            if (isFirstEnter) {
+                state.time = 540;
+                elClock.innerText = formatTime(state.time);
+                elClock.classList.remove('urgent');
+                if (state.timerInterval) clearInterval(state.timerInterval);
+
+                if (state.isBossFight) {
+                    document.getElementById('ui-header').style.background = "#e74c3c";
+                    document.getElementById('modal-boss').classList.add('open');
+                    playSound('error');
+                    triggerScreenShake();
+                } else {
+                    state.timerInterval = setInterval(tickTimer, 1000);
+                }
+            }
+
+            feedContainer.innerHTML = '';
+            state.queue.forEach((item, index) => {
+                feedContainer.appendChild(createBubbleDOM(item, index));
+            });
+
+            // Spawn interval for Boss Fights (if returning to desk and modal is closed)
+            if (state.isBossFight && !isFirstEnter) {
+                startBossTimers();
+            }
+
+            elDeskTools.classList.add('hidden');
+            state.currentNews = null;
+            state.currentQueueId = null;
+
+            const clueListUI = document.getElementById('clue-list-ui');
+            if (state.cluesCollected.length > 0) {
+                clueListUI.innerHTML = '';
+                state.cluesCollected.forEach(clue => {
+                    let li = document.createElement('li');
+                    li.innerText = `Rastreado: ${clue}`;
+                    clueListUI.appendChild(li);
+                });
+            }
+
+            if (state.queue.filter(q => !q.processed).length > 0) playSound('notify');
+
+            elInv.classList.remove('hidden');
+            elMatch.classList.add('hidden');
+        }
+
+        function selectNews(queueId) {
+            playSound('stamp');
+            Array.from(feedContainer.children).forEach(b => b.classList.remove('selected'));
+            let bubble = document.getElementById(queueId);
+            if (bubble && !bubble.classList.contains('processed')) {
+                bubble.classList.add('selected');
+                state.currentQueueId = queueId;
+                state.currentNews = state.queue.find(q => q.id === queueId).data;
+                document.getElementById('doc-text').innerText = state.currentNews.doc;
+                elDeskTools.classList.remove('hidden');
+            }
+        }
+
+        function toggleReportModal() { playSound('stamp'); elModalReport.classList.toggle('open'); }
+        function toggleDossierModal() { playSound('stamp'); elModalDossier.classList.toggle('open'); }
+
+        function checkFact(userGuessedFact) {
+            if (!state.currentNews) return;
+            playSound('stamp');
+            let activeItem = state.queue.find(q => q.id === state.currentQueueId);
+
+            if (userGuessedFact === !state.currentNews.isFake) {
+                elModalReport.classList.remove('open');
+                if (state.currentNews.isFake) {
+                    showToast("Correto. Mentira detectada!", "success");
+                } else {
+                    showToast("Correto. Fato confirmado!", "success");
+                    checkUnlockAchievement('TRUTH_SAYER');
+                }
+                goToMatch();
+            } else {
+                playSound('error'); triggerScreenShake();
+                state.credibility -= 20; activeItem.processed = true;
+                if (state.currentNews.isFake) showToast("ERRO CRÍTICO! Você validou uma fake news.", "error");
+                else showToast("CENSURA! Você marcou um Fato Real como Fake News.", "error");
+
+                if (state.credibility <= 0) {
+                    clearInterval(state.timerInterval);
+                    setTimeout(() => { showCustomAlert("GAME OVER", "Credibilidade zerada. A agência faliu.", "💀", () => location.reload()); }, 500);
+                } else {
+                    checkDayCompletion();
+                }
+            }
+        }
+
+        function checkDayCompletion() {
+            let remaining = state.queue.filter(q => !q.processed).length;
+            if (remaining === 0 && state.remainingToSpawn <= 0) {
+                clearInterval(state.timerInterval);
+                if (state.spawnInterval) clearInterval(state.spawnInterval);
+                elClock.classList.remove('urgent');
+                setTimeout(endDay, 1000);
+            } else {
+                enterInvestigation();
+            }
+        }
+
+        function goToMatch() {
+            elInv.classList.add('hidden'); elMatch.classList.remove('hidden');
+            state.currentHeadline = null; state.currentAudience = null;
+
+            const matchTitle = document.querySelector('#screen-match h3');
+            const matchSubtitle = document.querySelector('#screen-match p');
+            if (state.currentNews.isFake) {
+                matchTitle.innerText = "Mentira Detectada!";
+                matchTitle.style.color = "var(--danger)";
+                matchSubtitle.innerText = "Construa a manchete e escolha o público para gerar impacto.";
+            } else {
+                matchTitle.innerText = "Fato Confirmado!";
+                matchTitle.style.color = "var(--primary)";
+                matchSubtitle.innerText = "Construa a manchete e escolha o público para espalhar a verdade.";
+            }
+
+            const hlBox = document.getElementById('headline-options'); hlBox.innerHTML = '';
+            state.currentNews.h.forEach(opt => {
+                let btn = document.createElement('button'); btn.className = 'option-btn'; btn.innerText = opt.text;
+                btn.onclick = () => { playSound('stamp'); Array.from(hlBox.children).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); state.currentHeadline = opt.id; };
+                hlBox.appendChild(btn);
+            });
+
+            const auBox = document.getElementById('audience-options'); auBox.innerHTML = '';
+            state.currentNews.a.forEach(opt => {
+                let btn = document.createElement('button'); btn.className = 'option-btn'; btn.innerText = opt.text;
+                btn.onclick = () => { playSound('stamp'); Array.from(auBox.children).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); state.currentAudience = opt.id; };
+                auBox.appendChild(btn);
+            });
+        }
+
+        function publishNews() {
+            if (state.currentHeadline === null || state.currentAudience === null) { showToast("Selecione manchete e público!", "warning"); return; }
+            playSound('stamp');
+            let isPerfect = (state.currentHeadline === state.currentNews.matchH && state.currentAudience === state.currentNews.matchA);
+            let activeItem = state.queue.find(q => q.id === state.currentQueueId);
+            activeItem.processed = true;
+
+            if (isPerfect) {
+                state.impact += 300; showToast("MATCH PERFEITO! +300 Impacto", "success");
+                checkUnlockAchievement('FIRST_BLOOD');
+
+                if (Math.random() < 0.35 && state.cluesCollected.length < 5) {
+                    if (!state.cluesCollected.includes(state.currentNews.clueSource)) {
+                        state.cluesCollected.push(state.currentNews.clueSource);
+                        setTimeout(showClue, 1500); return;
+                    }
+                }
+            } else {
+                state.impact += 50; showToast("Abordagem mediana. +50 Impacto", "warning");
+            }
+            setTimeout(checkDayCompletion, 1000);
+        }
+
+        function showClue() {
+            playSound('notify');
+            document.getElementById('clue-text').innerText = `O IP rastreado da mensagem "${state.currentNews.clueSource}" foi adicionado ao Dossiê!`;
+            elMatch.classList.add('hidden'); elClue.classList.remove('hidden');
+            checkUnlockAchievement('CLUE_HUNTER');
+            if (state.cluesCollected.length >= 5) checkUnlockAchievement('SHERLOCK');
+        }
+
+        function triggerBossClueDialogue() {
+            if (!state.bossWarned) {
+                state.bossWarned = true;
+                playSound('notify');
+                document.getElementById('dialogue-text').innerHTML = "<b>Excelente trabalho!</b><br><br>Você reuniu as 5 provas necessárias e nosso Dossiê está completo! Já temos evidências suficientes para derrubar o Gabinete da Desinformação.<br><br>Mantenha nossa credibilidade alta e sobreviva até o final do mês para entregarmos à Polícia Federal!";
+                elDialogue.classList.remove('hidden');
+
+                if (elHub.classList.contains('hidden')) {
+                    // Triggered from desk
+                    elInv.classList.add('hidden');
+                    elStatusBar.classList.add('hidden');
+                    dialogueNextAction = () => { enterInvestigation(); };
+                } else {
+                    // Triggered from hub (cheat)
+                    dialogueNextAction = () => { updateHub(); };
+                }
+            }
+        }
+
+        function closeClue() {
+            elClue.classList.add('hidden');
+
+            if (state.cluesCollected.length >= 5 && !state.bossWarned) {
+                triggerBossClueDialogue();
+            } else {
+                checkDayCompletion();
+            }
+        }
+
+        function endDay() {
+            if (state.day >= state.maxDays) {
+                if (state.cluesCollected.length >= 5) {
+                    showCustomAlert("JOGO CONCLUÍDO!", `Você sobreviveu aos 30 dias, reuniu o Dossiê e desmascarou o Gabinete da Desinformação!\nImpacto Total: ${state.impact}`, "🏆", () => location.reload());
+                } else {
+                    showCustomAlert("JOGO CONCLUÍDO...", `Você juntou apenas ${state.cluesCollected.length} Pistas (precisava de 5). A desinformação continua.\nImpacto: ${state.impact}`, "📉", () => location.reload());
+                }
+                return;
+            }
+            state.day++;
+            state.time = 540; // reset for next day UI
+            initGame();
+            showToast("Dia finalizado. Avalie seus status no HUB.");
+        }
+
+    </script>
+</body>
+
+</html>
