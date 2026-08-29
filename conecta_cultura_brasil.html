@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conecta Cultura Brasil</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f4f1ea; font-family:'Outfit', sans-serif; overflow:hidden; width:100vw; height:100vh; display:flex; color:#3e2723; }
+canvas { display:block; position:absolute; top:0; left:0; }
+#ui { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10; }
+
+/* Menus e Modais */
+.overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(62,39,35,0.85); backdrop-filter:blur(5px); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:20; pointer-events:all; transition:opacity 0.4s; }
+.overlay.hidden { opacity:0; pointer-events:none; }
+.box { background:#fff; border-radius:20px; padding:clamp(20px, 4vw, 30px); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2); max-width:500px; width:90%; border:3px solid #4caf50; }
+h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:900; color:#2e7d32; text-transform:uppercase; margin-bottom:10px; line-height:1.1; }
+h2, h3 { color:#2e7d32; margin-bottom:10px; }
+.sub { font-size:1.2rem; color:#5d4037; margin-bottom:30px; }
+.btn { background:#ffb300; border:none; padding:15px 40px; border-radius:30px; font-family:'Outfit'; font-size:1.2rem; font-weight:700; color:#3e2723; cursor:pointer; margin-top:10px; box-shadow:0 4px 0 #f57c00; transition:transform 0.1s; text-transform:uppercase; }
+.btn:active { transform:translateY(4px); box-shadow:none; }
+.btn-close { position:absolute; top:10px; right:15px; font-size:1.5rem; font-weight:bold; cursor:pointer; color:#999; }
+
+/* Painel do Estado */
+#state-panel-box { padding-top:40px; }
+#state-title { font-size:2rem; font-weight:900; color:#1565c0; margin-bottom:5px; }
+.cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.scard { background:#fff8e1; border:2px solid #ffe082; border-radius:16px; padding:20px 10px; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.2s; color:#d84315; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.scard:hover { transform:scale(1.05); }
+.scard.done { background:#c8e6c9; border-color:#81c784; color:#2e7d32; pointer-events:none; opacity:0.8; }
+.scard-icon { font-size:2rem; }
+
+/* Área de Minigame */
+#mg-content { min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 0; }
+.mg-question { font-size:1.1rem; font-weight:600; color:#4e342e; margin-bottom:15px; }
+
+/* Minigame: Quiz & Culinária */
+.opt-btn { background:#f5f5f5; border:2px solid #e0e0e0; padding:12px 15px; margin:5px 0; border-radius:12px; cursor:pointer; width:100%; font-family:'Outfit'; font-size:1rem; text-align:left; color:#3e2723; font-weight:600; transition:all 0.2s; }
+.opt-btn.correct { background:#c8e6c9; border-color:#4caf50; }
+.opt-btn.wrong { background:#ffcdd2; border-color:#f44336; animation:shake 0.4s; }
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* Minigame: Gírias */
+.match-grid { display:flex; width:100%; gap:10px; }
+.match-col { flex:1; display:flex; flex-direction:column; gap:8px; }
+.match-item { background:#fff3e0; border:2px solid #ffcc80; padding:12px 5px; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:600; text-align:center; transition:all 0.2s; }
+.match-item.sel { border-color:#1976d2; background:#bbdefb; color:#0d47a1; }
+.match-item.wrong-flash { background:#ffcdd2; border-color:#f44336; }
+.match-item.done { background:#c8e6c9; border-color:#4caf50; color:#2e7d32; opacity:0.7; pointer-events:none; }
+
+/* Minigame: Mito ou Verdade */
+.swipe-card { background:#fff; border:2px solid #e0e0e0; border-radius:16px; padding:25px 15px; font-size:1.2rem; font-weight:600; color:#1565c0; box-shadow:0 6px 12px rgba(0,0,0,0.1); margin-bottom:20px; width:100%; min-height:120px; display:flex; align-items:center; justify-content:center; text-align:center; }
+.swipe-btns { display:flex; gap:10px; width:100%; }
+.sbtn { flex:1; padding:15px; border-radius:12px; border:none; font-family:'Outfit'; font-weight:700; font-size:1.1rem; cursor:pointer; color:#fff; transition:transform 0.1s; }
+.sbtn:active { transform:scale(0.95); }
+.sbtn.verdade { background:#4caf50; border-bottom:4px solid #2e7d32; }
+.sbtn.mito { background:#f44336; border-bottom:4px solid #c62828; }
+
+/* Minigame: Palavras Cruzadas */
+.cw-grid { display:flex; flex-direction:column; gap:4px; margin: 15px 0; align-items:center;}
+.cw-row { display:flex; gap:4px; }
+.cw-cell { width:clamp(25px, 6vw, 35px); height:clamp(25px, 6vw, 35px); border:2px solid #ccc; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:700; background:#fff; text-transform:uppercase; cursor:pointer; transition:all 0.2s;}
+.cw-cell.empty { border:none; background:transparent; pointer-events:none;}
+.cw-cell.active { border-color:#2196F3; background:#e3f2fd; box-shadow:0 0 5px #2196f3; transform:scale(1.1);}
+.cw-cell.correct { border-color:#4caf50; background:#c8e6c9; color:#2e7d32; pointer-events:none;}
+.cw-cell.wrong { background:#ffcdd2; border-color:#f44336; animation:shake 0.4s; }
+.cw-clues { font-size:0.85rem; text-align:left; width:100%; margin-bottom:10px; color:#5d4037; line-height:1.4; max-height: 100px; overflow-y: auto;}
+.keyboard { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; width:100%;}
+.key-btn { padding:8px 10px; border:none; border-radius:6px; background:#e0e0e0; font-weight:700; cursor:pointer; font-size:1rem; color:#3e2723; flex-grow:1;}
+.key-btn:active { background:#bdbdbd;}
+
+/* Word Modal (Curiosity Popup) */
+#word-modal { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#fff; border-radius:20px; padding:25px; width:90%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:200; opacity:0; pointer-events:none; transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align:center; border:4px solid #4CAF50;}
+#word-modal.show { opacity:1; transform:translate(-50%, -50%) scale(1); pointer-events:auto;}
+#wm-title { font-size: 1.8rem; font-weight: 800; color: #4CAF50; margin-bottom: 10px; letter-spacing: 2px;}
+#wm-desc { font-size: 1.1rem; color: #5D4037; margin-bottom: 20px; line-height:1.5;}
+
+/* HUD */
+#hud { position:absolute; top:20px; left:50%; transform:translateX(-50%); background:#fff; padding:10px 20px; border-radius:30px; font-weight:700; font-size:1.1rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:2px solid #e0e0e0; display:flex; align-items:center; gap:15px; opacity:0; transition:opacity 0.5s; }
+#hud.show { opacity:1; }
+#count { color:#4caf50; font-size:1.5rem; }
+#prog-bar { width:150px; height:8px; background:#e0e0e0; border-radius:4px; overflow:hidden; }
+#prog-fill { width:0%; height:100%; background:#4caf50; transition:width 0.5s; }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <div id="hud">
+    <div>Estados: <span id="count">0</span>/27</div>
+    <div id="prog-bar"><div id="prog-fill"></div></div>
+  </div>
+</div>
+
+<div id="screen-title" class="overlay">
+  <div class="box">
+    <h1>Conecta Cultura Brasil</h1>
+    <p class="sub">Descubra as gírias, culinária e belezas de cada estado do nosso país!</p>
+    <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.85rem; color: #d84315; text-align: left; line-height: 1.4;">
+      <strong>⚠️ AVISO:</strong> Esta é uma Prova de Conceito (PoC) interativa para fins lúdicos e de demonstração. Ela não representa a versão final do game, que será desenvolvido na <strong>Unity 6</strong>. Além disso, o conteúdo e as curiosidades podem não refletir com total exatidão a realidade ou veracidade dos fatos históricos/culturais.
+    </div>
+    <button class="btn" onclick="startGame()">▶ Viajar pelo Brasil</button>
+  </div>
+</div>
+
+<div id="screen-state" class="overlay hidden">
+  <div class="box" id="state-panel-box">
+    <div class="btn-close" onclick="closeState()">×</div>
+    <h2 id="state-title">Nome do Estado</h2>
+    <p style="color:#795548; font-size:0.95rem;">Complete todos os desafios para liberar a cultura!</p>
+    <div class="cards-grid">
+      <div class="scard" id="c-giria" onclick="openMG('g')"><span class="scard-icon">🗣️</span>Gírias</div>
+      <div class="scard" id="c-culinaria" onclick="openMG('c')"><span class="scard-icon">🍲</span>Culinária</div>
+      <div class="scard" id="c-quiz" onclick="openMG('q')"><span class="scard-icon">🤔</span>Quiz</div>
+      <div class="scard" id="c-mito" onclick="openMG('m')"><span class="scard-icon">👆</span>Mito/Verdade</div>
+      <div class="scard" id="c-palavras" onclick="openMG('p')"><span class="scard-icon">🧩</span>Cruzadinha</div>
+      <div class="scard" id="c-caca" onclick="openMG('s')"><span class="scard-icon">🔎</span>Caça-Palavras</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-mg" class="overlay hidden">
+  <div class="box">
+    <div class="btn-close" onclick="closeMG()">×</div>
+    <h3 id="mg-title">Minigame</h3>
+    <div id="mg-content"></div>
+  </div>
+</div>
+
+<div id="screen-unlock" class="overlay hidden">
+  <div class="box" style="border-color:#ffb300">
+    <h1>🎉 ESTADO DESBLOQUEADO!</h1>
+    <h2 id="ul-title">Estado</h2>
+    <p id="ul-msg" style="color:#5d4037; font-size:1.1rem; margin:20px 0;"></p>
+    <button class="btn" onclick="document.getElementById('screen-unlock').classList.add('hidden')">▶ Continuar Viagem</button>
+  </div>
+</div>
+
+<div id="screen-win" class="overlay hidden">
+  <div class="box">
+    <h1>🎉 O BRASIL ESTÁ CONECTADO!</h1>
+    <h2 style="color:#1565c0">Você é um Mestre da Cultura Brasileira!</h2>
+    <p style="color:#5d4037; font-size:1.1rem; margin:20px 0;">O Brasil é feito de paixões nacionais e de uma diversidade cultural única. Celebre a nossa autêntica brasilidade!</p>
+  </div>
+</div>
+
+<!-- Popup Curiosidade da Palavra -->
+<div id="word-modal">
+  <h2 id="wm-title">PALAVRA</h2>
+  <p id="wm-desc">Curiosidade sobre a palavra.</p>
+  <button class="btn" onclick="document.getElementById('word-modal').classList.remove('show')">Incrível!</button>
+</div>
+
+<script>
+// Dados Culturais Reais para os 27 Estados
+const cultura = {
+  'AC': {
+    g: { p: 'Baixaria', r: 'Refeição com ovo, carne moída e farinha' },
+    c: { q: 'Prato tradicional de rio muito consumido no Acre:', a: 'Tambaqui', w: ['Moqueca', 'Tacacá'] },
+    q: { q: 'Quem lutou na Revolução Acreana para anexar o território ao Brasil?', a: 'Seringueiros', w: ['Zumbi dos Palmares', 'Duque de Caxias'] },
+    m: { f: 'O Acre tem o mesmo fuso horário de Brasília.', a: false, cur: 'O Acre tem 2 horas a menos que Brasília!' },
+        p: [
+      { w: 'EMPATE', d: 'Movimento liderado por seringueiros.', c: 'O "Empate" foi uma tática pacífica criada por Chico Mendes e os seringueiros para impedir o desmatamento da floresta.' },
+      { w: 'SERINGA', d: 'Árvore nativa que dá origem à borracha.', c: 'A Seringueira (Hevea brasiliensis) produz o látex, seiva que foi o motor econômico do Acre e de toda a Amazônia no século XIX.' },
+      { w: 'CHICO', d: 'Nome do mais famoso líder ambientalista acreano.', c: 'Chico Mendes tornou-se um símbolo mundial de luta pela preservação da Amazônia.' },
+    ]
+  },
+  'AL': {
+    g: { p: 'Avexado', r: 'Apressado / Agoniado' },
+    c: { q: 'Molusco famoso nas lagoas e pratos de Alagoas:', a: 'Sururu', w: ['Camarão', 'Lula'] },
+    q: { q: 'Qual famosa praia fica em Alagoas?', a: 'Praia do Francês', w: ['Porto de Galinhas', 'Jericoacoara'] },
+    m: { f: 'O Quilombo dos Palmares ficava no território que hoje é Alagoas.', a: true, cur: 'A Serra da Barriga foi o berço de Palmares!' },
+        p: [
+      { w: 'RENDA', d: 'Artesanato famoso de Alagoas, como a filé.', c: 'A Renda Filé de Alagoas é Patrimônio Cultural Imaterial. É inspirada nas redes dos pescadores locais!' },
+      { w: 'SURURU', d: 'Molusco muito consumido no estado.', c: 'O Sururu de Capote é tão famoso em Alagoas que se tornou Patrimônio Imaterial do estado!' },
+      { w: 'PALMARES', d: 'O maior quilombo do Brasil ficava na Serra da Barriga.', c: 'O Quilombo dos Palmares, liderado por Zumbi, abrigou milhares de escravizados que buscavam a liberdade.' },
+    ]
+  },
+  'AP': {
+    g: { p: 'Pai d\'égua', r: 'Muito bom / Excelente' },
+    c: { q: 'Prato amapaense (e paraense) cozido por dias:', a: 'Maniçoba', w: ['Feijoada', 'Vatapá'] },
+    q: { q: 'Qual monumento marca a divisão dos hemisférios Norte e Sul?', a: 'Marco Zero', w: ['Cristo Redentor', 'Forte São José'] },
+    m: { f: 'Macapá é a única capital brasileira não ligada por rodovia a outras capitais.', a: true, cur: 'O acesso a Macapá é feito principalmente por barcos ou aviões.' },
+        p: [
+      { w: 'EQUADOR', d: 'Linha imaginária que corta o estado.', c: 'O Amapá é cortado pela linha do Equador. Lá existe o Marco Zero, onde você pode pisar nos dois hemisférios ao mesmo tempo!' },
+      { w: 'MACAPA', d: 'A capital do Amapá.', c: 'Curiosidade: Macapá é a única capital brasileira que não tem ligação por rodovia com outras capitais!' },
+      { w: 'POROROCA', d: 'Encontro das águas do rio e do mar que gera ondas.', c: 'A Pororoca no Amapá atrai surfistas do mundo todo que tentam domar essa onda contínua nos rios!' },
+    ]
+  },
+  'AM': {
+    g: { p: 'Maceta', r: 'Algo muito grande / exagerado' },
+    c: { q: 'Sopa indígena com tucupi e goma de tapioca:', a: 'Tacacá', w: ['Pirarucu de casaca', 'Bolo de macaxeira'] },
+    q: { q: 'Qual grande festival folclórico ocorre na Ilha de Tupinambarana?', a: 'Festival de Parintins', w: ['Círio de Nazaré', 'Carnaval'] },
+    m: { f: 'O Rio Negro e o Rio Solimões se misturam imediatamente quando se encontram.', a: false, cur: 'O Rio Negro e Solimões correm lado a lado sem se misturar por vários quilômetros!' },
+        p: [
+      { w: 'BUMBA', d: 'Boi-___ (Figura folclórica do festival de Parintins).', c: 'O Festival de Parintins divide a ilha em duas paixões: o Boi Garantido (vermelho) e o Boi Caprichoso (azul).' },
+      { w: 'AMAZONAS', d: 'O maior rio do mundo em volume de água.', c: 'O Rio Amazonas é tão largo que, na época das cheias, uma margem não consegue ver a outra!' },
+      { w: 'VITORIA', d: '___-Régia, planta aquática símbolo da região.', c: 'A Vitória-Régia é uma planta gigante da bacia amazônica cujas folhas podem chegar a 2,5 metros de diâmetro.' },
+    ]
+  },
+  'BA': {
+    g: { p: 'Lá ele', r: 'Deus me livre / Tô fora' },
+    c: { q: 'Bolinho de feijão fradinho frito no azeite de dendê:', a: 'Acarajé', w: ['Abará', 'Cocada'] },
+    q: { q: 'Qual cidade foi a primeira capital do Brasil?', a: 'Salvador', w: ['Rio de Janeiro', 'São Paulo'] },
+    m: { f: 'Toda a Bahia faz parte do sertão e possui clima semiárido.', a: false, cur: 'A Bahia tem uma costa imensa e várias áreas de floresta tropical!' },
+        p: [
+      { w: 'ACARAJE', d: 'Famoso bolinho frito no dendê.', c: 'O Acarajé é uma oferenda a Iansã no candomblé, sendo tombado como Patrimônio Cultural pelo Iphan.' },
+      { w: 'PELOURINHO', d: 'Centro histórico famoso de Salvador.', c: 'O Pelourinho é repleto de casarões coloniais coloridos e igrejas cobertas de ouro, como a de São Francisco.' },
+      { w: 'CAPOEIRA', d: 'Mistura de dança e arte marcial.', c: 'A Roda de Capoeira é um símbolo de resistência cultural afro-brasileira e Patrimônio da Humanidade.' },
+    ]
+  },
+  'CE': {
+    g: { p: 'Marmota', r: 'Coisa esquisita / Engraçada' },
+    c: { q: 'Mistura clássica de arroz, feijão e queijo coalho:', a: 'Baião de Dois', w: ['Buchada', 'Sarapatel'] },
+    q: { q: 'Qual figura histórica é considerada "padim" em Juazeiro do Norte?', a: 'Padre Cícero', w: ['Frei Damião', 'Padre Marcelo'] },
+    m: { f: 'O Ceará é historicamente conhecido como a "Terra da Luz".', a: true, cur: 'O Ceará foi o primeiro estado a abolir a escravidão, 4 anos antes da Lei Áurea.' },
+        p: [
+      { w: 'JANGADA', d: 'Embarcação típica de pescadores cearenses.', c: 'A Jangada é um símbolo de bravura, imortalizada por Chico da Matilde, o "Dragão do Mar", jangadeiro que lutou contra a escravidão.' },
+      { w: 'SERTAO', d: 'Bioma muito presente no interior do Ceará.', c: 'O sertão cearense tem uma cultura de sobrevivência e fé fortíssima, como vemos nas romarias de Juazeiro do Norte.' },
+      { w: 'PADIM', d: 'Como o Padre Cícero é chamado.', c: 'Padre Cícero Romão Batista é considerado o "santo popular" do Ceará, reunindo milhões de fiéis todos os anos.' },
+    ]
+  },
+  'DF': {
+    g: { p: 'Camelo', r: 'Bicicleta' },
+    c: { q: 'Refeição rápida e clássica nas ruas e feiras de Brasília:', a: 'Pastel com Caldo de Cana', w: ['Acarajé', 'Pão de Queijo'] },
+    q: { q: 'Quem foi o urbanista que desenhou o formato (Plano Piloto) de Brasília?', a: 'Lúcio Costa', w: ['Oscar Niemeyer', 'Burle Marx'] },
+    m: { f: 'Brasília foi a primeira capital do Brasil.', a: false, cur: 'Brasília foi a terceira capital do Brasil! As primeiras foram Salvador e Rio de Janeiro.' },
+        p: [
+      { w: 'CERRADO', d: 'Bioma no qual Brasília foi construída.', c: 'O Cerrado é conhecido como "a caixa d\'água do Brasil" porque nele nascem importantes rios do país.' },
+      { w: 'NIEMEYER', d: 'Oscar ___, o arquiteto de Brasília.', c: 'As obras curvas de concreto de Niemeyer são reconhecidas no mundo inteiro e deram a Brasília o título de Patrimônio Cultural.' },
+      { w: 'TESOURINHA', d: 'Os viadutos circulares típicos de Brasília.', c: 'O formato das "Tesourinhas" ajuda no fluxo do trânsito no Plano Piloto, evitando semáforos nos cruzamentos principais.' },
+    ]
+  },
+  'ES': {
+    g: { p: 'Pocó', r: 'Carro velho / caindo aos pedaços' },
+    c: { q: 'Prato famoso feito na panela de barro de Goiabeiras:', a: 'Moqueca Capixaba', w: ['Tutu de Feijão', 'Barreado'] },
+    q: { q: 'Qual o famoso santuário localizado no alto de um penhasco em Vila Velha?', a: 'Convento da Penha', w: ['Santuário de Aparecida', 'Cristo Redentor'] },
+    m: { f: 'A autêntica moqueca capixaba leva azeite de dendê.', a: false, cur: 'Moqueca capixaba NÃO leva dendê nem leite de coco. "Moqueca é capixaba, o resto é peixada!"' },
+        p: [
+      { w: 'PANELA', d: 'A moqueca é feita na ___ de barro.', c: 'As Paneleiras de Goiabeiras fazem as panelas de barro com uma técnica indígena secular.' },
+      { w: 'VITORIA', d: 'Capital do Espírito Santo.', c: 'Vitória é uma das três únicas capitais brasileiras que estão situadas em uma ilha (as outras são Florianópolis e São Luís).' },
+      { w: 'CONVENTO', d: '___ da Penha, localizado num penhasco.', c: 'O Convento da Penha fica em Vila Velha e é um dos santuários mais antigos do Brasil, fundado em 1558.' },
+    ]
+  },
+  'GO': {
+    g: { p: 'Trem', r: 'Qualquer objeto ou coisa' },
+    c: { q: 'Fruto típico amarelo de cheiro e sabor marcantes:', a: 'Pequi', w: ['Caju', 'Buriti'] },
+    q: { q: 'Famosa poetisa e doceira da Cidade de Goiás (Goiás Velho):', a: 'Cora Coralina', w: ['Clarice Lispector', 'Cecília Meireles'] },
+    m: { f: 'Goiânia sempre foi a capital de Goiás desde a colonização.', a: false, cur: 'A primeira capital de Goiás foi a Cidade de Goiás (Goiás Velho).' },
+        p: [
+      { w: 'PEQUI', d: 'Fruto amarelo amado em Goiás.', c: 'O Pequi tem espinhos minúsculos no caroço, por isso a regra goiana é clara: deve-se "roer", nunca morder o pequi!' },
+      { w: 'CERRADO', d: 'O bioma predominante do estado.', c: 'O Cerrado goiano é riquíssimo em biodiversidade e abriga o Parque Nacional da Chapada dos Veadeiros.' },
+      { w: 'PAMONHA', d: 'Comida típica de milho feita na palha.', c: 'A pamonha goiana pode ser doce ou de sal, e é a paixão gastronômica número um do estado.' },
+    ]
+  },
+  'MA': {
+    g: { p: 'Balaio de gato', r: 'Grande confusão / Bagunça' },
+    c: { q: 'Arroz amargo feito com folha de vinagreira e camarão seco:', a: 'Arroz de Cuxá', w: ['Arroz Carreteiro', 'Arroz Doce'] },
+    q: { q: 'Qual famoso parque nacional no Maranhão é cheio de dunas e lagoas?', a: 'Lençóis Maranhenses', w: ['Jalapão', 'Jericoacoara'] },
+    m: { f: 'São Luís é conhecida como a Jamaica Brasileira devido ao Reggae.', a: true, cur: 'O Reggae é tão forte no Maranhão que lá se dança agarradinho!' },
+        p: [
+      { w: 'REGGAE', d: 'Ritmo musical jamaicano.', c: 'São Luís é a capital brasileira do Reggae. Lá o ritmo é tão próprio que se dança coladinho!' },
+      { w: 'LENCOIS', d: '___ Maranhenses, parque com dunas.', c: 'Os Lençóis Maranhenses formam uma paisagem única no mundo de areias brancas intercaladas com águas pluviais doces.' },
+      { w: 'BUMBA', d: '___ Meu Boi.', c: 'O Bumba Meu Boi do Maranhão mistura influências indígenas, africanas e europeias num belíssimo auto teatral.' },
+    ]
+  },
+  'MT': {
+    g: { p: 'Xô mano', r: 'Amigo / Parceiro' },
+    c: { q: 'Prato feito com peixe de rio (pintado) e mandioca:', a: 'Mojica de Pintado', w: ['Caldeirada', 'Ensopado'] },
+    q: { q: 'Qual parque nacional fica próximo a Cuiabá e tem lindos paredões de pedra?', a: 'Chapada dos Guimarães', w: ['Chapada Diamantina', 'Chapada das Mesas'] },
+    m: { f: 'O bioma do Pantanal existe apenas no estado do Mato Grosso.', a: false, cur: 'O Pantanal também cobre grande parte do Mato Grosso do Sul!' },
+        p: [
+      { w: 'PANTANAL', d: 'O maior bioma alagado do mundo.', c: 'O Pantanal é um santuário de onças-pintadas, tuiuiús, capivaras e milhares de jacarés!' },
+      { w: 'CHAPADA', d: '___ dos Guimarães.', c: 'A Chapada dos Guimarães tem paredões de arenito avermelhado e a famosa Cachoeira Véu de Noiva.' },
+      { w: 'VIOLA', d: 'Instrumento marcante na música caipira.', c: 'A Viola de Cocho é um instrumento típico mato-grossense, esculpido em um tronco inteiro de madeira.' },
+    ]
+  },
+  'MS': {
+    g: { p: 'Vazante', r: 'Época de cheia no Pantanal' },
+    c: { q: 'Bolo salgado de milho, cebola e queijo:', a: 'Sopa Paraguaia', w: ['Chipa', 'Pamonha'] },
+    q: { q: 'Qual cidade é a capital do ecoturismo no Brasil, famosa pelas águas cristalinas?', a: 'Bonito', w: ['Brotas', 'Nobres'] },
+    m: { f: 'A Sopa Paraguaia consumida no MS é líquida.', a: false, cur: 'Apesar do nome "sopa paraguaia", o prato é na verdade um bolo salgado sólido!' },
+        p: [
+      { w: 'BONITO', d: 'Cidade famosa pelas águas cristalinas.', c: 'As águas de Bonito são tão ricas em calcário que a sujeira decanta no fundo, mantendo a transparência incrível dos rios.' },
+      { w: 'TERERE', d: 'Bebida de erva-mate servida fria.', c: 'O Tereré é perfeito para aliviar o forte calor da região centro-oeste!' },
+      { w: 'SOPA', d: '___ Paraguaia, que é um bolo salgado.', c: 'Diz a lenda que o cozinheiro de um presidente paraguaio errou a mão na sopa de milho, assou no forno, e assim nasceu a "sopa sólida".' },
+    ]
+  },
+  'MG': {
+    g: { p: 'Uai', r: 'Expressão de surpresa ou confirmação' },
+    c: { q: 'Prato feito com feijão misturado a farinha e carnes:', a: 'Feijão Tropeiro', w: ['Dobradinha', 'Galinhada'] },
+    q: { q: 'Qual cidade histórica foi capital de Minas antes de Belo Horizonte?', a: 'Ouro Preto', w: ['Mariana', 'Tiradentes'] },
+    m: { f: 'Minas Gerais faz fronteira direta com o mar.', a: false, cur: 'Minas não tem mar, mas tem bar! (E montanhas lindas).' },
+        p: [
+      { w: 'QUEIJO', d: 'O pão de ___ é super famoso.', c: 'O Pão de Queijo mineiro é patrimônio nacional! A receita original mistura polvilho azedo e queijo curado de Minas.' },
+      { w: 'MINAS', d: 'Nome do estado: ___ Gerais.', c: 'O nome vem das muitas minas de ouro descobertas na região no século XVIII.' },
+      { w: 'OURO', d: 'Metal que enriqueceu a capitania colonial.', c: 'As cidades históricas como Ouro Preto e Mariana prosperaram com o Ciclo do Ouro e guardam ricas obras barrocas.' },
+    ]
+  },
+  'PA': {
+    g: { p: 'Égua', r: 'Expressão de espanto ou surpresa' },
+    c: { q: 'Prato feito com ave, tucupi e folhas que adormecem a boca:', a: 'Pato no Tucupi', w: ['Maniçoba', 'Tacacá'] },
+    q: { q: 'Qual é a maior festa religiosa que acontece em Belém?', a: 'Círio de Nazaré', w: ['Festa do Divino', 'Lavagem do Bonfim'] },
+    m: { f: 'No Pará, o açaí é tradicionalmente comido salgado, com peixe frito ou charque.', a: true, cur: 'No Pará, o açaí raiz é consumido salgado como prato principal!' },
+        p: [
+      { w: 'TUCUPI', d: 'Caldo amarelo extraído da mandioca.', c: 'O Tucupi é tóxico quando cru! Ele precisa ser fervido por várias horas para perder o veneno antes de virar molho.' },
+      { w: 'CIRIO', d: '___ de Nazaré, evento de Belém.', c: 'O Círio reúne mais de dois milhões de devotos puxando a corda da Berlinda nas ruas de Belém.' },
+      { w: 'ACAI', d: 'Fruto consumido salgado no Pará.', c: 'No Pará, o açaí não leva xarope nem morango! É comida de verdade, com farinha, peixe ou carne seca.' },
+    ]
+  },
+  'PB': {
+    g: { p: 'Arretado', r: 'Coisa muito boa ou pessoa brava' },
+    c: { q: 'Carne cozida com as entranhas (miúdos) do bode:', a: 'Buchada de Bode', w: ['Sarapatel', 'Panelada'] },
+    q: { q: 'Qual cidade paraibana disputa o título de "O Maior São João do Mundo"?', a: 'Campina Grande', w: ['Caruaru', 'João Pessoa'] },
+    m: { f: 'A Paraíba possui o ponto geográfico mais oriental das Américas.', a: true, cur: 'A Ponta do Seixas, em João Pessoa, é onde o sol nasce primeiro nas Américas!' },
+        p: [
+      { w: 'FORRO', d: 'Ritmo musical que embala o São João.', c: 'Campina Grande tem o título de fazer o Maior São João do Mundo, atraindo milhões de pessoas todo mês de junho.' },
+      { w: 'NORDESTE', d: 'Região do Brasil onde fica a PB.', c: 'O Nordeste brasileiro é rico em folclore, culinária forte e belíssimas praias.' },
+      { w: 'SOL', d: 'Onde o ___ nasce primeiro nas Américas.', c: 'A Paraíba possui o ponto mais oriental do continente americano, a Ponta do Seixas!' },
+    ]
+  },
+  'PR': {
+    g: { p: 'Piá', r: 'Menino / Garoto' },
+    c: { q: 'Carne cozida por muitas horas em panela de barro vedada:', a: 'Barreado', w: ['Churrasco', 'Carne de Onça'] },
+    q: { q: 'Qual maravilha natural fica na fronteira do Paraná com a Argentina?', a: 'Cataratas do Iguaçu', w: ['Salto do Yucumã', 'Cachoeira do Tabuleiro'] },
+    m: { f: 'Neva no Paraná inteiro durante todos os invernos.', a: false, cur: 'A neve no Paraná ocorre raramente, apenas nas regiões mais altas no inverno.' },
+        p: [
+      { w: 'PINHAO', d: 'Semente de araucária consumida no frio.', c: 'O Pinhão, semente da Araucária, é tradicionalmente cozido ou assado na chapa de fogão a lenha no sul do país.' },
+      { w: 'IGUACU', d: 'Cataratas do ___.', c: 'As Cataratas do Iguaçu, na fronteira do Paraná com a Argentina, são consideradas uma das 7 Maravilhas da Natureza.' },
+      { w: 'BARREADO', d: 'Carne cozida por horas em panela vedada.', c: 'O Barreado leva esse nome porque as panelas de barro são "barreadas" (vedadas) com massa de farinha para não vazar vapor.' },
+    ]
+  },
+  'PE': {
+    g: { p: 'Boy', r: 'Menino / Rapaz' },
+    c: { q: 'Doce pernambucano de camadas finíssimas com goiabada:', a: 'Bolo de Rolo', w: ['Bolo de Macaxeira', 'Cartola'] },
+    q: { q: 'Dança típica de compasso acelerado, em que se usa uma sombrinha:', a: 'Frevo', w: ['Maracatu', 'Caboclinho'] },
+    m: { f: 'Para os pernambucanos, Bolo de Rolo e Rocambole são exatamente a mesma coisa.', a: false, cur: 'Chamar bolo de rolo de rocambole é quase um crime em Pernambuco!' },
+        p: [
+      { w: 'FREVO', d: 'Dança agitada com sombrinha.', c: 'O Frevo tem ritmo acelerado e os passos nasceram de movimentos da capoeira, para disfarçar lutas no carnaval.' },
+      { w: 'OLINDA', d: 'Cidade dos bonecos gigantes.', c: 'Os Bonecos Gigantes de Olinda desfilam ladeiras acima no carnaval, representando figuras populares e históricas.' },
+      { w: 'ROLO', d: 'Bolo de ___, doce com goiabada.', c: 'O Bolo de Rolo pernambucano não é rocambole! A massa é finíssima, quase uma hóstia que desmancha na boca.' },
+    ]
+  },
+  'PI': {
+    g: { p: 'Mangar', r: 'Zombar ou rir de alguém' },
+    c: { q: 'Bebida doce, límpida e não alcoólica extraída do caju:', a: 'Cajuína', w: ['Guaraná Jesus', 'Aluá'] },
+    q: { q: 'Qual parque abriga a maior concentração de sítios arqueológicos do Brasil?', a: 'Serra da Capivara', w: ['Serra dos Órgãos', 'Serra da Canastra'] },
+    m: { f: 'O Piauí é o único estado da região Nordeste que não possui praia.', a: false, cur: 'O Piauí tem praia sim! Seu litoral é o menor do Brasil (66 km), mas existe.' },
+        p: [
+      { w: 'CAJUINA', d: 'Bebida doce dourada do caju.', c: 'Imortalizada em música por Caetano Veloso, a Cajuína é cristalina e feita da clarificação do suco do caju.' },
+      { w: 'CAPIVARA', d: 'Serra da ___, com pinturas rupestres.', c: 'A Serra da Capivara tem a maior concentração de arte rupestre do mundo, apontando os humanos mais antigos das Américas.' },
+      { w: 'DELTA', d: '___ do Parnaíba.', c: 'O Delta do Parnaíba é o único delta das Américas que deságua em mar aberto, formando um arquipélago lindíssimo.' },
+    ]
+  },
+  'RJ': {
+    g: { p: 'Caô', r: 'Mentira / Conversa fiada' },
+    c: { q: 'Prato famoso feito com feijão preto e carnes salgadas:', a: 'Feijoada', w: ['Picadinho', 'Rabada'] },
+    q: { q: 'Qual monumento fica no topo do morro do Corcovado?', a: 'Cristo Redentor', w: ['Pão de Açúcar', 'Arcos da Lapa'] },
+    m: { f: 'O Rio de Janeiro sempre foi a capital do Brasil desde o descobrimento.', a: false, cur: 'O Rio de Janeiro foi a segunda capital do Brasil! Salvador foi a primeira.' },
+        p: [
+      { w: 'SAMBA', d: 'Gênero musical carioca.', c: 'O Samba nasceu nas rodas das casas de tias baianas no Rio de Janeiro e evoluiu para as grandiosas escolas de samba.' },
+      { w: 'CARNAVAL', d: 'A maior festa popular do Rio.', c: 'O desfile na Marquês de Sapucaí é considerado "O Maior Show da Terra".' },
+      { w: 'CRISTO', d: '___ Redentor.', c: 'Com 30 metros de altura, o Cristo Redentor é o grande símbolo do RJ e uma das Novas Maravilhas do Mundo!' },
+    ]
+  },
+  'RN': {
+    g: { p: 'Galado', r: 'Pessoa engraçada ou situação inusitada' },
+    c: { q: 'Comida de rua famosa nas praias de Natal, servida em um espeto:', a: 'Ginga com Tapioca', w: ['Caranguejada', 'Moqueca'] },
+    q: { q: 'Qual é o formato da famosa fortaleza histórica de Natal (Forte dos Reis Magos)?', a: 'Formato de Estrela', w: ['Formato Quadrado', 'Formato Circular'] },
+    m: { f: 'O maior cajueiro do mundo fica no Rio Grande do Norte.', a: true, cur: 'O maior cajueiro do mundo fica na praia de Pirangi, RN, e tem o tamanho de um campo de futebol!' },
+        p: [
+      { w: 'CAJUEIRO', d: 'O RN tem a maior árvore de ___ do mundo.', c: 'O Cajueiro de Pirangi cobre a área equivalente a um campo de futebol, por conta de uma mutação genética.' },
+      { w: 'DUNAS', d: 'Montes de areia em Natal.', c: 'O passeio de buggy nas dunas de Genipabu sempre vem com a clássica pergunta: "Com emoção ou sem emoção?".' },
+      { w: 'SAL', d: 'Produto muito explorado no RN.', c: 'O Rio Grande do Norte produz mais de 90% de todo o sal marinho consumido no Brasil!' },
+    ]
+  },
+  'RS': {
+    g: { p: 'Tri', r: 'Muito / Demais' },
+    c: { q: 'Carne assada em espetos sobre fogo de chão ou brasa:', a: 'Churrasco', w: ['Puchero', 'Arroz Carreteiro'] },
+    q: { q: 'A Guerra dos Farrapos também é conhecida como...', a: 'Revolução Farroupilha', w: ['Revolta da Chibata', 'Sabinada'] },
+    m: { f: 'O tradicional chimarrão gaúcho leva açúcar no preparo.', a: false, cur: 'O chimarrão tradicional gaúcho é amargo (erva-mate pura e água quente)!' },
+        p: [
+      { w: 'PAMPA', d: 'Bioma típico do sul.', c: 'O Pampa tem relevo levemente ondulado e campos verdes, excelente para o gado e para o tradicional fogo de chão.' },
+      { w: 'GAUCHO', d: 'Quem nasce no RS é...', c: 'O termo gaúcho originalmente descrevia os cavaleiros criadores de gado que viviam livres pelos campos.' },
+      { w: 'MATE', d: 'Erva-___ usada no chimarrão.', c: 'O chimarrão gaúcho é um ritual de hospitalidade. Ele nunca deve ser adoçado.' },
+    ]
+  },
+  'RO': {
+    g: { p: 'Boto', r: 'Rapaz bonito ou pessoa legal' },
+    c: { q: 'Peixe amazônico redondo, frequentemente assado na brasa:', a: 'Tambaqui', w: ['Tucunaré', 'Pirarucu'] },
+    q: { q: 'Qual famosa ferrovia histórica foi construída na selva de Rondônia?', a: 'Ferrovia Madeira-Mamoré', w: ['Noroeste do Brasil', 'Transamazônica'] },
+    m: { f: 'Rondônia faz fronteira com a Venezuela.', a: false, cur: 'Rondônia faz fronteira com a Bolívia!' },
+        p: [
+      { w: 'MADEIRA', d: 'Rio muito importante que corta o estado.', c: 'A histórica Ferrovia Madeira-Mamoré foi construída na selva para escoar a borracha no início do século XX.' },
+      { w: 'RONDONIA', d: 'O nome deste estado.', c: 'Rondônia é o único estado do país batizado em homenagem a uma figura histórica: o Marechal Cândido Rondon.' },
+      { w: 'PORTO', d: '___ Velho, a capital.', c: 'A capital Porto Velho nasceu não a partir do modelo colonial clássico, mas junto aos pátios da famosa ferrovia.' },
+    ]
+  },
+  'RR': {
+    g: { p: 'Broca', r: 'Muita fome' },
+    c: { q: 'Caldo de peixe muito apimentado de origem indígena:', a: 'Damorida', w: ['Tacacá', 'Mujica'] },
+    q: { q: 'Qual é o famoso monte em formato de mesa (tepui) localizado na fronteira?', a: 'Monte Roraima', w: ['Pico da Neblina', 'Pico da Bandeira'] },
+    m: { f: 'Boa Vista, capital de Roraima, é a única capital brasileira totalmente no hemisfério norte.', a: true, cur: 'Boa Vista (RR) é a única capital brasileira totalmente acima da linha do Equador!' },
+        p: [
+      { w: 'RORAIMA', d: 'Monte famoso do estado.', c: 'O Monte Roraima é um tepui! Seu formato plano no topo inspirou lendas indígenas e até o filme "Up - Altas Aventuras".' },
+      { w: 'MACUXI', d: 'Um dos povos indígenas.', c: 'A reserva Raposa Serra do Sol abriga etnias como os macuxis, povo que ajudou a demarcar o norte do Brasil.' },
+      { w: 'BOA', d: '___ Vista, a capital.', c: 'Boa Vista é uma cidade planejada, com ruas radiais que convergem para a praça principal, formando um leque.' },
+    ]
+  },
+  'SC': {
+    g: { p: 'Tanso', r: 'Pessoa lenta ou boba' },
+    c: { q: 'Prato de herança alemã comum no Vale do Itajaí:', a: 'Marreco Recheado', w: ['Eisbein', 'Chucrute'] },
+    q: { q: 'Qual é a maior festa de tradições germânicas do Brasil, em Blumenau?', a: 'Oktoberfest', w: ['Fenarreco', 'Festa Pomerana'] },
+    m: { f: 'Florianópolis é a única capital estadual brasileira localizada em uma ilha.', a: false, cur: 'Além de Florianópolis, Vitória (ES) e São Luís (MA) também são capitais em ilhas!' },
+        p: [
+      { w: 'ILHA', d: 'Florianópolis fica em uma ___.', c: 'Florianópolis é conhecida como a "Ilha da Magia", famosa pelas belas praias e pelo folclore cheio de lendas com bruxas.' },
+      { w: 'SUL', d: 'Região onde SC está.', c: 'O Sul do Brasil é famoso pelo clima frio. Em SC fica São Joaquim, cidade onde frequentemente neva no inverno!' },
+      { w: 'CHOPP', d: 'Bebida clássica da Oktoberfest.', c: 'A Oktoberfest de Blumenau é a maior festa alemã das Américas, celebrando com muito chopp e dança!' },
+    ]
+  },
+  'SP': {
+    g: { p: 'Rolê', r: 'Passeio / Saída' },
+    c: { q: 'Sanduíche muito farto e famoso no Mercado Municipal de SP:', a: 'Sanduíche de Mortadela', w: ['Bauru', 'Misto Quente'] },
+    q: { q: 'Qual museu icônico foi projetado por Lina Bo Bardi na Avenida Paulista?', a: 'MASP', w: ['Pinacoteca', 'Museu do Ipiranga'] },
+    m: { f: 'O estado de São Paulo é o maior produtor de café do Brasil hoje.', a: false, cur: 'O estado de SP já foi o rei do café, mas hoje o maior produtor é Minas Gerais!' },
+        p: [
+      { w: 'PAULISTA', d: 'A avenida mais famosa de SP.', c: 'A Avenida Paulista tem o MASP, cujo enorme vão livre é o principal ponto de encontro cultural da cidade.' },
+      { w: 'CAFE', d: 'Produto que enriqueceu SP.', c: 'Os "Barões do Café" trouxeram o trem e a industrialização para São Paulo, impulsionando a maior metrópole do país.' },
+      { w: 'MASP', d: 'Museu famoso por seu vão livre.', c: 'Projetado pela arquiteta Lina Bo Bardi, o MASP revolucionou a forma de exibir quadros.' },
+    ]
+  },
+  'SE': {
+    g: { p: 'Foló', r: 'Roupa folgada ou larga' },
+    c: { q: 'Prato típico feito com crustáceos encontrados no manguezal:', a: 'Caranguejada', w: ['Moqueca', 'Camarão na Moranga'] },
+    q: { q: 'Qual atração natural é um famoso passeio de catamarã em Sergipe?', a: 'Cânions do Xingó', w: ['Delta do Parnaíba', 'Lagoa dos Patos'] },
+    m: { f: 'Sergipe é o menor estado em território do Brasil.', a: true, cur: 'É o menor estado, mas gigante na cultura!' },
+        p: [
+      { w: 'XINGO', d: 'Cânions do Rio São Francisco.', c: 'Os Cânions do Xingó formam um labirinto de rochas alaranjadas e águas verdes que surgiram após o represamento do rio.' },
+      { w: 'SERGIPE', d: 'O menor estado do Brasil.', c: 'Apesar de ser o menor em extensão, Sergipe tem um dos festejos juninos e de cultura popular mais ricos do Nordeste.' },
+      { w: 'CAJU', d: 'Fruta que é base de doces sergipanos.', c: 'O caju na verdade é o "pseudofruto", a verdadeira fruta é a castanha pendurada na ponta!' },
+    ]
+  },
+  'TO': {
+    g: { p: 'Pode crer', r: 'Verdade / Isso mesmo' },
+    c: { q: 'Prato robusto feito com músculo e osso de boi cozidos:', a: 'Chambari', w: ['Mocotó', 'Rabada'] },
+    q: { q: 'Qual parque estadual é famoso por seus fervedouros de águas cristalinas?', a: 'Jalapão', w: ['Chapada dos Veadeiros', 'Parque do Cantão'] },
+    m: { f: 'O Tocantins é o estado mais novo (recente) do Brasil.', a: true, cur: 'O Tocantins foi criado na Constituição de 1988, separando-se de Goiás!' },
+        p: [
+      { w: 'JALAPAO', d: 'Parque com fervedouros.', c: 'Os fervedouros do Jalapão são piscinas com nascente subterrânea tão forte que a pressão não deixa você afundar!' },
+      { w: 'PALMAS', d: 'Capital do Tocantins.', c: 'Palmas é a mais jovem capital do Brasil, tendo sido 100% planejada após a criação do estado, em 1989.' },
+      { w: 'CAPIM', d: '___ Dourado.', c: 'O Capim Dourado é colhido nas veredas do Jalapão. Ele brilha tanto que parece fio de ouro nas joias artesanais!' },
+    ]
+  }
+};
+
+// Estados do Mapa
+// --- ADICAO DE CURIOSIDADES AOS MINIGAMES C, Q e G ---
+const curiositiesData = {
+  "AC": {
+    "g": "A \"baixaria\" é o prato mais famoso do Mercado Velho de Rio Branco, um refogado forte que garante energia para o dia inteiro de trabalho!",
+    "c": "O Tambaqui assado na brasa, servido com farinha de Cruzeiro do Sul, é uma das iguarias mais apreciadas da Amazônia acreana.",
+    "q": "Durante a Revolução Acreana (1899–1903), os seringueiros pegaram em armas para garantir que o território do Acre fizesse parte do Brasil!"
+  },
+  "AL": {
+    "g": "Estar \"avexado\" é um termo clássico em todo o Nordeste, mas em Alagoas tem um charme especial, sempre atrelado à pressa ou ansiedade.",
+    "c": "O Sururu (servido na própria concha) no caldinho de coco é a principal estrela gastronômica de Maceió, às margens da Lagoa Mundaú.",
+    "q": "A Praia do Francês recebeu esse nome porque antigamente era um porto de contrabandistas franceses de pau-brasil!"
+  },
+  "AP": {
+    "g": "No Amapá, se algo é excelente, magnífico ou maravilhoso, os locais dizem que é \"Pai d'égua\"!",
+    "c": "A Maniçoba é conhecida como a feijoada da Amazônia. A folha da mandioca brava (maniva) precisa ser fervida por até 7 dias para perder sua toxicidade!",
+    "q": "O Marco Zero, em Macapá, é um dos poucos lugares do mundo onde você pode ficar de pé sobre a Linha do Equador com um pé no Hemisfério Norte e outro no Sul."
+  },
+  "AM": {
+    "g": "A gíria \"maceta\" é usada pelos amazonenses para definir algo muito grande, forte ou desproporcional.",
+    "c": "O Tacacá é uma herança indígena! O caldo amarelo do tucupi misturado ao tremor do jambu nos lábios é uma experiência única.",
+    "q": "O Festival de Parintins divide a cidade ao meio com as paixões pelos bois Garantido (vermelho) e Caprichoso (azul)."
+  },
+  "BA": {
+    "g": "Na Bahia, o \"lá ele\" é uma expressão genial usada para se esquivar de algo indesejado ou de frases de duplo sentido.",
+    "c": "O Acarajé era tradicionalmente vendido pelas \"Baianas de Acarajé\", que usavam seus lucros na época da escravidão para comprar a alforria de outros escravizados.",
+    "q": "Salvador foi a primeira sede administrativa (capital) do Brasil colonial, de 1549 até 1763."
+  },
+  "CE": {
+    "g": "Se alguém está sendo esquisito ou engraçado no Ceará, diz-se que essa pessoa está fazendo \"Marmota\"!",
+    "c": "O Baião de Dois leva esse nome por causa da dança clássica do nordeste, celebrando o encontro perfeito entre o arroz e o feijão.",
+    "q": "Padre Cícero é a maior figura religiosa e política da história do Ceará, transformando Juazeiro do Norte na capital da fé nordestina."
+  },
+  "DF": {
+    "g": "Em Brasília, a clássica bicicleta ganhou um apelido carinhoso e inexplicável: \"Camelo\".",
+    "c": "Nas feiras de Brasília e entorno, comer um pastel frito na hora acompanhado de caldo de cana gelado é o maior clássico popular da cidade.",
+    "q": "Lúcio Costa venceu o concurso para desenhar Brasília com um esboço simples que lembrava um avião, mas que ele chamou de borboleta ou cruz."
+  },
+  "ES": {
+    "g": "O capixaba usa \"Pocó\" para se referir a carros muito velhos, lentos ou caindo aos pedaços.",
+    "c": "A Moqueca Capixaba de verdade repudia o azeite de dendê e o leite de coco, valorizando o tomate, cebola e a panela de barro de Goiabeiras.",
+    "q": "O Convento da Penha, fundado em 1558, fica localizado isolado no alto de um penhasco na cidade de Vila Velha!"
+  },
+  "GO": {
+    "g": "O goiano usa \"Trem\" para se referir a absolutamente qualquer coisa! Pegue aquele trem ali pra mim, por favor.",
+    "c": "O Pequi tem espinhos minúsculos no caroço, por isso a regra goiana é clara: deve-se \"roer\" o fruto em volta, nunca morder direto!",
+    "q": "Cora Coralina, a doceira que virou uma das maiores poetisas do Brasil, viveu quase toda a sua vida na histórica Cidade de Goiás."
+  },
+  "MA": {
+    "g": "A gíria \"Balaio de gato\" é usada para definir uma confusão gigantesca, uma bagunça que ninguém entende.",
+    "c": "O Arroz de Cuxá tem forte herança africana. Seu sabor azedinho vem da vinagreira, misturada ao gergelim e farinha seca.",
+    "q": "Os Lençóis Maranhenses abrigam dunas gigantescas intercaladas por piscinas naturais de água doce que se formam durante a época de chuvas!"
+  },
+  "MT": {
+    "g": "No Mato Grosso, se alguém te chama de \"Xô mano\", é uma forma super carinhosa e amigável de se referir a um colega ou amigo próximo.",
+    "c": "A Mojica de Pintado é um ensopado delicioso de pintado (peixe nobre do pantanal) engrossado com mandioca.",
+    "q": "A Chapada dos Guimarães tem paredões imensos de arenito avermelhado, sendo o portal perfeito de entrada para o cerrado mato-grossense."
+  },
+  "MS": {
+    "g": "Se o rio baixou, deixou a terra molhada e cheia de vida nova, o sul-mato-grossense chama essa área úmida de \"Vazante\".",
+    "c": "A Sopa Paraguaia é uma sopa sólida! Diz a lenda que o cozinheiro errou a mão, assou a sopa de milho no forno, e virou um bolo salgado incrível.",
+    "q": "Bonito faz jus ao nome: a alta concentração de calcário nas águas faz com que a sujeira afunde, tornando os rios incrivelmente cristalinos!"
+  },
+  "MG": {
+    "g": "O \"Uai\" é quase uma vírgula na conversa do mineiro. É uma expressão de surpresa, espanto ou pura confirmação.",
+    "c": "O Feijão Tropeiro nasceu das antigas comitivas de tropeiros paulistas e mineiros, que misturavam ingredientes secos para não estragar na viagem.",
+    "q": "Ouro Preto (antiga Vila Rica) prosperou no Ciclo do Ouro e guarda as maiores obras do mestre Aleijadinho."
+  },
+  "PA": {
+    "g": "No Pará, a gíria \"Égua\" serve para tudo: espanto, tristeza, raiva ou extrema felicidade! Égua, tu não sabe da maior!",
+    "c": "O Pato no Tucupi é a iguaria mor do Círio de Nazaré, combinando a carne macia do pato ao caldo amarelo fervente extraído da mandioca.",
+    "q": "O Círio de Nazaré reúne cerca de 2 milhões de romeiros nas ruas de Belém num único domingo de outubro, sendo uma das maiores festas religiosas do planeta."
+  },
+  "PB": {
+    "g": "Quando o paraibano acha algo sensacional, corajoso ou excelente, ele solta um sonoro \"Arretado\"!",
+    "c": "A Buchada de Bode é feita com os miúdos do animal picados, temperados e cozidos dentro do próprio estômago do bode. Uma bomba de sabor nordestino!",
+    "q": "O Parque do Povo em Campina Grande concentra a maior festa junina do planeta, com incríveis 30 dias de forró sem parar."
+  },
+  "PR": {
+    "g": "No Paraná, especialmente em Curitiba, meninos são chamados carinhosamente de \"Piá\" (de origem indígena tupi-guarani).",
+    "c": "O Barreado leva até 24 horas cozinhando! A panela de barro é vedada (barreada) com massa de farinha para derreter completamente a carne.",
+    "q": "As Cataratas do Iguaçu na fronteira com a Argentina formam o maior sistema de quedas d'água em volume e beleza do mundo."
+  },
+  "PE": {
+    "g": "A expressão \"Boy\" em Recife não significa garoto! É usada para descrever qualquer amigo ou cara conhecido, tipo 'E aí boy?'.",
+    "c": "O Bolo de Rolo pernambucano é Patrimônio Cultural! Suas camadas devem ser finíssimas, lembrando renda, enroladas delicadamente com goiabada.",
+    "q": "O Frevo tem um ritmo tão frenético porque surgiu de uma tática de camuflagem: capoeiristas usavam sombrinhas para proteger seus grupos rivais nas ruas!"
+  },
+  "PI": {
+    "g": "Quando um piauiense vai tirar sarro, caçoar ou rir de alguém, ele diz que vai \"Mangar\" da cara do outro.",
+    "c": "A Cajuína é uma bebida cristalina extraída do suco do caju. Ela é tão importante que Caetano Veloso escreveu uma belíssima canção sobre ela.",
+    "q": "A Serra da Capivara no Piauí mudou a história das Américas, abrigando milhares de pinturas rupestres antiquíssimas."
+  },
+  "RJ": {
+    "g": "Se um carioca te conta uma mentira ou exagero muito óbvio, você logo percebe e diz: \"Que caô é esse?\"",
+    "c": "A Feijoada tradicional carioca mistura carnes fortes (secos e salgados) com feijão preto, tradição pura das rodas de samba do passado.",
+    "q": "O Cristo Redentor no topo do Morro do Corcovado é a maior estátua art déco do mundo."
+  },
+  "RN": {
+    "g": "Chamar alguém de \"Galado\" no Rio Grande do Norte não tem nada a ver com galo: é só um jeito muito engraçado e local de chamar qualquer pessoa, como o famoso 'cara'.",
+    "c": "A Ginga com Tapioca (peixinho frito na folha de palmeira servido dentro da tapioca) é o autêntico fast-food praiano das feiras de Natal.",
+    "q": "O forte dos Reis Magos em Natal tem o exato formato arquitetônico de uma estrela quando visto de cima, construído para facilitar a defesa costeira."
+  },
+  "RS": {
+    "g": "O gaúcho usa a palavra \"Tri\" para potencializar qualquer coisa. Algo muito legal é 'tri legal', algo difícil é 'tri complicado'.",
+    "c": "O verdadeiro Churrasco gaúcho se faz no fogo de chão, assando as costelas bovinas lentamente no calor brando da lenha.",
+    "q": "A Revolução Farroupilha durou 10 anos, e por um período os gaúchos chegaram a proclamar uma República independente do Império Brasileiro!"
+  },
+  "RO": {
+    "g": "Em Rondônia (e norte em geral), a figura folclórica do \"Boto\" virou lenda! Dizem que nas festas ribeirinhas o boto se veste de branco e usa chapéu para disfarçar o buraco na cabeça.",
+    "c": "O Tambaqui assado na brasa (peixe nobre da bacia amazônica) costuma vir servido com vinagrete e farinha amarela.",
+    "q": "A Madeira-Mamoré era conhecida como a 'Ferrovia do Diabo', pois milhares de trabalhadores padeceram na selva escaldante durante sua construção."
+  },
+  "RR": {
+    "g": "O roraimense fala \"Broca\" para dizer que está com uma fome enorme, uma vontade gigante de comer algo pesado!",
+    "c": "A Damorida é uma sopa de peixe riquíssima e intensamente apimentada, tradicional dos povos indígenas macuxis da região.",
+    "q": "O Monte Roraima inspirou Arthur Conan Doyle a escrever 'O Mundo Perdido'. Seu topo plano acima das nuvens guarda plantas únicas no mundo!"
+  },
+  "SC": {
+    "g": "Se você fizer uma bobeira enorme ou for ingênuo em Santa Catarina, os manezinhos vão te chamar de \"Tanso\".",
+    "c": "O Marreco Recheado servido com purê de maçã e repolho roxo é uma herança direta e deliciosa dos imigrantes alemães do Vale do Itajaí.",
+    "q": "A Oktoberfest em Blumenau atrai centenas de milhares de pessoas, sendo a maior festa folclórica e cervejeira alemã fora da Alemanha!"
+  },
+  "SP": {
+    "g": "O paulistano não sai pra passear, ele \"dá um rolê\". Seja para ir na padaria ou atravessar a cidade de metrô, é tudo rolê.",
+    "c": "O Sanduíche de Mortadela do Mercadão Municipal leva quase 300 gramas de recheio! Um exagero clássico que todo turista experimenta.",
+    "q": "O MASP (Museu de Arte de São Paulo) é famoso pelo seu imenso vão livre, projetado por Lina Bo Bardi, e guarda a mais rica coleção de arte europeia da América Latina."
+  },
+  "SE": {
+    "g": "A gíria sergipana \"Foló\" é usada para descrever algo que está muito folgado, solto ou desajustado.",
+    "c": "A Caranguejada servida nos restaurantes da Passarela do Caranguejo em Aracaju não é só comida, é o verdadeiro esporte social de fim de semana sergipano.",
+    "q": "Os monumentais Cânions do Xingó no Rio São Francisco formaram-se entre paredões avermelhados após o represamento do rio pela usina hidrelétrica."
+  },
+  "TO": {
+    "g": "O tocantinense concorda veementemente com algo usando o famoso \"Pode crer\", uma expressão forte de confiança na região.",
+    "c": "O Chambari (ou chambaril) nada mais é que um ensopado de ossobuco servido em fartura logo cedo pela manhã para dar energia ao trabalhador.",
+    "q": "O Jalapão tem Dunas douradas gigantescas e os famosos fervedouros: piscinas formadas por nascentes tão fortes que a pressão d'água não te deixa afundar de jeito nenhum!"
+  }
+};
+for(let uf in curiositiesData){
+   cultura[uf].g.cur = curiositiesData[uf].g;
+   cultura[uf].c.cur = curiositiesData[uf].c;
+   cultura[uf].q.cur = curiositiesData[uf].q;
+}
+// -----------------------------------------------------
+const estados = [
+  {uf:'AC', name:'Acre', lat:-9.97, lon:-67.81},
+  {uf:'AL', name:'Alagoas', lat:-9.67, lon:-35.74},
+  {uf:'AP', name:'Amapá', lat:0.03, lon:-51.07},
+  {uf:'AM', name:'Amazonas', lat:-3.12, lon:-60.02},
+  {uf:'BA', name:'Bahia', lat:-12.97, lon:-38.51},
+  {uf:'CE', name:'Ceará', lat:-3.72, lon:-38.52},
+  {uf:'DF', name:'Distrito Federal', lat:-15.78, lon:-47.93},
+  {uf:'ES', name:'Espírito Santo', lat:-20.32, lon:-40.34},
+  {uf:'GO', name:'Goiás', lat:-16.68, lon:-49.26},
+  {uf:'MA', name:'Maranhão', lat:-2.50, lon:-44.28},
+  {uf:'MT', name:'Mato Grosso', lat:-15.60, lon:-56.10},
+  {uf:'MS', name:'Mato Grosso do Sul', lat:-20.44, lon:-54.65},
+  {uf:'MG', name:'Minas Gerais', lat:-19.92, lon:-43.94},
+  {uf:'PA', name:'Pará', lat:-1.46, lon:-48.50},
+  {uf:'PB', name:'Paraíba', lat:-7.12, lon:-34.86},
+  {uf:'PR', name:'Paraná', lat:-25.43, lon:-49.27},
+  {uf:'PE', name:'Pernambuco', lat:-8.05, lon:-34.87},
+  {uf:'PI', name:'Piauí', lat:-5.09, lon:-42.80},
+  {uf:'RJ', name:'Rio de Janeiro', lat:-22.91, lon:-43.17},
+  {uf:'RN', name:'Rio Grande do Norte', lat:-5.79, lon:-35.21},
+  {uf:'RS', name:'Rio Grande do Sul', lat:-30.03, lon:-51.23},
+  {uf:'RO', name:'Rondônia', lat:-8.76, lon:-63.90},
+  {uf:'RR', name:'Roraima', lat:2.82, lon:-60.67},
+  {uf:'SC', name:'Santa Catarina', lat:-27.60, lon:-48.55},
+  {uf:'SP', name:'São Paulo', lat:-23.55, lon:-46.63},
+  {uf:'SE', name:'Sergipe', lat:-10.91, lon:-37.07},
+  {uf:'TO', name:'Tocantins', lat:-10.18, lon:-48.33}
+];
+estados.forEach(e => { e.completed = []; e.active = false; });
+
+// Sound Engine
+class SoundEngine {
+  constructor() {
+    this.ctx = null; // initialized on first click
+  }
+  init() {
+    if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+  }
+  playTone(freq, type, duration, vol=0.1) {
+    if(!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  }
+  playClick() { this.playTone(600, 'sine', 0.1, 0.05); }
+  playSuccess() { 
+    this.playTone(800, 'square', 0.1, 0.05);
+    setTimeout(()=>this.playTone(1200, 'square', 0.15, 0.05), 100);
+  }
+  playError() { this.playTone(200, 'sawtooth', 0.2, 0.05); }
+  playFanfare() {
+    this.playTone(523.25, 'square', 0.15, 0.05);
+    setTimeout(()=>this.playTone(659.25, 'square', 0.15, 0.05), 150);
+    setTimeout(()=>this.playTone(783.99, 'square', 0.3, 0.05), 300);
+  }
+}
+const sfx = new SoundEngine();
+
+// Canvas Setup
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, scale, ox, oy;
+let hoverIdx = -1;
+let gameStarted = false;
+let currentUF = '';
+
+const brazilBorder = [
+[5.27,-60.73],[4.48,-59.83],[3.95,-59.98],[2.49,-59.99],[1.67,-57.31],
+[2.01,-56.05],[2.58,-54.20],[2.34,-52.93],[3.32,-51.98],[4.44,-51.16],
+[1.74,-50.02],[0.70,-50.00],[-0.05,-49.51],[-0.73,-48.57],[-0.93,-46.50],
+[-1.04,-44.79],[-2.29,-44.16],[-2.50,-42.82],[-2.83,-41.41],[-3.41,-39.44],
+[-3.69,-38.50],[-5.10,-36.59],[-5.78,-35.24],[-6.97,-34.79],[-8.07,-34.83],
+[-8.87,-35.14],[-9.47,-35.51],[-10.51,-36.39],[-11.46,-37.36],[-13.38,-38.95],
+[-15.19,-38.97],[-17.78,-39.25],[-19.60,-39.95],[-20.26,-40.27],[-22.00,-41.05],
+[-22.91,-43.17],[-23.02,-44.30],[-23.80,-45.41],[-24.02,-46.47],[-25.28,-48.02],
+[-26.32,-48.60],[-27.59,-48.55],[-28.63,-48.97],[-29.73,-50.20],[-30.41,-51.00],
+[-32.00,-52.10],[-33.74,-53.37],[-33.05,-53.53],[-30.21,-57.61],[-28.15,-55.57],
+[-25.60,-54.60],[-24.04,-54.26],[-22.28,-57.53],[-19.98,-57.87],[-16.01,-57.99],
+[-15.02,-59.98],[-13.50,-60.78],[-10.47,-65.32],[-9.68,-65.97],[-9.19,-67.11],
+[-9.68,-68.78],[-8.02,-70.50],[-6.99,-73.00],[-4.32,-69.93],[-1.04,-69.52],
+[0.00,-69.50],[1.82,-67.00],[2.51,-63.97],[3.62,-64.50],[4.02,-63.50],
+[3.49,-60.50],[5.27,-60.73]
+];
+let brazilScreenPts = [];
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  const minLon = -73, maxLon = -34;
+  const minLat = -34, maxLat = 5;
+  const lonRange = maxLon - minLon;
+  const latRange = maxLat - minLat;
+  const pad = 60;
+  scale = Math.min((W - pad*2)/lonRange, (H - pad*2)/latRange);
+  ox = (W - lonRange*scale)/2;
+  oy = (H - latRange*scale)/2;
+  
+  estados.forEach(e => {
+    e.x = ox + (e.lon - minLon) * scale;
+    e.y = oy + (maxLat - e.lat) * scale;
+  });
+  
+  brazilScreenPts = brazilBorder.map(([lat,lon]) => ({
+    x: ox + (lon - minLon) * scale,
+    y: oy + (maxLat - lat) * scale
+  }));
+}
+window.addEventListener('resize', resize);
+resize();
+
+function drawBrazilSilhouette(){
+  if(brazilScreenPts.length < 3) return;
+  ctx.beginPath();
+  ctx.moveTo(brazilScreenPts[0].x, brazilScreenPts[0].y);
+  for(let i=1; i<brazilScreenPts.length; i++){
+    ctx.lineTo(brazilScreenPts[i].x, brazilScreenPts[i].y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#e8dfce'; 
+  ctx.fill();
+  ctx.strokeStyle = '#d7ccc8';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  
+  drawBrazilSilhouette();
+  
+  // Conexões
+  const actives = estados.filter(e=>e.active);
+  ctx.strokeStyle = 'rgba(76, 175, 80, 0.4)';
+  ctx.lineWidth = 3;
+  actives.forEach((a, i) => {
+    actives.forEach((b, j) => {
+      if(i<j){
+        const dx=a.x-b.x, dy=a.y-b.y;
+        if(Math.sqrt(dx*dx+dy*dy) < scale*15){
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    });
+  });
+
+  // Pins
+  estados.forEach((e, i) => {
+    const isHover = i === hoverIdx;
+    
+    if(e.active){
+      ctx.fillStyle = '#4CAF50';
+      ctx.beginPath(); ctx.arc(e.x, e.y, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(76, 175, 80, 0.3)';
+      ctx.beginPath(); ctx.arc(e.x, e.y, 16, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle = isHover ? '#FFB300' : '#A1887F';
+      ctx.beginPath(); ctx.arc(e.x, e.y, isHover ? 7 : 5, 0, Math.PI*2); ctx.fill();
+    }
+
+    if(isHover && !e.active){
+      ctx.fillStyle = '#3E2723';
+      ctx.font = 'bold 16px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(e.name, e.x, e.y - 12);
+    }
+    if(e.active){
+      ctx.fillStyle = '#2E7D32';
+      ctx.font = '12px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(e.uf, e.x, e.y - 12);
+    }
+  });
+
+  requestAnimationFrame(render);
+}
+render();
+
+// Logic
+function startGame(){
+  if(sfx) { sfx.init(); sfx.playClick(); }
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('hud').classList.add('show');
+  gameStarted = true;
+}
+
+canvas.addEventListener('mousemove', e => {
+  if(!gameStarted || !document.getElementById('screen-state').classList.contains('hidden') || !document.getElementById('screen-mg').classList.contains('hidden')) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  hoverIdx = -1;
+  estados.forEach((est, i) => {
+    const dx=est.x-mx, dy=est.y-my;
+    if(dx*dx+dy*dy < 400) hoverIdx = i;
+  });
+  canvas.style.cursor = (hoverIdx>=0 && !estados[hoverIdx].active) ? 'pointer' : 'default';
+});
+
+canvas.addEventListener('click', e => {
+  if(hoverIdx >= 0 && !estados[hoverIdx].active){
+    openState(estados[hoverIdx].uf);
+  }
+});
+
+function openState(uf){
+  currentUF = uf;
+  const est = estados.find(e=>e.uf===uf);
+  document.getElementById('state-title').textContent = est.name;
+  
+  // Atualiza cards
+  ['g','c','q','m','p','s'].forEach(id => {
+    const el = document.getElementById('c-'+(id==='g'?'giria':id==='c'?'culinaria':id==='q'?'quiz':id==='m'?'mito':id==='s'?'caca':'palavras'));
+    if(est.completed.includes(id)) el.classList.add('done');
+    else el.classList.remove('done');
+  });
+
+  document.getElementById('screen-state').classList.remove('hidden');
+}
+
+function closeState(){
+  document.getElementById('screen-state').classList.add('hidden');
+}
+function closeMG(){
+  document.getElementById('screen-mg').classList.add('hidden');
+  document.getElementById('screen-state').classList.remove('hidden');
+}
+
+function openMG(type){
+  document.getElementById('screen-state').classList.add('hidden');
+  const area = document.getElementById('mg-content');
+  area.innerHTML = '';
+  document.getElementById('screen-mg').classList.remove('hidden');
+  
+  const dat = cultura[currentUF];
+  
+  if(type==='q' || type==='c'){
+    const qData = dat[type];
+    document.getElementById('mg-title').textContent = type==='q' ? '🤔 Quiz Cultural' : '🍲 Sabores do Brasil';
+    area.innerHTML = `<div class="mg-question">${qData.q}</div>`;
+    const opts = [qData.a, ...qData.w].sort(()=>Math.random()-0.5);
+    opts.forEach(o => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = o;
+      btn.onclick = () => {
+        if(area.querySelector('.correct')) return;
+        if(o === qData.a){
+          btn.classList.add('correct');
+          
+          setTimeout(() => {
+              document.getElementById('wm-title').textContent = "Correto!";
+              document.getElementById('wm-desc').textContent = qData.cur;
+              sfx.playSuccess();
+                 document.getElementById('word-modal').classList.add('show');
+              
+              const checkWinInterval = setInterval(() => {
+                  if(!document.getElementById('word-modal').classList.contains('show')){
+                      clearInterval(checkWinInterval);
+                      winMG(type);
+                  }
+              }, 500);
+          }, 300);
+          
+        } else {
+          btn.classList.add('wrong');
+          setTimeout(() => openMG(type), 800);
+        }
+      };
+      area.appendChild(btn);
+    });
+  }
+  
+  if(type==='m'){
+    const mData = dat.m;
+    document.getElementById('mg-title').textContent = '👆 Mito ou Verdade';
+    area.innerHTML = `
+      <div class="swipe-card">"${mData.f}"</div>
+      <div class="swipe-btns">
+        <button class="sbtn mito" onclick="checkMito(false)">Mito</button>
+        <button class="sbtn verdade" onclick="checkMito(true)">Verdade</button>
+      </div>
+    `;
+    window.checkMito = (ans) => {
+      if(ans === mData.a) {
+        sfx.playSuccess();
+        document.getElementById('wm-title').textContent = ans ? "É Verdade!" : "É Mito!";
+        document.getElementById('wm-desc').textContent = mData.cur;
+        sfx.playSuccess();
+                 document.getElementById('word-modal').classList.add('show');
+        
+        const checkWinInterval = setInterval(() => {
+            if(!document.getElementById('word-modal').classList.contains('show')){
+                clearInterval(checkWinInterval);
+                winMG('m');
+            }
+        }, 500);
+      } else {
+        const card = document.querySelector('.swipe-card');
+        sfx.playError();
+        card.style.backgroundColor = '#ffcdd2';
+        card.style.borderColor = '#f44336';
+        card.style.color = '#c62828';
+        setTimeout(() => openMG('m'), 600);
+      }
+    };
+  }
+
+  if(type==='g'){
+    const gData = dat.g;
+    document.getElementById('mg-title').textContent = '🗣️ Gírias Locais';
+    // Dummy pairs for other buttons to make a match game (3 pairs total)
+    const extra = [
+      {p:'Vixi', r:'Espanto'}, {p:'Massa', r:'Legal'}
+    ];
+    const pairs = [{p:gData.p, r:gData.r}, ...extra];
+    const lefts = pairs.map(x=>x.p).sort(()=>Math.random()-0.5);
+    const rights = pairs.map(x=>x.r).sort(()=>Math.random()-0.5);
+    
+    let selL=null, selR=null;
+    let matches=0;
+    
+    area.innerHTML = `<div class="mg-question">Conecte a gíria ao seu significado:</div><div class="match-grid"><div class="match-col" id="m-l"></div><div class="match-col" id="m-r"></div></div>`;
+    const ml = document.getElementById('m-l');
+    const mr = document.getElementById('m-r');
+    
+    const checkMatch = () => {
+      if(selL && selR){
+        const p1 = pairs.find(x=>x.p===selL.innerText);
+        if(p1 && p1.r === selR.innerText){
+          sfx.playSuccess();
+          selL.classList.add('done'); selR.classList.add('done');
+          selL=null; selR=null; matches++;
+          if(matches===3) setTimeout(()=>winMG('g'), 500);
+        } else {
+          sfx.playError();
+          selL.classList.add('wrong-flash'); selR.classList.add('wrong-flash');
+          setTimeout(() => {
+            if(selL) selL.classList.remove('wrong-flash', 'sel');
+            if(selR) selR.classList.remove('wrong-flash', 'sel');
+            selL=null; selR=null;
+          }, 400);
+        }
+      }
+    };
+
+    lefts.forEach(t => {
+      const d = document.createElement('div'); d.className='match-item'; d.innerText=t;
+      d.onclick = () => { if(d.classList.contains('done')) return; if(selL) selL.classList.remove('sel'); selL=d; d.classList.add('sel'); checkMatch(); };
+      ml.appendChild(d);
+    });
+    rights.forEach(t => {
+      const d = document.createElement('div'); d.className='match-item'; d.innerText=t;
+      d.onclick = () => { if(d.classList.contains('done')) return; if(selR) selR.classList.remove('sel'); selR=d; d.classList.add('sel'); checkMatch(); };
+      mr.appendChild(d);
+    });
+  }
+
+  if(type==='p'){
+    const pData = dat.p; // Array de 3-4 palavras
+    document.getElementById('mg-title').textContent = '🧩 Cruzadinha';
+    
+    // Gerador de Grid Dinâmico
+    let placements = []; // { w, x, y, dir, d, c, revealed: false, idx }
+    
+    placements.push({ ...pData[0], x:0, y:0, dir:'H', idx: 0, revealed: false });
+    
+    const checkCol = (w, x, y, dir) => {
+      let grid = {};
+      placements.forEach(p => {
+        for(let i=0; i<p.w.length; i++){
+          let cx = p.dir==='H' ? p.x+i : p.x;
+          let cy = p.dir==='H' ? p.y : p.y+i;
+          grid[`${cx},${cy}`] = p.w[i];
+        }
+      });
+      for(let i=0; i<w.length; i++){
+        let cx = dir==='H' ? x+i : x;
+        let cy = dir==='H' ? y : y+i;
+        let k = `${cx},${cy}`;
+        if(grid[k] && grid[k] !== w[i]) return true;
+        if(!grid[k]){
+          if(dir==='H'){
+            if(grid[`${cx},${cy-1}`] || grid[`${cx},${cy+1}`]) return true;
+            if(i===0 && grid[`${cx-1},${cy}`]) return true;
+            if(i===w.length-1 && grid[`${cx+1},${cy}`]) return true;
+          } else {
+            if(grid[`${cx-1},${cy}`] || grid[`${cx+1},${cy}`]) return true;
+            if(i===0 && grid[`${cx},${cy-1}`]) return true;
+            if(i===w.length-1 && grid[`${cx},${cy+1}`]) return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    for(let i=1; i<pData.length; i++){
+      let placed = false;
+      let w2 = pData[i].w;
+      for(let p of placements){
+        if(placed) break;
+        let w1 = p.w;
+        for(let k1=0; k1<w1.length; k1++){
+          if(placed) break;
+          for(let k2=0; k2<w2.length; k2++){
+            if(w1[k1] === w2[k2]){
+              let testDir = p.dir === 'H' ? 'V' : 'H';
+              let testX = p.dir === 'H' ? p.x + k1 : p.x - k2;
+              let testY = p.dir === 'H' ? p.y - k2 : p.y + k1;
+              if(!checkCol(w2, testX, testY, testDir)){
+                placements.push({ ...pData[i], x: testX, y: testY, dir: testDir, idx: i, revealed: false });
+                placed = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+      if(!placed){
+        let maxY = Math.max(...placements.map(pl => pl.dir === 'V' ? pl.y + pl.w.length : pl.y)) + 2;
+        placements.push({ ...pData[i], x: 0, y: maxY, dir: 'H', idx: i, revealed: false });
+      }
+    }
+    
+    let minX = Math.min(...placements.map(p => p.dir === 'H' ? p.x : p.x));
+    let minY = Math.min(...placements.map(p => p.dir === 'H' ? p.y : p.y));
+    let maxX = Math.max(...placements.map(p => p.dir === 'H' ? p.x + p.w.length : p.x + 1));
+    let maxY = Math.max(...placements.map(p => p.dir === 'H' ? p.y + 1 : p.y + p.w.length));
+    
+    placements.forEach(p => { p.x -= minX; p.y -= minY; });
+    let cols = maxX - minX;
+    let rows = maxY - minY;
+    
+    let html = '<div class="cw-clues">';
+    placements.forEach(p => {
+      html += `<strong>${p.w.substring(0,2)}... (${p.dir})</strong>: ${p.d}<br>`;
+    });
+    html += '</div>';
+    
+    html += '<div class="cw-grid" id="cw-grid">';
+    for(let r=0; r<rows; r++){
+      html += '<div class="cw-row">';
+      for(let c=0; c<cols; c++){
+        // Verify if any word occupies this cell
+        let char = null;
+        let belongsTo = [];
+        placements.forEach(p => {
+          let hMatch = (p.dir === 'H' && p.y === r && c >= p.x && c < p.x + p.w.length);
+          let vMatch = (p.dir === 'V' && p.x === c && r >= p.y && r < p.y + p.w.length);
+          if(hMatch || vMatch){
+            char = p.dir === 'H' ? p.w[c - p.x] : p.w[r - p.y];
+            belongsTo.push(p.idx);
+          }
+        });
+        
+        if(char){
+          let id = `cw-${r}-${c}`;
+          html += `<div class="cw-cell" id="${id}" data-char="${char}" data-words="${belongsTo.join(',')}" onclick="selectCell(this)"></div>`;
+        } else {
+          html += `<div class="cw-cell empty"></div>`;
+        }
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    
+    const letters = "QWERTYUIOPASDFGHJKLZXCVBNM".split('');
+    html += '<div class="keyboard">';
+    letters.forEach(l => {
+      html += `<button class="key-btn" onclick="typeLetter('${l}')">${l}</button>`;
+    });
+    html += '</div>';
+    
+    area.innerHTML = html;
+    
+    window.selectedCell = null;
+    window.selectCell = (el) => {
+      if(el.classList.contains('correct')) return;
+      document.querySelectorAll('.cw-cell').forEach(c=>c.classList.remove('active'));
+      el.classList.add('active');
+      window.selectedCell = el;
+    };
+    
+    const firstCell = document.querySelector('.cw-cell[data-char]');
+    if(firstCell) selectCell(firstCell);
+    
+    window.typeLetter = (char) => {
+      if(!window.selectedCell) return;
+      const expected = window.selectedCell.getAttribute('data-char');
+      if(char === expected){
+        window.selectedCell.innerText = char;
+        window.selectedCell.classList.add('correct');
+        window.selectedCell.classList.remove('active');
+        window.selectedCell = null;
+        
+        // Check completions
+        let anyCompleted = false;
+        placements.forEach(p => {
+          if(p.revealed) return;
+          let done = true;
+          for(let i=0; i<p.w.length; i++){
+            let cx = p.dir==='H' ? p.x+i : p.x;
+            let cy = p.dir==='H' ? p.y : p.y+i;
+            let cell = document.getElementById(`cw-${cy}-${cx}`);
+            if(!cell.classList.contains('correct')) done = false;
+          }
+          if(done){
+            p.revealed = true;
+            anyCompleted = true;
+            // Mostra Modal de Curiosidade
+            document.getElementById('wm-title').textContent = p.w;
+            document.getElementById('wm-desc').textContent = p.c;
+            sfx.playSuccess();
+                 document.getElementById('word-modal').classList.add('show');
+          }
+        });
+        
+        const allCells = Array.from(document.querySelectorAll('.cw-cell[data-char]'));
+        const emptyCell = allCells.find(c => !c.classList.contains('correct'));
+        
+        if(!anyCompleted){
+          if(emptyCell) selectCell(emptyCell);
+          else setTimeout(() => winMG('p'), 600);
+        } else {
+          // If a modal opened, wait for them to close it, but if no empty cell, they win
+          if(!emptyCell){
+            const checkWinInterval = setInterval(() => {
+              if(!document.getElementById('word-modal').classList.contains('show')){
+                clearInterval(checkWinInterval);
+                winMG('p');
+              }
+            }, 500);
+          } else {
+             selectCell(emptyCell);
+          }
+        }
+        
+      } else {
+        window.selectedCell.classList.add('wrong');
+        setTimeout(() => window.selectedCell.classList.remove('wrong'), 400);
+      }
+    };
+  } // Fechamento do if(type==='p')
+
+  if(type==='s'){
+    const pData = dat.p; // Reutilizando dados da cruzadinha
+    document.getElementById('mg-title').textContent = '🔎 Caça-Palavras';
+    
+    // Grid generator 10x10
+    const size = 10;
+    let grid = Array(size).fill(null).map(()=>Array(size).fill(''));
+    let placements = []; 
+    
+    pData.forEach((pd, idx) => {
+       let w = pd.w;
+       let placed = false;
+       let attempts = 0;
+       while(!placed && attempts < 100){
+          attempts++;
+          const dirs = [ [0,1], [1,0], [1,1] ]; // Horiz, Vert, Diag
+          const [rDir, cDir] = dirs[Math.floor(Math.random()*dirs.length)];
+          let startR = Math.floor(Math.random()*size);
+          let startC = Math.floor(Math.random()*size);
+          
+          let endR = startR + rDir * (w.length-1);
+          let endC = startC + cDir * (w.length-1);
+          
+          if(endR >= 0 && endR < size && endC >= 0 && endC < size){
+             let canPlace = true;
+             for(let i=0; i<w.length; i++){
+                let rr = startR + rDir*i;
+                let cc = startC + cDir*i;
+                if(grid[rr][cc] !== '' && grid[rr][cc] !== w[i]){
+                   canPlace = false; break;
+                }
+             }
+             if(canPlace){
+                for(let i=0; i<w.length; i++){
+                   grid[startR + rDir*i][startC + cDir*i] = w[i];
+                }
+                 placements.push({ w: w, cur: pd.c, d: pd.d, r: startR, c: startC, dr: rDir, dc: cDir, revealed: false, idx: idx });
+                placed = true;
+             }
+          }
+       }
+    });
+    
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for(let r=0; r<size; r++){
+       for(let c=0; c<size; c++){
+          if(grid[r][c] === '') grid[r][c] = letters.charAt(Math.floor(Math.random()*letters.length));
+       }
+    }
+    
+    let html = '<div class="cw-clues" style="margin-bottom:15px; font-weight:bold;">Encontre as respostas:</div><ul style="font-size:0.9rem; text-align:left; color:#5d4037; padding-left:20px; margin-bottom:15px;">';
+    placements.forEach(p => {
+       html += `<li id="clue-s-${p.idx}">${p.d}</li>`;
+    });
+    html += '</ul>';
+    
+    html += '<div class="cw-grid" style="user-select:none; touch-action:none;" id="ws-grid">';
+    for(let r=0; r<size; r++){
+      html += '<div class="cw-row">';
+      for(let c=0; c<size; c++){
+          html += `<div class="cw-cell ws-cell" id="ws-${r}-${c}" data-r="${r}" data-c="${c}" style="cursor:pointer; font-size:1rem; width:clamp(22px, 5vw, 30px); height:clamp(22px, 5vw, 30px); border:1px solid #e0e0e0; border-radius:4px;">${grid[r][c]}</div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    
+    area.innerHTML = html;
+
+    let isDragging = false;
+    const wsGrid = document.getElementById('ws-grid');
+    
+    const getCellFromEvent = (e) => {
+       let target = e.target;
+       if(e.type.includes('touch') && (e.touches.length > 0 || e.changedTouches.length > 0)){
+          let touch = e.touches[0] || e.changedTouches[0];
+          target = document.elementFromPoint(touch.clientX, touch.clientY);
+       }
+       if(target && target.nodeType === 3) target = target.parentNode;
+       if(target && target.classList && target.classList.contains('ws-cell')) return target;
+       if(target && target.closest) return target.closest('.ws-cell');
+       return null;
+    };
+    
+    const checkAllWords = () => {
+       let anyFound = false;
+       placements.forEach(p => {
+          if(p.revealed) return;
+          
+          let allActive = true;
+          let cellsOfWord = [];
+          for(let i=0; i<p.w.length; i++){
+             let rr = p.r + p.dr*i;
+             let cc = p.c + p.dc*i;
+             let cEl = document.getElementById(`ws-${rr}-${cc}`);
+             if(!cEl || (!cEl.classList.contains('active') && !cEl.classList.contains('correct'))) {
+                 allActive = false; 
+                 break;
+             }
+             cellsOfWord.push(cEl);
+          }
+          
+          if(allActive){
+             p.revealed = true;
+             anyFound = true;
+             cellsOfWord.forEach(c => {
+                 c.classList.remove('active');
+                 c.classList.add('correct'); 
+                 c.style.backgroundColor = '#ffeb3b'; 
+                 c.style.color = '#f57f17';
+                 c.style.borderColor = '#fbc02d';
+             });
+             const clueEl = document.getElementById(`clue-s-${p.idx}`);
+             clueEl.style.textDecoration = 'line-through';
+             clueEl.style.color = '#4caf50';
+             
+             // Mostra modal de curiosidade
+             setTimeout(() => {
+                 document.getElementById('wm-title').textContent = "Você encontrou!";
+                 document.getElementById('wm-desc').textContent = p.cur;
+                 sfx.playSuccess();
+                 document.getElementById('word-modal').classList.add('show');
+             }, 300);
+          }
+       });
+       
+       if(anyFound){
+           // Limpa o resto da sujeira se achou uma palavra
+           document.querySelectorAll('.ws-cell.active').forEach(c => c.classList.remove('active'));
+           
+           let allFound = placements.every(p => p.revealed);
+           if(allFound) {
+               const checkWinInterval = setInterval(() => {
+                  if(!document.getElementById('word-modal').classList.contains('show')){
+                      clearInterval(checkWinInterval);
+                      winMG('s');
+                  }
+               }, 500);
+           }
+       }
+    };
+    
+    const handleStart = (e) => {
+       if(e.cancelable) e.preventDefault();
+       let cell = getCellFromEvent(e);
+       if(!cell || cell.classList.contains('correct')) return;
+       isDragging = true;
+       cell.classList.toggle('active');
+       checkAllWords();
+    };
+    
+    const handleMove = (e) => {
+       if(!isDragging) return;
+       if(e.cancelable) e.preventDefault();
+       let cell = getCellFromEvent(e);
+       if(!cell || cell.classList.contains('correct')) return;
+       
+       if(!cell.classList.contains('active')){
+           cell.classList.add('active');
+           checkAllWords();
+       }
+    };
+    
+    const handleEnd = (e) => {
+       isDragging = false;
+    };
+    
+    wsGrid.addEventListener('mousedown', handleStart);
+    wsGrid.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    
+    wsGrid.addEventListener('touchstart', handleStart, {passive: false});
+    wsGrid.addEventListener('touchmove', handleMove, {passive: false});
+    window.addEventListener('touchend', handleEnd);
+  }
+}
+
+function winMG(type){
+  const est = estados.find(e=>e.uf===currentUF);
+  if(!est.completed.includes(type)) est.completed.push(type);
+  
+  if(est.completed.length === 6){
+    sfx.playFanfare();
+    // Estado completo
+    est.active = true;
+    const cur = cultura[currentUF].m.cur || '';
+    document.getElementById('screen-mg').classList.add('hidden');
+    document.getElementById('ul-title').textContent = est.name;
+    document.getElementById('ul-msg').textContent = cur;
+    document.getElementById('screen-unlock').classList.remove('hidden');
+    
+    // Update HUD
+    const actives = estados.filter(e=>e.active).length;
+    document.getElementById('count').textContent = actives;
+    document.getElementById('prog-fill').style.width = (actives/27*100)+'%';
+    if(actives === 27){
+      setTimeout(() => {
+        document.getElementById('screen-win').classList.remove('hidden');
+      }, 2000);
+    }
+  } else {
+    // Volta pro painel
+    document.getElementById('screen-mg').classList.add('hidden');
+    openState(currentUF);
+  }
+}
+</script>
+</body>
+</html>
