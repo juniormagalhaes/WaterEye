@@ -148,6 +148,10 @@
         .msg-bubble.mine { background: rgba(59, 130, 246, 0.3); border-top-left-radius: 8px; border-top-right-radius: 0; align-self: flex-end; }
         .msg-author { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
         .chat-input-area { display: flex; gap: 8px; margin-top: auto; }
+        .file-download-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 6px; color: var(--text-main); text-decoration: none; font-size: 0.9rem; transition: background 0.2s; word-break: break-all; }
+        .file-download-link:hover { background: rgba(0,0,0,0.4); }
+        .msg-bubble.mine .file-download-link { background: rgba(255,255,255,0.1); }
+        .msg-bubble.mine .file-download-link:hover { background: rgba(255,255,255,0.2); }
 
         .bottom-bar { padding: 1rem 2rem; border-top: 1px solid var(--surface-border); display: flex; justify-content: center; align-items: center; gap: 1.5rem; z-index: 10; background: var(--surface-color); backdrop-filter: var(--glass-blur); }
         .control-group { display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 8px; }
@@ -222,6 +226,8 @@
                 <div id="side-chat" class="sidebar-content" style="display: flex; flex-direction: column;">
                     <div class="chat-messages" id="chat-messages" style="flex: 1;"></div>
                     <div class="chat-input-area">
+                        <input type="file" id="file-input" style="display: none;" onchange="handleFileUpload(event)">
+                        <button class="icon-btn" style="color: var(--text-muted); background: rgba(255,255,255,0.1); border-radius: 8px; width: 42px; height: 42px;" onclick="document.getElementById('file-input').click()" title="Enviar Arquivo"><i class="fa-solid fa-paperclip"></i></button>
                         <input type="text" id="chat-input" placeholder="Mensagem..." onkeypress="handleChatKeyPress(event)">
                         <button class="btn-primary" style="width: auto; padding: 0 1rem;" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
@@ -375,6 +381,7 @@
             myNickname = document.getElementById('nickname').value.trim() || 'Espectador';
             hostId = document.getElementById('join-room-id').value.trim();
             const pwd = document.getElementById('join-password').value;
+            roomPassword = pwd;
             if(!hostId) return alert('Digite o ID da sala!');
             const btn = document.getElementById('btn-join');
             btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
@@ -441,6 +448,7 @@
                 if (data.type === 'auth-error') { alert(data.message); resetUI(); } 
                 else if (data.type === 'sync-participants') { updateParticipants(data.list); ensureMeshConnections(); }
                 else if (data.type === 'chat') { renderChatMessage(data.nickname, data.message, false); }
+                else if (data.type === 'file') { renderFileMessage(data.nickname, data.fileName, data.data, data.fileType, false); }
             });
             conn.on('close', () => {
                 delete dataConnections[conn.peer];
@@ -451,7 +459,25 @@
                     broadcastToMesh({ type: 'sync-participants', list: newList });
                     if(removed) showToast(`${removed.nickname} saiu da sala.`, 'fa-user-minus');
                 } else if (conn.peer === hostId) {
-                    alert('O apresentador encerrou a sala.'); resetUI();
+                    const newList = participants.filter(p => p.id !== hostId);
+                    if (newList.length > 0) {
+                        const nextHost = newList[0];
+                        hostId = nextHost.id;
+                        showToast(`O Apresentador saiu. ${nextHost.nickname} agora é o Apresentador.`, 'fa-crown');
+                        document.getElementById('display-room-id').innerText = hostId;
+                        
+                        if (myId === hostId) {
+                            isHost = true;
+                            const meIndex = newList.findIndex(p => p.id === myId);
+                            if(meIndex > -1) newList[meIndex].isHost = true;
+                            updateParticipants(newList);
+                            broadcastToMesh({ type: 'sync-participants', list: newList });
+                        } else {
+                            updateParticipants(newList);
+                        }
+                    } else {
+                        alert('O apresentador encerrou a sala.'); resetUI();
+                    }
                 }
                 removeVideoElement(conn.peer);
             });
@@ -606,6 +632,44 @@
                 <div class="msg-bubble ${isMine ? 'mine' : ''}">
                     <div class="msg-author">${nickname}</div>
                     <div class="msg-text">${msg}</div>
+                </div>
+            `;
+            chatBox.parentElement.scrollTop = chatBox.parentElement.scrollHeight;
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 50 * 1024 * 1024) return alert('Arquivo muito grande! Limite de 50MB.');
+            showToast('Enviando ' + file.name + '...', 'fa-spinner fa-spin');
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const arrayBuffer = event.target.result;
+                const fileData = { type: 'file', nickname: myNickname, fileName: file.name, fileType: file.type, data: arrayBuffer };
+                renderFileMessage(myNickname, file.name, arrayBuffer, file.type, true);
+                broadcastToMesh(fileData);
+                document.getElementById('file-input').value = '';
+                showToast('Arquivo enviado!', 'fa-check');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderFileMessage(nickname, fileName, arrayBuffer, fileType, isMine) {
+            const chatBox = document.getElementById('chat-messages');
+            const blob = new Blob([arrayBuffer], { type: fileType });
+            const url = URL.createObjectURL(blob);
+            let icon = 'fa-file';
+            if (fileType.startsWith('image/')) icon = 'fa-file-image';
+            else if (fileType.startsWith('video/')) icon = 'fa-file-video';
+            else if (fileType.startsWith('application/pdf')) icon = 'fa-file-pdf';
+            chatBox.innerHTML += `
+                <div class="msg-bubble ${isMine ? 'mine' : ''}">
+                    <div class="msg-author">${nickname}</div>
+                    <div class="msg-text">
+                        <a href="${url}" download="${fileName}" class="file-download-link">
+                            <i class="fa-solid ${icon}"></i> ${fileName}
+                        </a>
+                    </div>
                 </div>
             `;
             chatBox.parentElement.scrollTop = chatBox.parentElement.scrollHeight;
