@@ -773,6 +773,12 @@
       color: #065f46;
     }
 
+    .triage-result-card.dentista {
+      background: #f0fdfa;
+      border: 2px solid #99f6e4;
+      color: #115e59;
+    }
+
     /* Simulador de Notificação Push Toast */
     .push-banner-simulator {
       position: fixed;
@@ -1653,6 +1659,11 @@
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
 
+            <button class="triage-btn-option" onclick="selectTriageRoute('dentista')">
+              <span>🦷 Dentista (Tratar dente, dor, cárie, extração ou limpeza)</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+
             <button class="triage-btn-option" onclick="selectTriageRoute('rotina')">
               <span>💉 Vacina, Curativo ou Tirar Pontos</span>
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
@@ -1665,6 +1676,37 @@
 
             <button class="triage-btn-option danger" onclick="showTriageResult('hospital')">
               <span>🚨 Acidente grave, dor no peito ou sangramento</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Passo 2 Específico: Odontologia / Tratar Dente -->
+        <div id="triageStepDentista" style="display:none;">
+          <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:#0d9488; margin-top:4px;">
+            PASSO 2 DE 2 • SAÚDE BUCAL & DENTISTA
+          </div>
+          <h3 class="triage-step-question" style="margin: 6px 0 14px;">
+            Qual é a situação do seu dente ou boca?
+          </h3>
+          <div class="triage-option-list">
+            <button class="triage-btn-option" onclick="showTriageResult('dentista_ubs')">
+              <div>
+                <strong>🦷 Tratar Dente de Rotina ou Dor Comum:</strong>
+                <p style="font-size:11px; color:var(--text-muted); font-weight:normal; margin-top:2px;">
+                  Cárie, dor de dente moderada, obturação (restauração), tirar dente (extração), limpeza de tártaro ou avaliação.
+                </p>
+              </div>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+
+            <button class="triage-btn-option danger" onclick="showTriageResult('hospital_dentista')">
+              <div>
+                <strong>🚨 Emergência com Risco / Trauma Facial Grave:</strong>
+                <p style="font-size:11px; font-weight:normal; margin-top:2px;">
+                  Pancada forte na face com sangramento incontrolável, suspeita de fratura ou inchaço grande no pescoço/rosto com febre e falta de ar.
+                </p>
+              </div>
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
           </div>
@@ -1978,15 +2020,24 @@
     function startTriage() {
       document.getElementById('triageStep1').style.display = 'block';
       document.getElementById('triageStep2').style.display = 'none';
+      if (document.getElementById('triageStepDentista')) {
+        document.getElementById('triageStepDentista').style.display = 'none';
+      }
       document.getElementById('triageResultBox').style.display = 'none';
       document.getElementById('triageModal').style.display = 'flex';
     }
 
     function selectTriageRoute(route) {
+      document.getElementById('triageStep1').style.display = 'none';
       if (route === 'rotina') {
         showTriageResult('ubs');
+      } else if (route === 'dentista') {
+        if (document.getElementById('triageStepDentista')) {
+          document.getElementById('triageStepDentista').style.display = 'block';
+        } else {
+          showTriageResult('dentista_ubs');
+        }
       } else {
-        document.getElementById('triageStep1').style.display = 'none';
         document.getElementById('triageStep2').style.display = 'block';
       }
     }
@@ -1994,21 +2045,29 @@
     function showTriageResult(destination) {
       document.getElementById('triageStep1').style.display = 'none';
       document.getElementById('triageStep2').style.display = 'none';
+      if (document.getElementById('triageStepDentista')) {
+        document.getElementById('triageStepDentista').style.display = 'none';
+      }
       const box = document.getElementById('triageResultBox');
       box.style.display = 'block';
 
       const currentUbs = BAIRROS_DATA[currentBairroKey].ubs;
+      const ubsServices = BAIRROS_DATA[currentBairroKey].services || [];
+      const hasDentista = ubsServices.some(s => s.toLowerCase().includes('dentista') || s.toLowerCase().includes('odontologia'));
 
-      if (destination === 'hospital') {
+      if (destination === 'hospital' || destination === 'hospital_dentista') {
+        const isDentalEmergency = destination === 'hospital_dentista';
         box.innerHTML = `
           <div class="triage-result-card hospital">
             <div style="display:flex; align-items:center; gap:8px;">
               <svg width="24" height="24" fill="none" stroke="#dc2626" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <h3 style="font-size:16px; font-weight:800; color:#991b1b;">CASO DE EMERGÊNCIA</h3>
+              <h3 style="font-size:16px; font-weight:800; color:#991b1b;">${isDentalEmergency ? 'URGÊNCIA DE TRAUMA / HOSPITAL' : 'CASO DE EMERGÊNCIA'}</h3>
             </div>
             <p style="font-size:13px; line-height:1.4;">
-              Seus sintomas indicam necessidade de atendimento de urgência imediato. 
-              <strong>Dirija-se ao Hospital Regional Clodolfo Rodrigues de Melo</strong> ou chame o SAMU.
+              ${isDentalEmergency 
+                ? 'Traumas graves na face, sangramentos persistentes ou grandes inchaços com febre e risco respiratório exigem intervenção hospitalar urgente!'
+                : 'Seus sintomas indicam necessidade de atendimento de urgência imediato.'}
+              <strong>Dirija-se ao Hospital Regional Clodolfo Rodrigues de Melo</strong> ou chame o SAMU 192.
             </p>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
               <a href="tel:192" class="btn-action" style="background:#dc2626; color:white; font-size:14px; padding:12px;">
@@ -2020,6 +2079,38 @@
             </div>
             <button class="btn-action" style="background:transparent; color:#64748b; margin-top:4px;" onclick="closeTriageModal()">
               Fechar Orientação
+            </button>
+          </div>
+        `;
+      } else if (destination === 'dentista_ubs') {
+        box.innerHTML = `
+          <div class="triage-result-card dentista">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:24px;">🦷</span>
+              <h3 style="font-size:16px; font-weight:800; color:#0f766e;">ODONTOLOGIA NA REDE MUNICIPAL (UBS / CEO)</h3>
+            </div>
+            <p style="font-size:13px; line-height:1.4; color:#134e4a;">
+              <strong>Não vá ao Hospital Regional para tratar dente ou cárie!</strong> O Hospital atende apenas emergências médicas gerais e não realiza obturações, extrações de rotina ou limpeza.
+            </p>
+            <div style="background:#ffffff; border-radius:12px; padding:12px; font-size:12px; border:1px solid #99f6e4; color:#115e59;">
+              📍 <strong>Atendimento Odontológico no seu Bairro:</strong><br>
+              ${hasDentista 
+                ? `• <strong>${currentUbs}</strong>: Esta unidade possui consultório com <strong>Dentista (Equipe de Saúde Bucal)</strong>!` 
+                : `• <strong>${currentUbs}</strong>: Faz o acolhimento inicial e o direcionamento para a UBS polo com dentista ou para o <strong>CEO (Centro de Especialidades Odontológicas)</strong> de Santana.`}<br>
+              <span style="color:#0d9488; font-weight:700; margin-top:4px; display:inline-block;">
+                Procedimentos cobertos: alívio de dor, restauração (obturação), extração simples, limpeza de tártaro e aplicação de flúor.
+              </span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+              <button class="btn-action btn-action-wpp" onclick="openPostoWhatsapp('Olá! Gostaria de informações sobre atendimento com Dentista para tratar dente na minha UBS.')">
+                💬 Agendar / Falar no WhatsApp da UBS
+              </button>
+              <button class="btn-action btn-action-maps" onclick="simulateMapRoute('${currentUbs}')">
+                🗺️ Como Chegar na ${currentUbs}
+              </button>
+            </div>
+            <button class="btn-action" style="background:transparent; color:#64748b; margin-top:4px;" onclick="closeTriageModal()">
+              Concluir Orientação
             </button>
           </div>
         `;
@@ -2144,9 +2235,9 @@
       document.getElementById('actionDialogOverlay').style.display = 'flex';
     }
 
-    function openPostoWhatsapp() {
+    function openPostoWhatsapp(customMessage) {
       const ubs = BAIRROS_DATA[currentBairroKey].ubs;
-      const messageText = `Olá, gostaria de tirar uma dúvida sobre os atendimentos e escalas de hoje na ${ubs}.`;
+      const messageText = customMessage || `Olá, gostaria de tirar uma dúvida sobre os atendimentos e escalas de hoje na ${ubs}.`;
       
       const badge = document.getElementById('actionDialogBadge');
       badge.className = 'action-icon-badge whatsapp';
