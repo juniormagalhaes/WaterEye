@@ -1642,13 +1642,18 @@
     <!-- =========================================================
          MODAL: FLUXO DE TRIAGEM INTERATIVA
          ========================================================= -->
-    <div class="modal-overlay" id="triageModal">
-      <div class="modal-sheet" id="triageSheet">
-        <div class="sheet-handle"></div>
+    <div class="modal-overlay" id="triageModal" onclick="closeTriageModal(event)">
+      <div class="modal-sheet" id="triageSheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle" onclick="closeTriageModal(event)" style="cursor:pointer;" title="Puxe ou toque para fechar"></div>
         
         <div id="triageStep1">
-          <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--primary); margin-top:4px;">
-            PASSO 1 DE 2
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--primary);">
+              PASSO 1 DE 2 • TRIAGEM
+            </div>
+            <button type="button" onclick="closeTriageModal()" style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted);" title="Fechar triagem">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+            </button>
           </div>
           <h3 class="triage-step-question" style="margin: 6px 0 14px;">
             O que você precisa hoje?
@@ -1683,8 +1688,16 @@
 
         <!-- Passo 2 Específico: Odontologia / Tratar Dente -->
         <div id="triageStepDentista" style="display:none;">
-          <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:#0d9488; margin-top:4px;">
-            PASSO 2 DE 2 • SAÚDE BUCAL & DENTISTA
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <button type="button" onclick="startTriage()" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg> Voltar
+            </button>
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:#0d9488;">
+              PASSO 2 DE 2 • SAÚDE BUCAL
+            </div>
+            <button type="button" onclick="closeTriageModal()" style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted);" title="Fechar">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+            </button>
           </div>
           <h3 class="triage-step-question" style="margin: 6px 0 14px;">
             Qual é a situação do seu dente ou boca?
@@ -1713,8 +1726,16 @@
         </div>
 
         <div id="triageStep2" style="display:none;">
-          <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--primary); margin-top:4px;">
-            PASSO 2 DE 2
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <button type="button" onclick="startTriage()" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg> Voltar
+            </button>
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--primary);">
+              PASSO 2 DE 2 • SINTOMAS
+            </div>
+            <button type="button" onclick="closeTriageModal()" style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted);" title="Fechar">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+            </button>
           </div>
           <h3 class="triage-step-question" style="margin: 6px 0 14px;">
             Você apresenta algum destes sinais de risco?
